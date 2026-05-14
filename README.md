@@ -79,6 +79,6 @@ src/
 
 | Tên | Vai trò |
 |---|---|
-| Tạ Vũ Hảo | Leader — Reviewer |
+| Tạ Vũ Hảo (Leader)| Devops |
 | Lê Hoàng Quốc Bảo | UI/UX Design & Frontend Developer |
 | Đặng Đình Danh | Frontend Architect & Logic |
