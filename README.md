@@ -15,13 +15,13 @@ HTTP Client: Axios (kết nối với Java Backend)
 * Hướng dẫn thiết lập (Setup)
 1. Cài đặt môi trường
 Đảm bảo máy đã cài đặt Node.js (phiên bản 18 trở lên).
-# Clone dự án
+ Clone dự án
 git clone https://github.com/ControlLogicc/racing-frontend.git
 
-# Di chuyển vào thư mục dự án
+ Di chuyển vào thư mục dự án
 cd racing-frontend
 
-# Cài đặt các thư viện (React-Bootstrap & Bootstrap)
+ Cài đặt các thư viện (React-Bootstrap & Bootstrap)
 npm install react-bootstrap bootstrap
 2. Import Bootstrap vào dự án
 Mở file src/main.jsx hoặc src/App.jsx và thêm dòng này vào đầu file:
