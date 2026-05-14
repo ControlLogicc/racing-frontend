@@ -1,53 +1,84 @@
-🏇 Horse Racing Management System - Frontend
-Dự án Frontend được xây dựng bằng ReactJS và Bootstrap 5, tập trung vào giao diện trực quan, dễ sử dụng cho các đối tượng: Admin, Chủ ngựa, Nài ngựa và Khán giả.
+# 🏇 Horse Racing Management System — Frontend
 
-* Tech Stack
-Framework: ReactJS (Vite)
+Phân hệ giao diện người dùng và quản trị hệ thống đua ngựa.  
+Dự án được xây dựng trên nền tảng **ReactJS** và **Bootstrap 5**.
 
-UI Framework: Bootstrap 5
+---
 
-React Components: React-Bootstrap (Khuyên dùng để code sạch hơn)
+##  Tech Stack
 
-Iconography: Font Awesome / Bootstrap Icons
+| Thành phần | Công nghệ |
+|---|---|
+| Framework | ReactJS (Vite) |
+| UI Library | [Bootstrap 5](https://getbootstrap.com/) & [React-Bootstrap](https://react-bootstrap.github.io/) |
+| Icons | Font Awesome / Bootstrap Icons |
+| HTTP Client | Axios |
 
-HTTP Client: Axios (kết nối với Java Backend)
+---
 
-* Hướng dẫn thiết lập (Setup)
-1. Cài đặt môi trường
-Đảm bảo máy đã cài đặt Node.js (phiên bản 18 trở lên).
- Clone dự án
-git clone https://github.com/ControlLogicc/racing-frontend.git
+##  Hướng dẫn cài đặt
 
- Di chuyển vào thư mục dự án
-cd racing-frontend
+### 1. Yêu cầu môi trường
 
- Cài đặt các thư viện (React-Bootstrap & Bootstrap)
+- Node.js **>= 18.0**
+
+### 2. Cài đặt thư viện
+
+```bash
+npm install
 npm install react-bootstrap bootstrap
-2. Import Bootstrap vào dự án
-Mở file src/main.jsx hoặc src/App.jsx và thêm dòng này vào đầu file:
+```
+
+### 3. Cấu hình Bootstrap
+
+Mở file `src/main.jsx` (hoặc `src/App.jsx`) và thêm dòng import sau vào **đầu file**:
+
+```js
 import 'bootstrap/dist/css/bootstrap.min.css';
-3. Chạy dự án ở chế độ Development
+```
+
+### 4. Chạy dự án
+
+```bash
 npm run dev
-* Quy định code (Coding Conventions)
-Để Leader review code nhanh hơn, anh em tuân thủ:
+```
 
-Đặt tên:
+---
 
-Component: PascalCase (VD: RaceTable.jsx)
+##  Cấu trúc thư mục
 
-Folder: kebab-case (VD: user-profile)
+```
+src/
+├── components/
+│   ├── common/       # Các component dùng chung (Button, Table, Modal, Input)
+│   └── layout/       # Các thành phần khung (Sidebar, Navbar, Footer)
+├── features/         # Module theo chức năng (Quản lý ngựa, Đặt cược, Lịch đua)
+└── services/         # Gọi API bằng Axios kết nối với Backend
+```
 
-Layout & Grid: Luôn sử dụng hệ thống Grid (Container, Row, Col) của Bootstrap để đảm bảo giao diện responsive trên mọi thiết bị.
+---
 
-Git Flow:
+##  Quy tắc chung (Convention)
 
-Tạo nhánh mới: feature/ten-use-case.
+### Đặt tên
 
-Tag Leader vào duyệt Pull Request trước khi Merge.
+| Loại | Quy tắc | Ví dụ |
+|---|---|---|
+| Component | `PascalCase` | `HorseCard.jsx`, `RaceResult.jsx` |
+| Hàm & Biến | `camelCase` | `handleLogin`, `horseList` |
 
-* Thành viên thực hiện
-Lê Hoàng Quốc Bảo: UI/UX Design & Frontend Developer.
+### Git Flow
 
-Đặng Đình Danh: Frontend Architect & Logic Developer.
+-  **Tuyệt đối không** push trực tiếp lên `main` hoặc `develop`.
+-  Tạo nhánh mới theo cú pháp: `feature/ten-tinh-nang`
+-  Tạo **Pull Request (PR)** và chờ Leader review trước khi Merge.
 
-Tạ Vũ Hảo (Leader): Reviewer
+---
+
+##  Thành viên Frontend
+
+| Tên | Vai trò |
+|---|---|
+| Tạ Vũ Hảo | Leader — Reviewer |
+| Lê Hoàng Quốc Bảo | UI/UX Design & Frontend Developer |
+| Đặng Đình Danh | Frontend Architect & Logic |
