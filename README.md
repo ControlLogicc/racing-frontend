@@ -15,8 +15,6 @@ HTTP Client: Axios (kết nối với Java Backend)
 * Hướng dẫn thiết lập (Setup)
 1. Cài đặt môi trường
 Đảm bảo máy đã cài đặt Node.js (phiên bản 18 trở lên).
-
-Bash
 # Clone dự án
 git clone https://github.com/ControlLogicc/racing-frontend.git
 
@@ -27,26 +25,9 @@ cd racing-frontend
 npm install react-bootstrap bootstrap
 2. Import Bootstrap vào dự án
 Mở file src/main.jsx hoặc src/App.jsx và thêm dòng này vào đầu file:
-
-JavaScript
 import 'bootstrap/dist/css/bootstrap.min.css';
 3. Chạy dự án ở chế độ Development
-Bash
 npm run dev
-* Cấu trúc thư mục (Project Structure) -- Lưu ý: đây chỉ là mẫu template để tham khảo
-Plaintext
-src/
- ├── assets/          # Hình ảnh, custom CSS
- ├── components/      # Các component dùng chung
- │    ├── common/     # CustomButton, CustomModal, DataGrid...
- │    └── layout/     # Sidebar, Header (Navbar), Footer...
- ├── features/        # Các module chức năng lớn
- │    ├── dashboard/  # Thống kê tổng quan
- │    ├── horse-mgmt/ # Quản lý ngựa
- │    └── racing/     # Theo dõi cuộc đua & Đặt cược
- ├── services/        # Các file gọi API (Axios instance)
- ├── App.jsx          # Cấu trúc routing chính
- └── main.jsx         # Điểm khởi đầu của ứng dụng
 * Quy định code (Coding Conventions)
 Để Leader review code nhanh hơn, anh em tuân thủ:
 
