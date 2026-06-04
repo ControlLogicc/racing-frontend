@@ -1,79 +1,58 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import React from 'react';
+import { Routes, Route, Outlet } from 'react-router-dom';
 
-// 1. Pages chung
-import Home from './pages/Home';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
+// Import Layouts & Components
+import Navbar from "./components/Navbar.jsx";
+import Sidebar from "./components/Sidebar.jsx"; 
 
-// 2. Layout
-import AdminLayout from './layouts/AdminLayout'; 
+// Import Pages
+import HomePage from "./pages/spectator/HomePage.jsx";
+import Login from "./pages/auth/Login.jsx";
+import Register from "./pages/auth/Register.jsx";
 
-// 3. Các Dashboards bạn đã tạo
-import AdminDashboard from './pages/admin/Dashboard';
-import OwnerDashboard from './pages/owner/Dashboard';
-import JockeyDashboard from './pages/jockey/Dashboard';
-import RefereeDashboard from './pages/referee/Dashboard';
-import HandicapperDashboard from './pages/handicapper/Dashboard';
-import SpectatorDashboard from './pages/spectator/Dashboard'; // Đã thêm Spectator
+/* === 1. TẠO LAYOUT CHO TRANG CÓ SIDEBAR === */
+const MainLayout = () => {
+  return (
+    <>
+      <Navbar />
+      <div style={{ display: 'flex' }}>
+        <Sidebar />
+        <div style={{ flex: 1, padding: '20px' }}>
+          <Outlet /> 
+        </div>
+      </div>
+    </>
+  );
+};
 
+/* === 2. TẠO LAYOUT TRỐNG CHO TRANG LOGIN/REGISTER === */
+const AuthLayout = () => {
+  return (
+    <>
+      <Navbar /> 
+      <Outlet /> 
+    </>
+  );
+};
+
+/* === 3. CHIA ROUTE CHÍNH === */
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+    <Routes>
+      
+      {/* NHÓM 1: CÁC TRANG AUTH (KHÔNG CÓ SIDEBAR) */}
+      <Route element={<AuthLayout />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Route>
 
-          {/* Ban Tổ Chức (ADMIN) */}
-          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-            <Route element={<AdminLayout />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            </Route>
-          </Route>
+      {/* NHÓM 2: CÁC TRANG CÓ SIDEBAR (TRANG CHỦ, LỊCH ĐUA...) */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<HomePage />} />
+      </Route>
 
-          {/* Chủ Ngựa (OWNER) */}
-          <Route element={<ProtectedRoute allowedRoles={['OWNER']} />}>
-            <Route element={<AdminLayout />}> 
-              <Route path="/owner/dashboard" element={<OwnerDashboard />} />
-            </Route>
-          </Route>
-
-          {/* Nài Ngựa (JOCKEY) */}
-          <Route element={<ProtectedRoute allowedRoles={['JOCKEY']} />}>
-            <Route element={<AdminLayout />}>
-              <Route path="/jockey/dashboard" element={<JockeyDashboard />} />
-            </Route>
-          </Route>
-
-          {/* Trọng Tài (REFEREE) */}
-          <Route element={<ProtectedRoute allowedRoles={['REFEREE']} />}>
-            <Route element={<AdminLayout />}>
-              <Route path="/referee/dashboard" element={<RefereeDashboard />} />
-            </Route>
-          </Route>
-
-          {/* Xếp Hạng (HANDICAPPER) */}
-          <Route element={<ProtectedRoute allowedRoles={['HANDICAPPER']} />}>
-            <Route element={<AdminLayout />}>
-              <Route path="/handicapper/dashboard" element={<HandicapperDashboard />} />
-            </Route>
-          </Route>
-
-          {/* Khán Giả (SPECTATOR) */}
-          <Route element={<ProtectedRoute allowedRoles={['SPECTATOR']} />}>
-            <Route element={<AdminLayout />}>
-              <Route path="/spectator/dashboard" element={<SpectatorDashboard />} />
-            </Route>
-          </Route>
-        </Routes>
-      </Router>
-    </AuthProvider>
+    </Routes>
   );
 }
 
 export default App;
-

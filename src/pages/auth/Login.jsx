@@ -1,81 +1,55 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const navigate = useNavigate();
-  const { login } = useAuth(); // Lấy hàm login từ Context
+  const [formData, setFormData] = useState({ identifier: '', password: '' });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    try {
-      // Gọi API đăng nhập và lấy role trả về
-      const role = await login({ email, password });
-      
-      // Chuyển hướng dựa theo role
-      if (role === 'ADMIN') navigate('/admin/dashboard');
-      else if (role === 'OWNER') navigate('/owner/dashboard');
-      else if (role === 'JOCKEY') navigate('/jockey/dashboard');
-      else if (role === 'REFEREE') navigate('/referee/dashboard');
-      else if (role === 'HANDICAPPER') navigate('/handicapper/dashboard');
-      else navigate('/'); // Mặc định cho Spectator
-      
-    } catch (err) {
-      setError(err.message || 'Sai email hoặc mật khẩu!');
-    } finally {
-      setIsLoading(false);
-    }
+    console.log("Login submitted", formData);
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
-      <div className="card p-4 shadow-sm" style={{ width: '400px', borderRadius: '12px' }}>
-        <div className="text-center mb-4">
-          <h3 className="fw-bold text-primary">Đăng Nhập</h3>
-          <p className="text-muted small">Hệ thống quản lý đua ngựa HKJC</p>
-        </div>
-
-        {error && <div className="alert alert-danger py-2">{error}</div>}
-
+    <div className="auth-container">
+      <div className="glow-bg"></div>
+      
+      <div className="glass-card">
+        <h2>Login</h2>
+        
         <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Email</label>
+          <div className="input-group">
+            <label>Username or Email</label>
             <input 
-              type="email" 
-              className="form-control" 
-              placeholder="Nhập email..." 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
+              type="text" 
+              placeholder="Enter your email"
+              onChange={(e) => setFormData({...formData, identifier: e.target.value})}
             />
           </div>
-          <div className="mb-4">
-            <label className="form-label fw-semibold">Mật khẩu</label>
+          
+          <div className="input-group">
+            <label>Password</label>
             <input 
               type="password" 
-              className="form-control" 
-              placeholder="Nhập mật khẩu..." 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
+              placeholder="Enter your password"
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
             />
           </div>
-          <button type="submit" className="btn btn-primary w-100 fw-bold" disabled={isLoading}>
-            {isLoading ? 'Đang xử lý...' : 'Đăng Nhập'}
-          </button>
-        </form>
 
-        <div className="text-center mt-4 small">
-          Chưa có tài khoản? <Link to="/register" className="text-decoration-none fw-bold">Đăng ký ngay</Link>
-        </div>
+          <div className="flex-between" style={{fontSize: '13px', marginBottom: '25px'}}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#a0a0a0' }}>
+              <input type="checkbox" style={{ accentColor: '#D4AF37' }}/> Remember me
+            </label>
+            <Link to="/forgot-password" style={{color: '#a0a0a0', textDecoration: 'none', transition: '0.3s'}} onMouseOver={(e)=> e.target.style.color='#D4AF37'} onMouseOut={(e)=> e.target.style.color='#a0a0a0'}>
+              Forgot password?
+            </Link>
+          </div>
+
+          <button type="submit" className="btn-submit">Login</button>
+
+          <p style={{textAlign: 'center', marginTop: '25px', fontSize: '14px', color: '#a0a0a0'}}>
+            Don't have account? <Link to="/register" className="text-gold" style={{textDecoration: 'none', fontWeight: '600'}}>Register</Link>
+          </p>
+        </form>
       </div>
     </div>
   );

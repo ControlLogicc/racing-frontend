@@ -1,41 +1,18 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+import axios from 'axios';
 
-async function request(endpoint, method = 'GET', body = null) {
-  const token = localStorage.getItem('token');
-  const headers = {
+const api = axios.create({
+  baseURL: 'http://localhost:8080/api', 
+  headers: {
     'Content-Type': 'application/json',
-  };
+  },
+});
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
+  return config;
+});
 
-  const config = { method, headers };
-  if (body) {
-    config.body = JSON.stringify(body);
-  }
-
-  const response = await fetch(`${BASE_URL}${endpoint}`, config);
-
-  if (response.status === 401) {
-    localStorage.clear();
-    window.location.href = '/login';
-    throw new Error('Hết phiên làm việc. Vui lòng đăng nhập lại.');
-  }
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Có lỗi xảy ra từ hệ thống');
-  }
-
-  return response.json();
-}
-
-export const apiService = {
-  // Login sẽ trả về { token, user: { role, fullName, ... } }
-  login: (credentials) => request('/auth/login', 'POST', credentials),
-  register: (userData) => request('/auth/register', 'POST', userData),
-  
-  getMyHorses: () => request('/owner/horses', 'GET'),
-  createHorse: (horseData) => request('/owner/horses', 'POST', horseData),
-};
+export default api;
