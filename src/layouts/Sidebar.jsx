@@ -1,57 +1,58 @@
-import { Nav } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
-import {
-  House, People, Flag, ClipboardCheck, FileEarmarkText, Trophy, Envelope, Calendar,
-} from 'react-bootstrap-icons';
 import { useAuth } from '../hooks/useAuth';
+import { ROLES } from '../constants/roles';
 
-// Menu khác nhau theo role (có thể tách ra constants/ sau)
-const MENU_BY_ROLE = {
-  admin: [
-    { to: '/admin/users', label: 'Quản lý User', Icon: People },
+// Cấu hình danh sách Menu, ánh xạ theo từng role (lấy UI từ file layout cũ của bạn)
+const MENU_CONFIG = {
+  [ROLES.ADMIN]: [
+    { path: '/admin', label: 'Dashboard', icon: '📊' },
+    { path: '/admin/users', label: 'Quản lý người dùng', icon: '👥' },
   ],
-  staff: [
-    { to: '/staff/races', label: 'Races', Icon: Flag },
-    { to: '/staff/registrations', label: 'Duyệt đăng ký', Icon: ClipboardCheck },
+  [ROLES.STAFF]: [
+    { path: '/staff', label: 'Dashboard', icon: '📊' },
+    { path: '/staff/seasons', label: 'Season', icon: '📅' },
+    { path: '/staff/meetings', label: 'Meeting', icon: '🏟️' },
+    { path: '/staff/races', label: 'Race', icon: '🏁' },
+    { path: '/staff/registrations', label: 'Duyệt đăng ký', icon: '📝' },
+    { path: '/staff/entries', label: 'Xác nhận Entry', icon: '✅' },
   ],
-  referee: [
-    { to: '/referee/reports', label: 'Báo cáo', Icon: FileEarmarkText },
-    { to: '/referee/results', label: 'Nhập kết quả', Icon: Trophy },
+  [ROLES.OWNER]: [
+    { path: '/owner', label: 'Dashboard', icon: '📊' },
+    { path: '/owner/horses', label: 'Ngựa của tôi', icon: '🐎' },
+    { path: '/owner/registrations', label: 'Đăng ký đua', icon: '📝' },
+    { path: '/owner/invitations', label: 'Lời mời Jockey', icon: '✉️' },
   ],
-  owner: [
-    { to: '/owner/horses', label: 'Ngựa của tôi', Icon: Flag },
-    { to: '/owner/registrations', label: 'Đăng ký đua', Icon: ClipboardCheck },
-    { to: '/owner/invitations', label: 'Mời jockey', Icon: Envelope },
+  [ROLES.JOCKEY]: [
+    { path: '/jockey', label: 'Dashboard', icon: '📊' },
+    { path: '/jockey/invitations', label: 'Lời mời đua', icon: '✉️' },
+    { path: '/jockey/races', label: 'Lịch đua của tôi', icon: '🗓️' },
   ],
-  jockey: [
-    { to: '/jockey/invitations', label: 'Lời mời', Icon: Envelope },
-    { to: '/jockey/schedule', label: 'Lịch đua', Icon: Calendar },
+  [ROLES.REFEREE]: [
+    { path: '/referee', label: 'Dashboard', icon: '📊' },
+    { path: '/referee/reports', label: 'Báo cáo vi phạm', icon: '📋' },
+    { path: '/referee/results', label: 'Kết quả đua', icon: '🏆' },
   ],
-  spectator: [
-    { to: '/', label: 'Trang chủ', Icon: House },
+  [ROLES.SPECTATOR]: [
+    { path: '/spectator', label: 'Dashboard', icon: '📊' },
   ],
 };
 
 export default function Sidebar() {
   const { user } = useAuth();
-  const items = MENU_BY_ROLE[user?.role] || []; // lọc theo role
+  if (!user) return null;
+
+  const links = MENU_CONFIG[user.role] || [];
 
   return (
-    <div className="bg-dark text-light p-3" style={{ width: 240, minHeight: 'calc(100vh - 56px)' }}>
-      <div className="text-uppercase small text-warning mb-2">Menu · {user?.role}</div>
-      <Nav className="flex-column">
-        {items.map(({ to, label, Icon }) => (
-          <Nav.Link
-            key={to}
-            as={NavLink}
-            to={to}
-            end
-            className="text-light d-flex align-items-center gap-2 rounded mb-1"
-          >
-            <Icon /> {label}
-          </Nav.Link>
+    <aside className="sidebar">
+      <div className="sidebar-menu">
+        {links.map((link) => (
+          <NavLink key={link.path} to={link.path} end className="sidebar-link">
+            <span>{link.icon}</span>
+            <span>{link.label}</span>
+          </NavLink>
         ))}
-      </Nav>
-    </div>
+      </div>
+    </aside>
   );
 }

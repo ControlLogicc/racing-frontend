@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Container, Card, Form, Button, Spinner, Alert } from 'react-bootstrap';
 import { authService } from '../../services/authService';
 import { useAuth } from '../../hooks/useAuth';
 import { HOME_ROUTE_BY_ROLE } from '../../constants/roles';
 import './auth-theme.css';
-
+import { getApiErrorMessage } from '../../utils/apiError';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginPage() {
@@ -26,22 +26,25 @@ export default function LoginPage() {
     setApiError('');
     setSubmitting(true);
     try {
-      // response shape: { token, user: { user_id, full_name, role } }
       const data = await authService.login(values);
-      login(data.user, data.token);
+      
+      // Backend trả về flat object: { token, userId, fullName, email, role: "OWNER" }
+      const user = {
+        userId: data.userId,
+        fullName: data.fullName,
+        email: data.email,
+        role: data.role.toLowerCase(), // Đổi sang chữ thường để map đúng đường dẫn
+      };
 
-      const target = HOME_ROUTE_BY_ROLE[data.user.role] || '/';
+      login(user, data.token);
+
+      const target = HOME_ROUTE_BY_ROLE[user.role] || '/';
       navigate(target, { replace: true });
     } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        (err.response?.status === 401
-          ? 'Email hoặc mật khẩu không đúng.'
-          : 'Đăng nhập thất bại. Vui lòng thử lại.');
-      setApiError(msg);
-    } finally {
-      setSubmitting(false);
-    }
+  setApiError(getApiErrorMessage(err, 'Đăng nhập thất bại. Vui lòng thử lại.'));
+} finally {
+  setSubmitting(false);
+}
   };
 
   return (
@@ -101,7 +104,7 @@ export default function LoginPage() {
           </Form>
 
           <p className="text-center mt-3 mb-0" style={{ color: '#9a8f73' }}>
-            Chưa có tài khoản? <a href="/register" className="lux-link">Đăng ký</a>
+            Chưa có tài khoản? <Link to="/register" className="lux-link">Đăng ký</Link>
           </p>
         </Card.Body>
       </Card>

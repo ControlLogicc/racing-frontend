@@ -15,7 +15,7 @@ export const HOME_ROUTE_BY_ROLE = {
   [ROLES.REFEREE]: '/referee/reports',
   [ROLES.OWNER]: '/owner/horses',
   [ROLES.JOCKEY]: '/jockey/invitations',
-  [ROLES.SPECTATOR]: '/',
+  [ROLES.SPECTATOR]: '/spectator',
 };
 
 // Chỉ 3 role này được tự đăng ký qua form public

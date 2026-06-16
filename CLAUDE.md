@@ -397,11 +397,9 @@ Quy tắc bắt buộc:
 - ❌ Referee **KHÔNG** nhập Result khi Race chưa `COMPLETED`.
 - UI phải **disable / ẩn** nút hành động khi chưa đủ điều kiện trạng thái.
 
-> **🟡 CẦN CHỐT với team (decision còn treo):** Một `RACE_REGISTRATION` mời được **1 hay nhiều** jockey (`RACE_INVITATION`)?
-> - Nếu **1 registration → nhiều invitation**: UI là danh sách lời mời.
-> - Nếu **1 registration → 1 invitation**: UI đơn giản, 1 form.
->
-> AI: nếu chưa thấy quyết định này được ghi rõ → **DỪNG, HỎI**, đừng tự chọn.
+> **✅ ĐÃ CHỐT (2026-06-16):** Một `RACE_REGISTRATION` mời được **nhiều** jockey (`RACE_INVITATION`) — 1-n.
+> UI owner: danh sách lời mời đã gửi cho 1 registration (có thể gửi thêm, huỷ lời mời còn `SENT`).
+> UI jockey: 1 danh sách invitation nhận được, accept 1 cái sẽ áp dụng cho registration đó (race chỉ có 1 jockey đua chính thức qua `RACE_ENTRY`).
 
 ---
 

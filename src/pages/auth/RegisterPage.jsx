@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Container, Card, Form, Button, Spinner, Alert } from 'react-bootstrap';
 import { authService } from '../../services/authService';
 import { ROLES, SELF_REGISTER_ROLES } from '../../constants/roles';
+import { useAuth } from '../../hooks/useAuth';
+import { HOME_ROUTE_BY_ROLE } from '../../constants/roles';
 import './auth-theme.css';
-
+import { getApiErrorMessage } from '../../utils/apiError';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[0-9]{9,11}$/;
 
@@ -17,6 +19,7 @@ const ROLE_LABEL = {
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [apiError, setApiError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -40,16 +43,37 @@ export default function RegisterPage() {
     setApiError('');
     setSubmitting(true);
     try {
+      // Đóng gói lại payload cho khớp với DTO của Spring Boot
+      const payload = {
+        fullName: values.full_name,       // Đổi snake_case -> camelCase
+        email: values.email,
+        phone: values.phone,
+        password: values.password,
+        role: values.role.toUpperCase(),  // Java Enum bắt buộc phải IN HOA
+      };
+
       // EXCEPTION #4: gửi raw password (BE tự hash), KHÔNG dùng password_hash ở FE
-      await authService.register(values);
+      const data = await authService.register(payload);
       setSuccess(true);
-      setTimeout(() => navigate('/login', { replace: true }), 2000);
+      // Đăng nhập tự động sau khi đăng ký thành công
+      setTimeout(() => {
+        // Map dữ liệu response để đưa vào context
+        const user = {
+          userId: data.userId,
+          fullName: data.fullName,
+          email: data.email,
+          role: data.role.toLowerCase(), // FE đang dùng role chữ thường để map route
+        };
+        
+        login(user, data.token); // Lưu token và thông tin user vào Context/LocalStorage
+        const target = HOME_ROUTE_BY_ROLE[user.role] || '/';
+        navigate(target, { replace: true }); // Chuyển thẳng về trang chủ của Role đó
+      }, 1500);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
-      setApiError(msg);
-    } finally {
-      setSubmitting(false);
-    }
+  setApiError(getApiErrorMessage(err, 'Đăng ký thất bại. Vui lòng thử lại.'));
+} finally {
+  setSubmitting(false);
+}
   };
 
   return (
@@ -167,7 +191,7 @@ export default function RegisterPage() {
           </Form>
 
           <p className="text-center mt-3 mb-0" style={{ color: '#9a8f73' }}>
-            Đã có tài khoản? <a href="/login" className="lux-link">Đăng nhập</a>
+            Đã có tài khoản? <Link to="/login" className="lux-link">Đăng nhập</Link>
           </p>
         </Card.Body>
       </Card>
