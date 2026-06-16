@@ -1,17 +1,28 @@
+// src/pages/jockey/Dashboard.jsx
 import { useAuth } from '../../context/AuthContext';
+import { StatCardGrid, ActivityPanel, QuickActions } from '../../components/common/DashboardWidgets';
+import { JOCKEY_STATS, JOCKEY_ACTIVITY, JOCKEY_ACTIONS } from '../../mocks/mockDashboard';
 
+const GOLD = '#D4AF37';
+
+// Jockey: lời mời đang chờ, các ride đã nhận, các race sắp tới.
 const JockeyDashboard = () => {
   const { user } = useAuth();
+  const name = user?.fullName || user?.username || user?.name || 'Jockey';
 
   return (
     <div>
-      <h2 className="mb-4" style={{ color: '#D4AF37' }}>Phòng Chờ Nài Ngựa 🏇</h2>
-      <p className="text-light">Kỵ sư thi đấu: {user?.fullName}</p>
-      
-      <div className="card bg-dark text-white shadow-sm" style={{ border: '1px solid #D4AF37' }}>
-        <div className="card-body">
-          <h5 style={{ color: '#D4AF37' }}>Lịch thi đấu sắp tới (Assigned Races)</h5>
-          <p className="text-muted mb-0">API Endpoint cần ghép: GET /api/v1/jockey/races</p>
+      <h2 className="mb-1" style={{ color: GOLD }}>Welcome back, {name} 🏇</h2>
+      <p className="text-muted mb-4">Your invitations, accepted rides and upcoming races.</p>
+
+      <StatCardGrid items={JOCKEY_STATS} />
+
+      <div className="row g-4">
+        <div className="col-12 col-lg-7">
+          <ActivityPanel title="Upcoming & Recent" items={JOCKEY_ACTIVITY} />
+        </div>
+        <div className="col-12 col-lg-5">
+          <QuickActions title="Quick Actions" actions={JOCKEY_ACTIONS} />
         </div>
       </div>
     </div>

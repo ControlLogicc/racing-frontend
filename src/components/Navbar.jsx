@@ -10,16 +10,14 @@ const Navbar = () => {
           {/* Bạn nhớ copy ảnh logo của bạn vào thư mục public và đổi tên thành logo.png nhé */}
           <img 
             src="/logo.png" 
-            alt="FPT Horse Racing Logo" 
-            style={{ height: '45px', objectFit: 'contain' }} 
+            
+            style={{ height: '70px', objectFit: 'contain' }} 
             onError={(e) => {
               // Nếu chưa có ảnh logo.png, nó sẽ ẩn cái icon ảnh lỗi đi cho đỡ xấu
               e.target.style.display = 'none';
             }}
           />
-          <div>
-            <span style={{ color: '#ffffff' }}>FPT</span> HORSE RACING
-          </div>
+          
         </Link>
       </div>
       
