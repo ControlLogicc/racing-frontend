@@ -1,0 +1,264 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-dark: #0f0f11;      /* Đen sâu hơn, bớt ám xám */
+  --gold-primary: #D4AF37; /* Vàng ánh kim chuẩn */
+  --text-white: #f5f5f5;
+  --text-gray: #a0a0a0;
+  --glass-bg: rgba(20, 20, 22, 0.65); /* Nền kính mờ tối màu hơn */
+  --glass-border: rgba(212, 175, 55, 0.25); /* Viền vàng nhẹ */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
+}
+
+body, html, #root {
+  background-color: var(--bg-dark);
+  color: var(--text-white);
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   1. NAVBAR CƠ BẢN
+========================================= */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background: rgba(15, 15, 17, 0.9);
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+}
+
+.logo-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold-primary);
+  font-style: italic;
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+
+.logo-text span {
+  color: var(--text-white);
+}
+
+.nav-links a {
+  color: var(--text-white);
+  text-decoration: none;
+  margin: 0 20px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: var(--gold-primary);
+}
+
+/* =========================================
+   2. NÚT ĐĂNG NHẬP / ĐĂNG KÝ TRÊN NAVBAR (ĐÃ FIX LỖI)
+========================================= */
+.auth-buttons {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.btn {
+  padding: 8px 24px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Nút Login - Ép cứng nền vàng, chữ đen */
+.btn-login {
+  background-color: #D4AF37 !important; 
+  color: #000000 !important;
+  border: 2px solid #D4AF37 !important;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+}
+
+.btn-login:hover {
+  background-color: #f1c438 !important;
+  border-color: #f1c438 !important;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+  transform: translateY(-2px);
+}
+
+/* Nút Register - Nền trong suốt, viền vàng */
+.btn-register {
+  background-color: transparent !important;
+  color: #D4AF37 !important;
+  border: 2px solid #D4AF37 !important;
+}
+
+.btn-register:hover {
+  background-color: rgba(212, 175, 55, 0.15) !important;
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   3. MENU BÊN TRÁI (SIDEBAR ĐEN VÀNG)
+========================================= */
+.sidebar {
+  width: 250px;
+  background-color: rgba(15, 15, 17, 0.95);
+  border-right: 1px solid var(--glass-border);
+  min-height: calc(100vh - 75px);
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h3 {
+  color: var(--text-gray);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 0 25px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 10px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-menu a {
+  display: block;
+  color: var(--text-white);
+  text-decoration: none; 
+  padding: 15px 25px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent; 
+}
+
+.sidebar-menu a:hover, 
+.sidebar-menu a.active {
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
+  color: var(--gold-primary);
+  border-left: 3px solid var(--gold-primary); 
+}
+
+/* =========================================
+   4. BỐ CỤC FORM ĐĂNG NHẬP / ĐĂNG KÝ
+========================================= */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 75px);
+  position: relative;
+  background: radial-gradient(circle at top, rgba(30, 25, 15, 0.8) 0%, var(--bg-dark) 70%);
+}
+
+.glow-bg {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 50px 40px;
+  width: 100%;
+  max-width: 420px;
+  z-index: 2;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card h2 {
+  text-align: center;
+  color: var(--gold-primary);
+  margin-bottom: 35px;
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+
+.input-group {
+  margin-bottom: 25px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-gray);
+  margin-bottom: 8px;
+}
+
+.input-group input, 
+.input-group select {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--text-white);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.input-group input:focus, 
+.input-group select:focus {
+  border-color: var(--gold-primary);
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: 1px solid var(--gold-primary);
+  color: var(--gold-primary);
+  border-radius: 8px; 
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+  background: var(--gold-primary);
+  color: var(--bg-dark);
+  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+}
+
+.text-gold { color: var(--gold-primary); }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
