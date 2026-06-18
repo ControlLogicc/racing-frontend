@@ -1,23 +1,40 @@
+import api from './api';
 import { MOCK_REGISTRATIONS } from '../mocks/mockRegistrations';
 import { RACE_REGISTRATION_STATUS } from '../constants/status';
 
-let registrations = [...MOCK_REGISTRATIONS];
-let nextId = registrations.length + 1;
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
-export const registrationService = {
-  getAll: () => Promise.resolve(registrations), // 🟡 mock — khi có API: api.get('/race-registrations').then(r => r.data)
-  getByOwner: (ownerId) => Promise.resolve(registrations.filter((r) => r.ownerId === ownerId)),
+let mockStore = [...MOCK_REGISTRATIONS];
+let nextId = mockStore.length + 1;
+
+const mockService = {
+  getAll: () => Promise.resolve([...mockStore]),
+  getByOwner: (ownerId) => Promise.resolve(mockStore.filter((r) => r.ownerId === ownerId)),
   create: (payload) => {
-    const created = { id: nextId++, status: RACE_REGISTRATION_STATUS.PENDING, submittedAt: new Date().toISOString(), ...payload };
-    registrations = [...registrations, created];
+    const created = {
+      id: nextId++,
+      status: RACE_REGISTRATION_STATUS.SUBMITTED,
+      submittedAt: new Date().toISOString(),
+      ...payload,
+    };
+    mockStore = [...mockStore, created];
     return Promise.resolve(created);
   },
-  approve: (id) => {
-    registrations = registrations.map((r) => (r.id === id ? { ...r, status: RACE_REGISTRATION_STATUS.APPROVED } : r));
-    return Promise.resolve(registrations.find((r) => r.id === id));
-  },
-  reject: (id) => {
-    registrations = registrations.map((r) => (r.id === id ? { ...r, status: RACE_REGISTRATION_STATUS.REJECTED } : r));
-    return Promise.resolve(registrations.find((r) => r.id === id));
+  cancel: (id) => {
+    mockStore = mockStore.map((r) =>
+      r.id === id ? { ...r, status: RACE_REGISTRATION_STATUS.CANCELLED } : r
+    );
+    return Promise.resolve(mockStore.find((r) => r.id === id));
   },
 };
+
+// ─── Real API (VITE_USE_MOCK=false) ───────────────────────────────────────────
+const realService = {
+  getAll: (params) => api.get('/race-registrations', { params }).then((r) => r.data),
+  getByOwner: (ownerId) =>
+    api.get('/race-registrations', { params: { ownerId } }).then((r) => r.data),
+  create: (payload) => api.post('/race-registrations', payload).then((r) => r.data),
+  cancel: (id) => api.patch(`/race-registrations/${id}/cancel`).then((r) => r.data),
+};
+
+export const registrationService = USE_MOCK ? mockService : realService;

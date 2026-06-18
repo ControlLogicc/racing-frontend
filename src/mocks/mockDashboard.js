@@ -22,14 +22,14 @@ export const ADMIN_ACTIONS = [
 /* ----------------------------- STAFF ----------------------------- */
 export const STAFF_STATS = [
   { id: 'st1', label: 'Upcoming Races', value: 12, hint: 'Next 2 weeks', accent: 'primary' },
-  { id: 'st2', label: 'Pending Approvals', value: 3, hint: 'Race registrations', accent: 'warning' },
-  { id: 'st3', label: 'Open Meetings', value: 2, hint: 'Active now', accent: 'success' },
+  { id: 'st2', label: 'Expired Invitations', value: 3, hint: 'Need removal', accent: 'warning' },
+  { id: 'st3', label: 'Entries Pending', value: 5, hint: 'Awaiting confirm', accent: 'info' },
   { id: 'st4', label: 'Results to Publish', value: 1, hint: 'Awaiting referee', accent: 'danger' },
 ];
 export const STAFF_ACTIVITY = [
   { id: 'sta1', text: 'Race "Saigon Cup #12" schedule confirmed', time: '20 mins ago' },
-  { id: 'sta2', text: 'New registration awaiting approval', time: '1 hour ago' },
-  { id: 'sta3', text: 'Meeting "Spring Classic" opened', time: 'Yesterday' },
+  { id: 'sta2', text: 'Jockey "L. Tran" accepted — Race Entry auto-created', time: '1 hour ago' },
+  { id: 'sta3', text: 'Expired invitation removed from Race #11', time: 'Yesterday' },
   { id: 'sta4', text: 'Race #9 result published', time: '2 days ago' },
 ];
 export const STAFF_ACTIONS = [
@@ -39,12 +39,12 @@ export const STAFF_ACTIONS = [
 /* ----------------------------- OWNER ----------------------------- */
 export const OWNER_STATS = [
   { id: 'o1', label: 'My Horses', value: 5, hint: 'In stable', accent: 'primary' },
-  { id: 'o2', label: 'Pending Registrations', value: 3, hint: 'Awaiting approval', accent: 'warning' },
+  { id: 'o2', label: 'Active Registrations', value: 3, hint: 'In races', accent: 'success' },
   { id: 'o3', label: 'Jockey Invitations', value: 2, hint: 'Sent', accent: 'info' },
-  { id: 'o4', label: 'Upcoming Entries', value: 4, hint: 'Next 2 weeks', accent: 'success' },
+  { id: 'o4', label: 'Upcoming Entries', value: 4, hint: 'Next 2 weeks', accent: 'warning' },
 ];
 export const OWNER_ACTIVITY = [
-  { id: 'oa1', text: 'Registration for "Thần Mã" is PENDING approval', time: 'Today' },
+  { id: 'oa1', text: 'Registration for "Thần Mã" submitted — now ACTIVE', time: 'Today' },
   { id: 'oa2', text: 'Jockey "L. Tran" ACCEPTED your invitation', time: '3 hours ago' },
   { id: 'oa3', text: '"Phi Long" entered into Race #12', time: 'Yesterday' },
   { id: 'oa4', text: 'New invitation sent to jockey "M. Le"', time: '2 days ago' },

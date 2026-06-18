@@ -28,7 +28,7 @@ export default function OwnerInvitationsPage() {
   const load = () => {
     Promise.all([registrationService.getByOwner(user.userId), invitationService.getAll(), userService.getAll()])
       .then(([regs, invs, users]) => {
-        setRegistrations(regs.filter((r) => r.status === RACE_REGISTRATION_STATUS.APPROVED));
+        setRegistrations(regs.filter((r) => r.status !== RACE_REGISTRATION_STATUS.CANCELLED));
         setInvitations(invs.filter((i) => regs.some((r) => r.id === i.registrationId)));
         setJockeys(users.filter((u) => u.role === 'jockey' && !u.locked));
       })
@@ -103,7 +103,7 @@ export default function OwnerInvitationsPage() {
 
       <Form onSubmit={handleSend} className="dash-card d-flex flex-wrap gap-3 align-items-end mb-4">
         <Form.Group>
-          <Form.Label style={{ color: '#D4AF37' }}>Đăng ký (đã duyệt)</Form.Label>
+          <Form.Label style={{ color: '#D4AF37' }}>Đăng ký</Form.Label>
           <Form.Select value={registrationId} onChange={(e) => setRegistrationId(e.target.value)} required>
             <option value="">-- Chọn đăng ký --</option>
             {registrations.map((r) => (

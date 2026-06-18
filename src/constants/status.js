@@ -8,14 +8,9 @@ export const RACE_STATUS = {
 
 // Registration không cần Staff duyệt (D11)
 export const RACE_REGISTRATION_STATUS = {
-  // Statuses mới (workflow D11)
   SUBMITTED: 'submitted',
   ACTIVE: 'active',
   CANCELLED: 'cancelled',
-  // Giữ lại để không break các page chưa refactor
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
 };
 
 // Invitation: Staff chỉ theo dõi deadline + loại EXPIRED — KHÔNG tạo invitation
@@ -58,9 +53,6 @@ export const STATUS_LABEL = {
   [RACE_REGISTRATION_STATUS.SUBMITTED]: 'Đã nộp',
   [RACE_REGISTRATION_STATUS.ACTIVE]: 'Đang hoạt động',
   [RACE_REGISTRATION_STATUS.CANCELLED]: 'Đã huỷ',
-  [RACE_REGISTRATION_STATUS.PENDING]: 'Chờ duyệt',
-  [RACE_REGISTRATION_STATUS.APPROVED]: 'Đã duyệt',
-  [RACE_REGISTRATION_STATUS.REJECTED]: 'Bị từ chối',
   // Invitation
   [RACE_INVITATION_STATUS.SENT]: 'Đã gửi',
   [RACE_INVITATION_STATUS.ACCEPTED]: 'Đã nhận',
@@ -92,9 +84,6 @@ export const STATUS_BADGE_VARIANT = {
   [RACE_REGISTRATION_STATUS.SUBMITTED]: 'secondary',
   [RACE_REGISTRATION_STATUS.ACTIVE]: 'success',
   [RACE_REGISTRATION_STATUS.CANCELLED]: 'danger',
-  [RACE_REGISTRATION_STATUS.PENDING]: 'warning',
-  [RACE_REGISTRATION_STATUS.APPROVED]: 'success',
-  [RACE_REGISTRATION_STATUS.REJECTED]: 'danger',
   // Invitation
   [RACE_INVITATION_STATUS.SENT]: 'warning',
   [RACE_INVITATION_STATUS.ACCEPTED]: 'success',
@@ -129,6 +118,3 @@ export const canEnterResult = (raceStatus) => raceStatus === RACE_STATUS.COMPLET
 export const canPublishResult = (resultStatus) =>
   resultStatus === RACE_RESULT_STATUS.FINAL_EDITED_BY_STAFF;
 
-// Giữ lại để không break StaffEntriesPage cũ (pending refactor)
-export const canCreateEntry = (registrationStatus, hasAcceptedInvitation) =>
-  registrationStatus === RACE_REGISTRATION_STATUS.APPROVED && hasAcceptedInvitation;
