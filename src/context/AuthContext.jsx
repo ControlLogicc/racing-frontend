@@ -1,37 +1,47 @@
 import { createContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-export const AuthContext = createContext();
+export const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
+  // Khôi phục session từ localStorage khi app mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    if (token && storedUser) {
-      setUser(JSON.parse(storedUser));
+    try {
+      const token = localStorage.getItem('token');
+      const rawUser = localStorage.getItem('user');
+      if (token && rawUser) {
+        setUser(JSON.parse(rawUser)); // parse an toàn trong try/catch
+      }
+    } catch {
+      // chuỗi user hỏng -> dọn sạch để tránh treo app
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+    } finally {
+      setLoading(false); // luôn tắt loading dù thành công hay lỗi
     }
   }, []);
 
+  // EXCEPTION #1: lưu CẢ token + user object
   const login = (userData, token) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
-    navigate('/');
   };
 
+  // EXCEPTION #6: redirect bằng window.location.href, KHÔNG useNavigate trong Context
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    navigate('/login');
+    window.location.href = '/login';
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}

@@ -1,66 +1,59 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { NavLink } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { ROLES } from '../constants/roles';
 
-const Sidebar = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  const role = user?.role || '';
-  const goldColor = '#D4AF37'; // Màu vàng hoàng kim sang trọng
-
-  return (
-    <div className="d-flex flex-column h-100 p-3 shadow-lg" style={{ backgroundColor: '#111', borderRight: `2px solid ${goldColor}` }}>
-      <div className="text-center mb-4 mt-2">
-        <h4 className="fw-bold mb-0" style={{ color: goldColor, letterSpacing: '2px' }}>
-          🏇 HKJC
-        </h4>
-        <small className="text-muted" style={{ fontSize: '11px', textTransform: 'uppercase' }}>Prestige Racing</small>
-      </div>
-      
-      <ul className="nav nav-pills flex-column mb-auto mt-2">
-        {/* Menu cho Admin */}
-        {role === 'ADMIN' && (
-          <li className="nav-item mb-3">
-            <Link to="/admin/dashboard" className="nav-link fw-bold text-dark shadow-sm" style={{ backgroundColor: goldColor, borderRadius: '8px' }}>
-              ✦ Bảng Điều Khiển
-            </Link>
-          </li>
-        )}
-        
-        {/* Menu cho Owner (Chủ ngựa) */}
-        {role === 'OWNER' && (
-          <li className="nav-item mb-3">
-            <Link to="/owner/dashboard" className="nav-link fw-bold text-dark shadow-sm" style={{ backgroundColor: goldColor, borderRadius: '8px' }}>
-              ✦ Cổng Chủ Ngựa
-            </Link>
-          </li>
-        )}
-      </ul>
-      
-      <div className="mt-auto">
-        <div className="p-3 mb-3 rounded text-center" style={{ backgroundColor: '#222', border: '1px solid #333' }}>
-          <small className="d-block text-white mb-1">Đang đăng nhập:</small>
-          <strong style={{ color: goldColor }}>{user?.fullName || 'Khách'}</strong>
-          <span className="badge bg-dark border border-secondary d-block mt-2">{role}</span>
-        </div>
-        <hr style={{ borderColor: goldColor, opacity: 0.3 }} />
-        <button 
-          onClick={handleLogout} 
-          className="btn w-100 fw-bold" 
-          style={{ backgroundColor: 'transparent', color: goldColor, border: `1px solid ${goldColor}` }}
-          onMouseOver={(e) => { e.target.style.backgroundColor = goldColor; e.target.style.color = '#111'; }}
-          onMouseOut={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = goldColor; }}
-        >
-          ĐĂNG XUẤT
-        </button>
-      </div>
-    </div>
-  );
+// Cấu hình danh sách Menu, ánh xạ theo từng role (lấy UI từ file layout cũ của bạn)
+const MENU_CONFIG = {
+  [ROLES.ADMIN]: [
+    { path: '/admin', label: 'Dashboard', icon: '📊' },
+    { path: '/admin/users', label: 'Quản lý người dùng', icon: '👥' },
+    { path: '/admin/seasons', label: 'Season', icon: '📅' },
+    { path: '/admin/meetings', label: 'Meeting', icon: '🏟️' },
+    { path: '/admin/races', label: 'Race', icon: '🏁' },
+  ],
+  [ROLES.STAFF]: [
+    { path: '/staff', label: 'Dashboard', icon: '📊' },
+    { path: '/staff/invitations', label: 'Lời mời Jockey', icon: '✉️' },
+    { path: '/staff/registrations', label: 'Đăng ký', icon: '📝' },
+    { path: '/staff/entries', label: 'Quản lý Entry', icon: '✅' },
+  ],
+  [ROLES.OWNER]: [
+    { path: '/owner', label: 'Dashboard', icon: '📊' },
+    { path: '/owner/horses', label: 'Ngựa của tôi', icon: '🐎' },
+    { path: '/owner/registrations', label: 'Đăng ký đua', icon: '📝' },
+    { path: '/owner/invitations', label: 'Lời mời Jockey', icon: '✉️' },
+  ],
+  [ROLES.JOCKEY]: [
+    { path: '/jockey', label: 'Dashboard', icon: '📊' },
+    { path: '/jockey/invitations', label: 'Lời mời đua', icon: '✉️' },
+    { path: '/jockey/races', label: 'Lịch đua của tôi', icon: '🗓️' },
+  ],
+  [ROLES.REFEREE]: [
+    { path: '/referee', label: 'Dashboard', icon: '📊' },
+    { path: '/referee/reports', label: 'Báo cáo vi phạm', icon: '📋' },
+    { path: '/referee/results', label: 'Kết quả đua', icon: '🏆' },
+  ],
+  [ROLES.SPECTATOR]: [
+    { path: '/spectator', label: 'Dashboard', icon: '📊' },
+  ],
 };
 
-export default Sidebar;
+export default function Sidebar() {
+  const { user } = useAuth();
+  if (!user) return null;
+
+  const links = MENU_CONFIG[user.role] || [];
+
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-menu">
+        {links.map((link) => (
+          <NavLink key={link.path} to={link.path} end className="sidebar-link">
+            <span>{link.icon}</span>
+            <span>{link.label}</span>
+          </NavLink>
+        ))}
+      </div>
+    </aside>
+  );
+}

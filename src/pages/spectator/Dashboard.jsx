@@ -1,41 +1,28 @@
-import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { StatCardGrid, ActivityPanel, QuickActions } from '../../components/common/DashboardWidgets';
+import { SPECTATOR_STATS, SPECTATOR_ACTIVITY, SPECTATOR_ACTIONS } from '../../mocks/mockDashboard';
 
-const SpectatorDashboard = () => {
+const GOLD = '#D4AF37';
+
+export default function SpectatorDashboard() {
   const { user } = useAuth();
+  const name = user?.fullName || 'Guest';
 
   return (
     <div>
-      <h2 className="mb-4" style={{ color: '#D4AF37' }}>Khu Vực Khán Giả (Spectator) 🎟️</h2>
-      <p className="text-light">Xin chào, {user?.fullName || 'Khách truy cập'}</p>
-      
-      <div className="row g-4 mb-4">
-        <div className="col-md-6">
-          <div className="card bg-dark text-white shadow-sm h-100" style={{ border: '1px solid #D4AF37' }}>
-             <div className="card-body">
-               <h5 style={{ color: '#D4AF37' }}>Lịch trình giải đua (Race Schedule)</h5>
-               <p className="text-muted mb-3">Xem danh sách các trận đua sắp diễn ra và thông tin bốc thăm barrier.</p>
-               <div className="p-2 rounded" style={{ backgroundColor: '#1a1a1a', borderLeft: '3px solid #D4AF37' }}>
-                  <code className="text-light">GET /api/v1/races/schedule</code>
-               </div>
-             </div>
-          </div>
-        </div>
+      <h2 className="mb-1" style={{ color: GOLD }}>Welcome, {name} 🎟️</h2>
+      <p className="text-muted mb-4">Race schedule, rankings and horse profiles (read-only).</p>
 
-        <div className="col-md-6">
-          <div className="card bg-dark text-white shadow-sm h-100" style={{ border: '1px solid #D4AF37' }}>
-             <div className="card-body">
-               <h5 style={{ color: '#D4AF37' }}>Kết quả & Xếp hạng (Rankings)</h5>
-               <p className="text-muted mb-3">Tra cứu thành tích của các ngựa đua và nài ngựa hàng đầu.</p>
-               <div className="p-2 rounded" style={{ backgroundColor: '#1a1a1a', borderLeft: '3px solid #D4AF37' }}>
-                  <code className="text-light">GET /api/v1/rankings</code>
-               </div>
-             </div>
-          </div>
+      <StatCardGrid items={SPECTATOR_STATS} />
+
+      <div className="row g-4">
+        <div className="col-12 col-lg-7">
+          <ActivityPanel title="What's Happening" items={SPECTATOR_ACTIVITY} />
+        </div>
+        <div className="col-12 col-lg-5">
+          <QuickActions title="Explore" actions={SPECTATOR_ACTIONS} />
         </div>
       </div>
     </div>
   );
-};
-
-export default SpectatorDashboard;
+}
