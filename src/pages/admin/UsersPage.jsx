@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Form, Badge } from 'react-bootstrap';
+import { Form, Badge, Button, Modal } from 'react-bootstrap';
 import { userService } from '../../services/userService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { ROLES } from '../../constants/roles';
@@ -11,6 +11,7 @@ import Pagination from '../../components/common/Pagination';
 import Toaster from '../../components/common/Toaster';
 
 const PAGE_SIZE = 10;
+const EMPTY_CREATE = { fullName: '', email: '', password: '', role: ROLES.SPECTATOR };
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -18,6 +19,8 @@ export default function AdminUsersPage() {
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
   const [page, setPage] = useState(1);
+  const [showCreate, setShowCreate] = useState(false);
+  const [createForm, setCreateForm] = useState(EMPTY_CREATE);
 
   const load = () => {
     userService
@@ -27,14 +30,21 @@ export default function AdminUsersPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
-  const refetch = () => {
-    setLoading(true);
-    setError('');
-    load();
+  const refetch = () => { setLoading(true); setError(''); load(); };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    try {
+      await userService.create(createForm);
+      setToast({ message: 'Tạo tài khoản thành công.', variant: 'success' });
+      setShowCreate(false);
+      setCreateForm(EMPTY_CREATE);
+      refetch();
+    } catch (err) {
+      setToast({ message: getApiErrorMessage(err, 'Tạo tài khoản thất bại.'), variant: 'danger' });
+    }
   };
 
   const handleRoleChange = async (id, role) => {
@@ -88,7 +98,10 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <div className="page-header"><h2>Quản lý người dùng</h2></div>
+      <div className="page-header d-flex justify-content-between align-items-center">
+        <h2>Quản lý người dùng</h2>
+        <Button className="btn-gold-sm" onClick={() => setShowCreate(true)}>+ Tạo tài khoản</Button>
+      </div>
 
       {loading && <Loading />}
       {!loading && error && <ErrorState message={error} onRetry={refetch} />}
@@ -99,6 +112,54 @@ export default function AdminUsersPage() {
           <Pagination page={page} pageSize={PAGE_SIZE} total={users.length} onPageChange={setPage} />
         </>
       )}
+
+      {/* Create Modal */}
+      <Modal show={showCreate} onHide={() => setShowCreate(false)} centered>
+        <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>
+          <Modal.Title style={{ color: '#D4AF37' }}>Tạo tài khoản mới</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: '#1a1a2e' }}>
+          <Form onSubmit={handleCreate} className="d-flex flex-column gap-3">
+            <Form.Group>
+              <Form.Label style={{ color: '#D4AF37' }}>Họ tên</Form.Label>
+              <Form.Control
+                value={createForm.fullName}
+                onChange={(e) => setCreateForm({ ...createForm, fullName: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label style={{ color: '#D4AF37' }}>Email</Form.Label>
+              <Form.Control
+                type="email"
+                value={createForm.email}
+                onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label style={{ color: '#D4AF37' }}>Mật khẩu</Form.Label>
+              <Form.Control
+                type="password"
+                value={createForm.password}
+                onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                required
+                minLength={6}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label style={{ color: '#D4AF37' }}>Role</Form.Label>
+              <Form.Select value={createForm.role} onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}>
+                {Object.values(ROLES).map((r) => <option key={r} value={r}>{r}</option>)}
+              </Form.Select>
+            </Form.Group>
+            <div className="d-flex justify-content-end gap-2 mt-2">
+              <Button variant="secondary" onClick={() => setShowCreate(false)}>Huỷ</Button>
+              <Button type="submit" className="btn-gold-sm">Tạo</Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
 
       <Toaster toast={toast} onClose={() => setToast(null)} />
     </div>
