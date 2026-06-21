@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { seasonService } from '../../services/seasonService';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -8,16 +9,28 @@ import ErrorState from '../../components/common/ErrorState';
 import DataTable from '../../components/common/DataTable';
 import Toaster from '../../components/common/Toaster';
 
-const EMPTY_FORM = { name: '', startDate: '', endDate: '', status: 'open' };
+const EMPTY_FORM = { name: '', startDate: '', endDate: '' };
 
 export default function SeasonsPage() {
   const [seasons, setSeasons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
-  const [form, setForm] = useState(EMPTY_FORM);
   const [editRow, setEditRow] = useState(null);
-  const [editForm, setEditForm] = useState(EMPTY_FORM);
+
+  const {
+    register: regCreate,
+    handleSubmit: submitCreate,
+    formState: { errors: createErrors },
+    reset: resetCreate,
+  } = useForm({ defaultValues: EMPTY_FORM });
+
+  const {
+    register: regEdit,
+    handleSubmit: submitEdit,
+    formState: { errors: editErrors },
+    reset: resetEdit,
+  } = useForm();
 
   const load = () => {
     seasonService
@@ -29,29 +42,33 @@ export default function SeasonsPage() {
 
   useEffect(() => { load(); }, []);
 
+  useEffect(() => {
+    if (editRow) {
+      resetEdit({
+        name: editRow.name,
+        startDate: editRow.startDate,
+        endDate: editRow.endDate,
+        status: editRow.status ?? 'open',
+      });
+    }
+  }, [editRow, resetEdit]);
+
   const refetch = () => { setLoading(true); setError(''); load(); };
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
+  const onCreate = async (data) => {
     try {
-      await seasonService.create(form);
+      await seasonService.create(data);
       setToast({ message: 'Tạo season thành công.', variant: 'success' });
-      setForm(EMPTY_FORM);
+      resetCreate(EMPTY_FORM);
       refetch();
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Tạo season thất bại.'), variant: 'danger' });
     }
   };
 
-  const openEdit = (row) => {
-    setEditRow(row);
-    setEditForm({ name: row.name, startDate: row.startDate, endDate: row.endDate, status: row.status ?? 'open' });
-  };
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
+  const onUpdate = async (data) => {
     try {
-      await seasonService.update(editRow.id, editForm);
+      await seasonService.update(editRow.id, data);
       setToast({ message: 'Cập nhật season thành công.', variant: 'success' });
       setEditRow(null);
       refetch();
@@ -81,7 +98,7 @@ export default function SeasonsPage() {
       label: 'Hành động',
       render: (row) => (
         <div className="d-flex gap-2">
-          <button className="btn-gold-sm" onClick={() => openEdit(row)}>Sửa</button>
+          <button className="btn-gold-sm" onClick={() => setEditRow(row)}>Sửa</button>
           <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(row.id)}>Xoá</button>
         </div>
       ),
@@ -92,20 +109,36 @@ export default function SeasonsPage() {
     <div>
       <div className="page-header"><h2>Quản lý Season</h2></div>
 
-      <Form onSubmit={handleCreate} className="dash-card d-flex flex-wrap gap-3 align-items-end mb-4">
+      <Form onSubmit={submitCreate(onCreate)} className="dash-card d-flex flex-wrap gap-3 align-items-start mb-4" noValidate>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Tên mùa giải</Form.Label>
-          <Form.Control value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          <Form.Control
+            {...regCreate('name', { required: 'Tên mùa giải là bắt buộc' })}
+            isInvalid={!!createErrors.name}
+          />
+          <Form.Control.Feedback type="invalid">{createErrors.name?.message}</Form.Control.Feedback>
         </Form.Group>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Bắt đầu</Form.Label>
-          <Form.Control type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} required />
+          <Form.Control
+            type="date"
+            {...regCreate('startDate', { required: 'Ngày bắt đầu là bắt buộc' })}
+            isInvalid={!!createErrors.startDate}
+          />
+          <Form.Control.Feedback type="invalid">{createErrors.startDate?.message}</Form.Control.Feedback>
         </Form.Group>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Kết thúc</Form.Label>
-          <Form.Control type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} required />
+          <Form.Control
+            type="date"
+            {...regCreate('endDate', { required: 'Ngày kết thúc là bắt buộc' })}
+            isInvalid={!!createErrors.endDate}
+          />
+          <Form.Control.Feedback type="invalid">{createErrors.endDate?.message}</Form.Control.Feedback>
         </Form.Group>
-        <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px' }}>Tạo Season</Button>
+        <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px', marginTop: '32px' }}>
+          Tạo Season
+        </Button>
       </Form>
 
       {loading && <Loading />}
@@ -113,28 +146,41 @@ export default function SeasonsPage() {
       {!loading && !error && seasons.length === 0 && <EmptyState message="Chưa có season nào." />}
       {!loading && !error && seasons.length > 0 && <DataTable columns={columns} rows={seasons} />}
 
-      {/* Edit Modal */}
       <Modal show={!!editRow} onHide={() => setEditRow(null)} centered>
         <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>
           <Modal.Title style={{ color: '#D4AF37' }}>Sửa Season</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ background: '#1a1a2e' }}>
-          <Form onSubmit={handleUpdate} className="d-flex flex-column gap-3">
+          <Form onSubmit={submitEdit(onUpdate)} className="d-flex flex-column gap-3" noValidate>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Tên mùa giải</Form.Label>
-              <Form.Control value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} required />
+              <Form.Control
+                {...regEdit('name', { required: 'Tên mùa giải là bắt buộc' })}
+                isInvalid={!!editErrors.name}
+              />
+              <Form.Control.Feedback type="invalid">{editErrors.name?.message}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Bắt đầu</Form.Label>
-              <Form.Control type="date" value={editForm.startDate} onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })} required />
+              <Form.Control
+                type="date"
+                {...regEdit('startDate', { required: 'Ngày bắt đầu là bắt buộc' })}
+                isInvalid={!!editErrors.startDate}
+              />
+              <Form.Control.Feedback type="invalid">{editErrors.startDate?.message}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Kết thúc</Form.Label>
-              <Form.Control type="date" value={editForm.endDate} onChange={(e) => setEditForm({ ...editForm, endDate: e.target.value })} required />
+              <Form.Control
+                type="date"
+                {...regEdit('endDate', { required: 'Ngày kết thúc là bắt buộc' })}
+                isInvalid={!!editErrors.endDate}
+              />
+              <Form.Control.Feedback type="invalid">{editErrors.endDate?.message}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Trạng thái</Form.Label>
-              <Form.Select value={editForm.status} onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}>
+              <Form.Select {...regEdit('status', { required: true })}>
                 <option value="open">Open</option>
                 <option value="closed">Closed</option>
               </Form.Select>

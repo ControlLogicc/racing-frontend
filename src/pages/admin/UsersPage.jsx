@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Form, Badge, Button, Modal } from 'react-bootstrap';
 import { userService } from '../../services/userService';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -11,7 +12,6 @@ import Pagination from '../../components/common/Pagination';
 import Toaster from '../../components/common/Toaster';
 
 const PAGE_SIZE = 10;
-const EMPTY_CREATE = { fullName: '', email: '', password: '', role: ROLES.SPECTATOR };
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -20,7 +20,10 @@ export default function AdminUsersPage() {
   const [toast, setToast] = useState(null);
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
-  const [createForm, setCreateForm] = useState(EMPTY_CREATE);
+
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+    defaultValues: { fullName: '', email: '', password: '', role: ROLES.SPECTATOR },
+  });
 
   const load = () => {
     userService
@@ -34,13 +37,13 @@ export default function AdminUsersPage() {
 
   const refetch = () => { setLoading(true); setError(''); load(); };
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
+  const handleClose = () => { setShowCreate(false); reset(); };
+
+  const onSubmit = async (data) => {
     try {
-      await userService.create(createForm);
+      await userService.create(data);
       setToast({ message: 'Tạo tài khoản thành công.', variant: 'success' });
-      setShowCreate(false);
-      setCreateForm(EMPTY_CREATE);
+      handleClose();
       refetch();
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Tạo tài khoản thất bại.'), variant: 'danger' });
@@ -114,47 +117,52 @@ export default function AdminUsersPage() {
       )}
 
       {/* Create Modal */}
-      <Modal show={showCreate} onHide={() => setShowCreate(false)} centered>
+      <Modal show={showCreate} onHide={handleClose} centered>
         <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>
           <Modal.Title style={{ color: '#D4AF37' }}>Tạo tài khoản mới</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ background: '#1a1a2e' }}>
-          <Form onSubmit={handleCreate} className="d-flex flex-column gap-3">
+          <Form onSubmit={handleSubmit(onSubmit)} className="d-flex flex-column gap-3" noValidate>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Họ tên</Form.Label>
               <Form.Control
-                value={createForm.fullName}
-                onChange={(e) => setCreateForm({ ...createForm, fullName: e.target.value })}
-                required
+                {...register('fullName', { required: 'Họ tên là bắt buộc' })}
+                isInvalid={!!errors.fullName}
               />
+              <Form.Control.Feedback type="invalid">{errors.fullName?.message}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Email</Form.Label>
               <Form.Control
                 type="email"
-                value={createForm.email}
-                onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
-                required
+                {...register('email', {
+                  required: 'Email là bắt buộc',
+                  pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Email không hợp lệ' },
+                })}
+                isInvalid={!!errors.email}
               />
+              <Form.Control.Feedback type="invalid">{errors.email?.message}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Mật khẩu</Form.Label>
               <Form.Control
                 type="password"
-                value={createForm.password}
-                onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-                required
-                minLength={6}
+                {...register('password', {
+                  required: 'Mật khẩu là bắt buộc',
+                  minLength: { value: 6, message: 'Mật khẩu ít nhất 6 ký tự' },
+                })}
+                isInvalid={!!errors.password}
               />
+              <Form.Control.Feedback type="invalid">{errors.password?.message}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Role</Form.Label>
-              <Form.Select value={createForm.role} onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}>
+              <Form.Select {...register('role', { required: true })}>
                 {Object.values(ROLES).map((r) => <option key={r} value={r}>{r}</option>)}
               </Form.Select>
             </Form.Group>
             <div className="d-flex justify-content-end gap-2 mt-2">
-              <Button variant="secondary" onClick={() => setShowCreate(false)}>Huỷ</Button>
+              <Button variant="secondary" onClick={handleClose}>Huỷ</Button>
               <Button type="submit" className="btn-gold-sm">Tạo</Button>
             </div>
           </Form>

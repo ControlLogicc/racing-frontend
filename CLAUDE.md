@@ -60,7 +60,7 @@ Chỉ code sau khi plan rõ. Code phải:
 |---|---|---|---|
 | D1 | Betting / "Đặt cược" | ❌ KHÔNG (out-of-scope) | ERD không có bảng cược. Cần thì bổ sung DB trước, đừng để AI bịa schema. |
 | D2 | Ngôn ngữ | **JavaScript (.jsx)** — KHÔNG TypeScript | Khớp `.jsx` trong README |
-| D3 | Router | react-router-dom **v6** | Tránh lệch API v6/v7 |
+| D3 | Router | react-router-dom **v7** | Package đã upgrade lên v7.17.0; API `<Routes>`/`element` vẫn tương thích |
 | D4 | Global state | **Context API** (chỉ cho Auth). Business data để local state từng page | Đủ cho đồ án; không thêm Redux/Zustand/React Query |
 | D5 | Form | react-hook-form | Logic-only, không đụng UI Bootstrap |
 | D6 | Icons | react-bootstrap-icons | Chốt 1 bộ |
@@ -83,7 +83,7 @@ Chỉ code sau khi plan rõ. Code phải:
 | Ngôn ngữ | JavaScript (`.jsx`, `.js`) — **KHÔNG TypeScript** | ✅ |
 | UI | bootstrap 5 + react-bootstrap | ✅ |
 | Icons | react-bootstrap-icons | ✅ |
-| Routing | react-router-dom v6 | ✅ |
+| Routing | react-router-dom v7 | ✅ |
 | HTTP | axios (qua instance tập trung) | ✅ |
 | Form | react-hook-form | ✅ |
 | State | React Context API (chỉ Auth) + local state | ✅ |
@@ -236,7 +236,7 @@ export const HOME_ROUTE_BY_ROLE = {
 
 ## 5. ROUTING
 
-Dùng `createBrowserRouter` hoặc `<Routes>` của react-router-dom **v6** (`element={<Page/>}`).
+Dùng `createBrowserRouter` hoặc `<Routes>` của react-router-dom **v7** (`element={<Page/>}`).
 
 Mọi route cần đăng nhập → bọc bằng `ProtectedRoute`. **Phải khai báo đủ** route lỗi:
 ```jsx

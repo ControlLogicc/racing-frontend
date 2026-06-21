@@ -2,7 +2,7 @@ import { Table } from 'react-bootstrap';
 
 // Bảng dữ liệu dùng chung mọi trang CRUD.
 // columns: [{ key, label, render?: (row) => node }]
-export default function DataTable({ columns, rows, rowKey = 'id' }) {
+export default function DataTable({ columns, rows, rowKey = 'id', rowClassName }) {
   return (
     <div className="table-responsive">
       <Table hover responsive variant="dark" className="align-middle mb-0">
@@ -17,7 +17,7 @@ export default function DataTable({ columns, rows, rowKey = 'id' }) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row[rowKey]}>
+            <tr key={row[rowKey]} className={rowClassName ? rowClassName(row) : undefined}>
               {columns.map((col) => (
                 <td key={col.key} style={{ borderColor: '#2a2a2a' }}>
                   {col.render ? col.render(row) : row[col.key]}

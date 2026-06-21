@@ -17,6 +17,7 @@ const MENU_CONFIG = {
     { path: '/staff/invitations', label: 'Lời mời Jockey', icon: '✉️' },
     { path: '/staff/registrations', label: 'Đăng ký', icon: '📝' },
     { path: '/staff/entries', label: 'Quản lý Entry', icon: '✅' },
+    { path: '/staff/results', label: 'Kết quả & Công bố', icon: '🏆' },
   ],
   [ROLES.OWNER]: [
     { path: '/owner', label: 'Dashboard', icon: '📊' },

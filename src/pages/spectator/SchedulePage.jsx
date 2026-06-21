@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { raceService } from '../../services/raceService';
 import { meetingService } from '../../services/meetingService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
+import { RACE_STATUS } from '../../constants/status';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
@@ -22,21 +24,25 @@ export default function SpectatorSchedulePage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
-  const refetch = () => {
-    setLoading(true);
-    setError('');
-    load();
-  };
+  const refetch = () => { setLoading(true); setError(''); load(); };
 
   const columns = [
     { key: 'name', label: 'Race' },
     { key: 'meetingId', label: 'Meeting', render: (r) => meetings.find((m) => m.id === r.meetingId)?.name || '—' },
     { key: 'raceTime', label: 'Giờ đua', render: (r) => formatDate(r.raceTime) },
     { key: 'status', label: 'Trạng thái', render: (r) => <StatusBadge status={r.status} /> },
+    {
+      key: 'result',
+      label: 'Kết quả',
+      render: (r) =>
+        r.status === RACE_STATUS.COMPLETED ? (
+          <Link to={`/race-results/${r.id}`} className="btn btn-sm btn-outline-warning">
+            Xem kết quả
+          </Link>
+        ) : '—',
+    },
   ];
 
   return (

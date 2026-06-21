@@ -17,6 +17,7 @@ import SchedulePage from '../pages/spectator/SchedulePage';
 import RankingPage from '../pages/spectator/RankingPage';
 import SpectatorHorsesPage from '../pages/spectator/HorsesPage';
 import SpectatorDashboardOverview from '../pages/spectator/Dashboard';
+import RaceResultPage from '../pages/spectator/RaceResultPage';
 
 // Admin
 import AdminDashboardOverview from '../pages/admin/Dashboard';
@@ -27,6 +28,7 @@ import StaffDashboardOverview from '../pages/staff/Dashboard';
 import StaffInvitationsPage from '../pages/staff/InvitationsPage';
 import StaffRegistrationsPage from '../pages/staff/RegistrationsPage';
 import StaffEntriesPage from '../pages/staff/EntriesPage';
+import StaffResultsPage from '../pages/staff/ResultsPage';
 
 // Admin — cấu hình hệ thống (D11: Admin tạo Season/Meeting/Race, không phải Staff)
 import SeasonsPage from '../pages/admin/SeasonsPage';
@@ -65,6 +67,7 @@ export default function AppRoutes() {
         <Route path="schedule" element={<SchedulePage />} />
         <Route path="ranking" element={<RankingPage />} />
         <Route path="horses" element={<SpectatorHorsesPage />} />
+        <Route path="race-results/:raceId" element={<RaceResultPage />} />
         <Route path="forbidden" element={<ForbiddenPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
@@ -105,6 +108,9 @@ export default function AppRoutes() {
           } />
           <Route path="staff/entries" element={
             <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffEntriesPage /></ProtectedRoute>
+          } />
+          <Route path="staff/results" element={
+            <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffResultsPage /></ProtectedRoute>
           } />
 
           {/* Owner: quản lý ngựa, nộp đăng ký đua, gửi lời mời jockey */}
