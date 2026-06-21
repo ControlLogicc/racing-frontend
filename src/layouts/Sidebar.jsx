@@ -10,6 +10,7 @@ const MENU_CONFIG = {
     { path: '/admin/seasons', label: 'Season', icon: '📅' },
     { path: '/admin/meetings', label: 'Meeting', icon: '🏟️' },
     { path: '/admin/races', label: 'Race', icon: '🏁' },
+    { path: '/admin/race-conditions', label: 'Race Condition', icon: '📋' },
   ],
   [ROLES.STAFF]: [
     { path: '/staff', label: 'Dashboard', icon: '📊' },
@@ -21,6 +22,7 @@ const MENU_CONFIG = {
     { path: '/owner', label: 'Dashboard', icon: '📊' },
     { path: '/owner/horses', label: 'Ngựa của tôi', icon: '🐎' },
     { path: '/owner/registrations', label: 'Đăng ký đua', icon: '📝' },
+    { path: '/owner/races', label: 'Races đang mở', icon: '🏁' },
     { path: '/owner/invitations', label: 'Lời mời Jockey', icon: '✉️' },
   ],
   [ROLES.JOCKEY]: [
