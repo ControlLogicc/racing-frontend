@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Form, Button } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
 import { horseService } from '../../services/horseService';
@@ -15,7 +16,10 @@ export default function OwnerHorsesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
-  const [form, setForm] = useState({ name: '', age: '', breed: '' });
+
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+    defaultValues: { name: '', age: '', breed: '' },
+  });
 
   const load = () => {
     horseService
@@ -25,27 +29,20 @@ export default function OwnerHorsesPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
-  const refetch = () => {
-    setLoading(true);
-    setError('');
-    load();
-  };
+  const refetch = () => { setLoading(true); setError(''); load(); };
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     try {
       await horseService.create({
-        ...form,
-        age: Number(form.age),
+        ...data,
+        age: Number(data.age),
         ownerId: user.userId,
         ownerName: user.fullName,
       });
       setToast({ message: 'Thêm ngựa thành công.', variant: 'success' });
-      setForm({ name: '', age: '', breed: '' });
+      reset();
       refetch();
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Thêm ngựa thất bại.'), variant: 'danger' });
@@ -56,20 +53,35 @@ export default function OwnerHorsesPage() {
     <div>
       <div className="page-header"><h2>Ngựa của tôi</h2></div>
 
-      <Form onSubmit={handleCreate} className="dash-card d-flex flex-wrap gap-3 align-items-end mb-4">
+      <Form onSubmit={handleSubmit(onSubmit)} className="dash-card d-flex flex-wrap gap-3 align-items-start mb-4">
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Tên ngựa</Form.Label>
-          <Form.Control value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          <Form.Control
+            {...register('name', { required: 'Tên ngựa là bắt buộc' })}
+            isInvalid={!!errors.name}
+          />
+          <Form.Control.Feedback type="invalid">{errors.name?.message}</Form.Control.Feedback>
         </Form.Group>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Tuổi</Form.Label>
-          <Form.Control type="number" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} required />
+          <Form.Control
+            type="number"
+            {...register('age', { required: 'Tuổi là bắt buộc', min: { value: 1, message: 'Tuổi phải lớn hơn 0' } })}
+            isInvalid={!!errors.age}
+          />
+          <Form.Control.Feedback type="invalid">{errors.age?.message}</Form.Control.Feedback>
         </Form.Group>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Giống</Form.Label>
-          <Form.Control value={form.breed} onChange={(e) => setForm({ ...form, breed: e.target.value })} required />
+          <Form.Control
+            {...register('breed', { required: 'Giống ngựa là bắt buộc' })}
+            isInvalid={!!errors.breed}
+          />
+          <Form.Control.Feedback type="invalid">{errors.breed?.message}</Form.Control.Feedback>
         </Form.Group>
-        <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px' }}>Thêm ngựa</Button>
+        <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px', marginTop: '32px' }}>
+          Thêm ngựa
+        </Button>
       </Form>
 
       {loading && <Loading />}

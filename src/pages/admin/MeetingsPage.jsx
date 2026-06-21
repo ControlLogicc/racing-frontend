@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { meetingService } from '../../services/meetingService';
 import { seasonService } from '../../services/seasonService';
@@ -21,9 +22,21 @@ export default function MeetingsPage() {
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
   const [page, setPage] = useState(1);
-  const [form, setForm] = useState(EMPTY_FORM);
   const [editRow, setEditRow] = useState(null);
-  const [editForm, setEditForm] = useState(EMPTY_FORM);
+
+  const {
+    register: regCreate,
+    handleSubmit: submitCreate,
+    formState: { errors: createErrors },
+    reset: resetCreate,
+  } = useForm({ defaultValues: EMPTY_FORM });
+
+  const {
+    register: regEdit,
+    handleSubmit: submitEdit,
+    formState: { errors: editErrors },
+    reset: resetEdit,
+  } = useForm();
 
   const load = () => {
     Promise.all([meetingService.getAll(), seasonService.getAll()])
@@ -34,34 +47,33 @@ export default function MeetingsPage() {
 
   useEffect(() => { load(); }, []);
 
+  useEffect(() => {
+    if (editRow) {
+      resetEdit({
+        seasonId: String(editRow.seasonId),
+        name: editRow.name,
+        racecourse: editRow.racecourse,
+        date: editRow.date ? editRow.date.slice(0, 16) : '',
+      });
+    }
+  }, [editRow, resetEdit]);
+
   const refetch = () => { setLoading(true); setError(''); load(); };
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
+  const onCreate = async (data) => {
     try {
-      await meetingService.create({ ...form, seasonId: Number(form.seasonId) });
+      await meetingService.create({ ...data, seasonId: Number(data.seasonId) });
       setToast({ message: 'Tạo meeting thành công.', variant: 'success' });
-      setForm(EMPTY_FORM);
+      resetCreate(EMPTY_FORM);
       refetch();
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Tạo meeting thất bại.'), variant: 'danger' });
     }
   };
 
-  const openEdit = (row) => {
-    setEditRow(row);
-    setEditForm({
-      seasonId: String(row.seasonId),
-      name: row.name,
-      racecourse: row.racecourse,
-      date: row.date ? row.date.slice(0, 16) : '',
-    });
-  };
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
+  const onUpdate = async (data) => {
     try {
-      await meetingService.update(editRow.id, { ...editForm, seasonId: Number(editForm.seasonId) });
+      await meetingService.update(editRow.id, { ...data, seasonId: Number(data.seasonId) });
       setToast({ message: 'Cập nhật meeting thành công.', variant: 'success' });
       setEditRow(null);
       refetch();
@@ -93,7 +105,7 @@ export default function MeetingsPage() {
       label: 'Hành động',
       render: (row) => (
         <div className="d-flex gap-2">
-          <button className="btn-gold-sm" onClick={() => openEdit(row)}>Sửa</button>
+          <button className="btn-gold-sm" onClick={() => setEditRow(row)}>Sửa</button>
           <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(row.id)}>Xoá</button>
         </div>
       ),
@@ -105,27 +117,46 @@ export default function MeetingsPage() {
     <div>
       <div className="page-header"><h2>Quản lý Meeting</h2></div>
 
-      <Form onSubmit={handleCreate} className="dash-card d-flex flex-wrap gap-3 align-items-end mb-4">
+      <Form onSubmit={submitCreate(onCreate)} className="dash-card d-flex flex-wrap gap-3 align-items-start mb-4" noValidate>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Season</Form.Label>
-          <Form.Select value={form.seasonId} onChange={(e) => setForm({ ...form, seasonId: e.target.value })} required>
+          <Form.Select
+            {...regCreate('seasonId', { required: 'Chọn season' })}
+            isInvalid={!!createErrors.seasonId}
+          >
             <option value="">-- Chọn season --</option>
             {seasons.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </Form.Select>
+          <Form.Control.Feedback type="invalid">{createErrors.seasonId?.message}</Form.Control.Feedback>
         </Form.Group>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Tên meeting</Form.Label>
-          <Form.Control value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          <Form.Control
+            {...regCreate('name', { required: 'Tên meeting là bắt buộc' })}
+            isInvalid={!!createErrors.name}
+          />
+          <Form.Control.Feedback type="invalid">{createErrors.name?.message}</Form.Control.Feedback>
         </Form.Group>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Đường đua</Form.Label>
-          <Form.Control value={form.racecourse} onChange={(e) => setForm({ ...form, racecourse: e.target.value })} required />
+          <Form.Control
+            {...regCreate('racecourse', { required: 'Đường đua là bắt buộc' })}
+            isInvalid={!!createErrors.racecourse}
+          />
+          <Form.Control.Feedback type="invalid">{createErrors.racecourse?.message}</Form.Control.Feedback>
         </Form.Group>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Ngày</Form.Label>
-          <Form.Control type="datetime-local" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required />
+          <Form.Control
+            type="datetime-local"
+            {...regCreate('date', { required: 'Ngày là bắt buộc' })}
+            isInvalid={!!createErrors.date}
+          />
+          <Form.Control.Feedback type="invalid">{createErrors.date?.message}</Form.Control.Feedback>
         </Form.Group>
-        <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px' }}>Tạo Meeting</Button>
+        <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px', marginTop: '32px' }}>
+          Tạo Meeting
+        </Button>
       </Form>
 
       {loading && <Loading />}
@@ -138,31 +169,47 @@ export default function MeetingsPage() {
         </>
       )}
 
-      {/* Edit Modal */}
       <Modal show={!!editRow} onHide={() => setEditRow(null)} centered>
         <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>
           <Modal.Title style={{ color: '#D4AF37' }}>Sửa Meeting</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ background: '#1a1a2e' }}>
-          <Form onSubmit={handleUpdate} className="d-flex flex-column gap-3">
+          <Form onSubmit={submitEdit(onUpdate)} className="d-flex flex-column gap-3" noValidate>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Season</Form.Label>
-              <Form.Select value={editForm.seasonId} onChange={(e) => setEditForm({ ...editForm, seasonId: e.target.value })} required>
+              <Form.Select
+                {...regEdit('seasonId', { required: 'Chọn season' })}
+                isInvalid={!!editErrors.seasonId}
+              >
                 <option value="">-- Chọn season --</option>
                 {seasons.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </Form.Select>
+              <Form.Control.Feedback type="invalid">{editErrors.seasonId?.message}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Tên meeting</Form.Label>
-              <Form.Control value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} required />
+              <Form.Control
+                {...regEdit('name', { required: 'Tên meeting là bắt buộc' })}
+                isInvalid={!!editErrors.name}
+              />
+              <Form.Control.Feedback type="invalid">{editErrors.name?.message}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Đường đua</Form.Label>
-              <Form.Control value={editForm.racecourse} onChange={(e) => setEditForm({ ...editForm, racecourse: e.target.value })} required />
+              <Form.Control
+                {...regEdit('racecourse', { required: 'Đường đua là bắt buộc' })}
+                isInvalid={!!editErrors.racecourse}
+              />
+              <Form.Control.Feedback type="invalid">{editErrors.racecourse?.message}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Ngày</Form.Label>
-              <Form.Control type="datetime-local" value={editForm.date} onChange={(e) => setEditForm({ ...editForm, date: e.target.value })} required />
+              <Form.Control
+                type="datetime-local"
+                {...regEdit('date', { required: 'Ngày là bắt buộc' })}
+                isInvalid={!!editErrors.date}
+              />
+              <Form.Control.Feedback type="invalid">{editErrors.date?.message}</Form.Control.Feedback>
             </Form.Group>
             <div className="d-flex justify-content-end gap-2 mt-2">
               <Button variant="secondary" onClick={() => setEditRow(null)}>Huỷ</Button>

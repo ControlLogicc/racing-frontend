@@ -9,6 +9,7 @@ let _nextId = Math.max(..._races.map((r) => r.id)) + 1;
 
 const mockService = {
   getAll: () => Promise.resolve([..._races]),
+  getById: (id) => Promise.resolve(_races.find((r) => r.id === id) ?? null),
   getAssignedToReferee: (refereeId) =>
     Promise.resolve(_races.filter((r) => r.assignedRefereeIds?.includes(refereeId))),
   create: (payload) => {
@@ -32,6 +33,7 @@ const mockService = {
 
 const realService = {
   getAll: () => api.get('/races').then((r) => r.data),
+  getById: (id) => api.get(`/races/${id}`).then((r) => r.data),
   getAssignedToReferee: (refereeId) =>
     api.get('/races', { params: { refereeId } }).then((r) => r.data),
   create: (payload) => api.post('/races', payload).then((r) => r.data),
