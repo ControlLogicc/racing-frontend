@@ -32,12 +32,15 @@ import StaffEntriesPage from '../pages/staff/EntriesPage';
 import SeasonsPage from '../pages/admin/SeasonsPage';
 import MeetingsPage from '../pages/admin/MeetingsPage';
 import AdminRacesPage from '../pages/admin/RacesPage';
+import RaceConditionsPage from '../pages/admin/RaceConditionsPage';
 
 // Owner
 import OwnerDashboardOverview from '../pages/owner/Dashboard';
 import OwnerHorsesPage from '../pages/owner/HorsesPage';
 import OwnerRegistrationsPage from '../pages/owner/RegistrationsPage';
 import OwnerInvitationsPage from '../pages/owner/InvitationsPage';
+import OwnerOpenRacesPage from '../pages/owner/OpenRacesPage';
+import RegisterRacePage from '../pages/owner/RegisterRacePage';
 
 // Jockey
 import JockeyDashboardOverview from '../pages/jockey/Dashboard';
@@ -86,6 +89,9 @@ export default function AppRoutes() {
           <Route path="admin/races" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminRacesPage /></ProtectedRoute>
           } />
+          <Route path="admin/race-conditions" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><RaceConditionsPage /></ProtectedRoute>
+          } />
 
           {/* Staff: vận hành race — theo dõi invitation, remove entry nếu cần (D11) */}
           <Route path="staff" element={
@@ -113,6 +119,12 @@ export default function AppRoutes() {
           } />
           <Route path="owner/invitations" element={
             <ProtectedRoute allowedRoles={[ROLES.OWNER]}><OwnerInvitationsPage /></ProtectedRoute>
+          } />
+          <Route path="owner/races" element={
+            <ProtectedRoute allowedRoles={[ROLES.OWNER]}><OwnerOpenRacesPage /></ProtectedRoute>
+          } />
+          <Route path="owner/register" element={
+            <ProtectedRoute allowedRoles={[ROLES.OWNER]}><RegisterRacePage /></ProtectedRoute>
           } />
 
           {/* Jockey: xem & phản hồi lời mời, lịch đua của mình */}
