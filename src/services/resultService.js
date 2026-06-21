@@ -10,6 +10,7 @@ let _nextId = Math.max(0, ..._results.map((r) => r.id)) + 1;
 const mockService = {
   getAll: () => Promise.resolve([..._results]),
   getByRace: (raceId) => Promise.resolve(_results.filter((r) => r.raceId === raceId)),
+  getByHorse: (horseId) => Promise.resolve(_results.filter((r) => r.horseId === horseId)),
 
   // RACE_RESULT chỉ tạo được khi race COMPLETED — guard ở page
   // Referee tạo → resultStatus mặc định REVIEWED_BY_REFEREE
@@ -45,6 +46,7 @@ const mockService = {
 const realService = {
   getAll: () => api.get('/race-results').then((r) => r.data),
   getByRace: (raceId) => api.get(`/race-results/race/${raceId}`).then((r) => r.data),
+  getByHorse: (horseId) => api.get(`/race-results/horse/${horseId}`).then((r) => r.data),
   create: (payload) => api.post('/race-results', payload).then((r) => r.data),
   update: (id, payload) => api.put(`/race-results/${id}`, payload).then((r) => r.data),
   setRaceStatus: (raceId, status) =>
