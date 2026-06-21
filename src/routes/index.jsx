@@ -35,6 +35,7 @@ import SeasonsPage from '../pages/admin/SeasonsPage';
 import MeetingsPage from '../pages/admin/MeetingsPage';
 import AdminRacesPage from '../pages/admin/RacesPage';
 import RaceConditionsPage from '../pages/admin/RaceConditionsPage';
+import AdminRefereeReportsPage from '../pages/admin/RefereeReportsPage';
 
 // Owner
 import OwnerDashboardOverview from '../pages/owner/Dashboard';
@@ -94,6 +95,9 @@ export default function AppRoutes() {
           } />
           <Route path="admin/race-conditions" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><RaceConditionsPage /></ProtectedRoute>
+          } />
+          <Route path="admin/reports" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminRefereeReportsPage /></ProtectedRoute>
           } />
 
           {/* Staff: vận hành race — theo dõi invitation, remove entry nếu cần (D11) */}
