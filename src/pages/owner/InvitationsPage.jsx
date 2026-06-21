@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { useForm } from 'react-hook-form';
+import { Form, Button, Badge, Spinner, Row, Col } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
 import { registrationService } from '../../services/registrationService';
 import { invitationService } from '../../services/invitationService';
@@ -14,6 +15,21 @@ import DataTable from '../../components/common/DataTable';
 import StatusBadge from '../../components/common/StatusBadge';
 import Toaster from '../../components/common/Toaster';
 
+const BLOCKED_INV_STATUSES = [RACE_INVITATION_STATUS.SENT, RACE_INVITATION_STATUS.ACCEPTED];
+
+const JOCKEY_BADGE_CFG = {
+  [RACE_INVITATION_STATUS.SENT]: { label: 'Đang chờ', bg: 'warning' },
+  [RACE_INVITATION_STATUS.ACCEPTED]: { label: 'Đã nhận', bg: 'success' },
+  [RACE_INVITATION_STATUS.DECLINED]: { label: 'Từ chối', bg: 'danger' },
+  [RACE_INVITATION_STATUS.EXPIRED]: { label: 'Hết hạn', bg: 'secondary' },
+};
+
+function JockeyStatusBadge({ status }) {
+  const cfg = JOCKEY_BADGE_CFG[status];
+  if (!cfg) return <Badge bg="info">Khả dụng</Badge>;
+  return <Badge bg={cfg.bg}>{cfg.label}</Badge>;
+}
+
 export default function OwnerInvitationsPage() {
   const { user } = useAuth();
   const [registrations, setRegistrations] = useState([]);
@@ -21,36 +37,61 @@ export default function OwnerInvitationsPage() {
   const [jockeys, setJockeys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isSending, setIsSending] = useState(false);
   const [toast, setToast] = useState(null);
-  const [registrationId, setRegistrationId] = useState('');
-  const [jockeyId, setJockeyId] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+    reset,
+  } = useForm({ defaultValues: { registrationId: '', jockeyId: '', message: '' } });
+
+  const watchedRegId = Number(watch('registrationId'));
 
   const load = () => {
-    Promise.all([registrationService.getByOwner(user.userId), invitationService.getAll(), userService.getAll()])
+    Promise.all([
+      registrationService.getByOwner(user.userId),
+      invitationService.getAll(),
+      userService.getAll(),
+    ])
       .then(([regs, invs, users]) => {
-        setRegistrations(regs.filter((r) => r.status !== RACE_REGISTRATION_STATUS.CANCELLED));
-        setInvitations(invs.filter((i) => regs.some((r) => r.id === i.registrationId)));
+        const activeRegs = regs.filter((r) => r.status !== RACE_REGISTRATION_STATUS.CANCELLED);
+        setRegistrations(activeRegs);
+        setInvitations(invs.filter((i) => activeRegs.some((r) => r.id === i.registrationId)));
         setJockeys(users.filter((u) => u.role === 'jockey' && !u.locked));
       })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu lời mời.')))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
-  const refetch = () => {
-    setLoading(true);
-    setError('');
-    load();
+  const refetch = () => { setLoading(true); setError(''); load(); };
+
+  // Tìm lời mời của jockeyId trong registration đang chọn
+  const getJockeyInvStatus = (jockeyId) => {
+    if (!watchedRegId) return null;
+    return invitations.find(
+      (i) => i.registrationId === watchedRegId && i.jockeyId === jockeyId
+    )?.status ?? null;
   };
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    const registration = registrations.find((r) => r.id === Number(registrationId));
-    const jockey = jockeys.find((j) => j.id === Number(jockeyId));
+  // Jockey được phép chọn trong select: chưa có invitation SENT/ACCEPTED cho reg đang chọn
+  const selectableJockeys = jockeys.filter((j) => {
+    if (!watchedRegId) return true;
+    return !BLOCKED_INV_STATUSES.includes(getJockeyInvStatus(j.id));
+  });
+
+  const allInvitedForReg = watchedRegId > 0 && selectableJockeys.length === 0;
+
+  const onSubmit = async (data) => {
+    const registration = registrations.find((r) => r.id === Number(data.registrationId));
+    const jockey = jockeys.find((j) => j.id === Number(data.jockeyId));
     if (!registration || !jockey) return;
+    setIsSending(true);
     try {
       await invitationService.send({
         registrationId: registration.id,
@@ -58,13 +99,18 @@ export default function OwnerInvitationsPage() {
         horseName: registration.horseName,
         jockeyId: jockey.id,
         jockeyName: jockey.fullName,
+        message: data.message.trim() || null,
       });
-      setToast({ message: 'Đã gửi lời mời.', variant: 'success' });
-      setRegistrationId('');
-      setJockeyId('');
-      refetch();
+      setToast({ message: `Đã gửi lời mời đến ${jockey.fullName} thành công.`, variant: 'success' });
+      reset();
+      // chỉ reload invitations để không mất filter state
+      invitationService.getAll().then((invs) =>
+        setInvitations(invs.filter((i) => registrations.some((r) => r.id === i.registrationId)))
+      );
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Gửi lời mời thất bại.'), variant: 'danger' });
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -72,25 +118,57 @@ export default function OwnerInvitationsPage() {
     try {
       await invitationService.cancel(id);
       setToast({ message: 'Đã huỷ lời mời.', variant: 'success' });
-      refetch();
+      invitationService.getAll().then((invs) =>
+        setInvitations(invs.filter((i) => registrations.some((r) => r.id === i.registrationId)))
+      );
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Huỷ thất bại.'), variant: 'danger' });
     }
   };
 
-  const columns = [
+  const invColumns = [
     { key: 'raceName', label: 'Race' },
     { key: 'horseName', label: 'Ngựa' },
     { key: 'jockeyName', label: 'Jockey' },
     { key: 'sentAt', label: 'Ngày gửi', render: (r) => formatDate(r.sentAt) },
+    { key: 'deadline', label: 'Deadline', render: (r) => (r.deadline ? formatDate(r.deadline) : '—') },
     { key: 'status', label: 'Trạng thái', render: (r) => <StatusBadge status={r.status} /> },
     {
       key: 'actions',
       label: 'Hành động',
       render: (r) =>
         r.status === RACE_INVITATION_STATUS.SENT ? (
-          <button className="btn-outline-gold-sm" onClick={() => handleCancel(r.id)}>Huỷ lời mời</button>
+          <button className="btn-outline-gold-sm" onClick={() => handleCancel(r.id)}>
+            Huỷ lời mời
+          </button>
         ) : '—',
+    },
+  ];
+
+  const jockeyColumns = [
+    { key: 'fullName', label: 'Tên Jockey' },
+    { key: 'email', label: 'Email' },
+    {
+      key: 'invStatus',
+      label: 'Trạng thái (đăng ký đang chọn)',
+      render: (j) => <JockeyStatusBadge status={getJockeyInvStatus(j.id)} />,
+    },
+    {
+      key: 'pick',
+      label: '',
+      render: (j) => {
+        const invStatus = getJockeyInvStatus(j.id);
+        const blocked = BLOCKED_INV_STATUSES.includes(invStatus);
+        return (
+          <button
+            className="btn-outline-gold-sm"
+            disabled={!watchedRegId || blocked}
+            onClick={() => setValue('jockeyId', String(j.id))}
+          >
+            Chọn
+          </button>
+        );
+      },
     },
   ];
 
@@ -101,31 +179,118 @@ export default function OwnerInvitationsPage() {
     <div>
       <div className="page-header"><h2>Lời mời Jockey</h2></div>
 
-      <Form onSubmit={handleSend} className="dash-card d-flex flex-wrap gap-3 align-items-end mb-4">
-        <Form.Group>
-          <Form.Label style={{ color: '#D4AF37' }}>Đăng ký</Form.Label>
-          <Form.Select value={registrationId} onChange={(e) => setRegistrationId(e.target.value)} required>
-            <option value="">-- Chọn đăng ký --</option>
-            {registrations.map((r) => (
-              <option key={r.id} value={r.id}>{r.raceName} — {r.horseName}</option>
-            ))}
-          </Form.Select>
-        </Form.Group>
-        <Form.Group>
-          <Form.Label style={{ color: '#D4AF37' }}>Jockey</Form.Label>
-          <Form.Select value={jockeyId} onChange={(e) => setJockeyId(e.target.value)} required>
-            <option value="">-- Chọn jockey --</option>
-            {jockeys.map((j) => <option key={j.id} value={j.id}>{j.fullName}</option>)}
-          </Form.Select>
-        </Form.Group>
-        <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px' }}>Gửi lời mời</Button>
-      </Form>
+      <Row className="g-4 mb-4">
+        {/* Form gửi lời mời */}
+        <Col lg={5}>
+          <div className="dash-card h-100">
+            <h5 style={{ color: '#D4AF37', marginBottom: 20 }}>Gửi lời mời mới</h5>
+            <Form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <Form.Group className="mb-3">
+                <Form.Label style={{ color: '#D4AF37' }}>
+                  Đăng ký <span style={{ color: '#e55' }}>*</span>
+                </Form.Label>
+                <Form.Select
+                  {...register('registrationId', { required: 'Vui lòng chọn đăng ký' })}
+                  isInvalid={!!errors.registrationId}
+                >
+                  <option value="">-- Chọn đăng ký --</option>
+                  {registrations.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.raceName} — {r.horseName}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errors.registrationId?.message}
+                </Form.Control.Feedback>
+                {registrations.length === 0 && (
+                  <Form.Text style={{ color: '#888' }}>
+                    Bạn chưa có đăng ký nào đang hoạt động.
+                  </Form.Text>
+                )}
+              </Form.Group>
 
-      {invitations.length === 0 ? (
-        <EmptyState message="Chưa có lời mời nào được gửi." />
-      ) : (
-        <DataTable columns={columns} rows={invitations} />
-      )}
+              <Form.Group className="mb-3">
+                <Form.Label style={{ color: '#D4AF37' }}>
+                  Jockey <span style={{ color: '#e55' }}>*</span>
+                </Form.Label>
+                <Form.Select
+                  {...register('jockeyId', { required: 'Vui lòng chọn jockey' })}
+                  isInvalid={!!errors.jockeyId}
+                  disabled={allInvitedForReg}
+                >
+                  <option value="">-- Chọn jockey --</option>
+                  {selectableJockeys.map((j) => (
+                    <option key={j.id} value={j.id}>{j.fullName}</option>
+                  ))}
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errors.jockeyId?.message}
+                </Form.Control.Feedback>
+                {allInvitedForReg && (
+                  <Form.Text style={{ color: '#f6a' }}>
+                    Tất cả jockey đã được mời cho đăng ký này.
+                  </Form.Text>
+                )}
+              </Form.Group>
+
+              <Form.Group className="mb-4">
+                <Form.Label style={{ color: '#D4AF37' }}>Lời nhắn</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder="Nhập lời nhắn cho jockey (tuỳ chọn, tối đa 500 ký tự)..."
+                  {...register('message', {
+                    maxLength: { value: 500, message: 'Lời nhắn tối đa 500 ký tự' },
+                  })}
+                  isInvalid={!!errors.message}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.message?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              <Button
+                type="submit"
+                className="btn-gold-sm w-100"
+                style={{ padding: '10px' }}
+                disabled={isSending || registrations.length === 0 || allInvitedForReg}
+              >
+                {isSending ? (
+                  <><Spinner size="sm" animation="border" className="me-2" />Đang gửi...</>
+                ) : 'Gửi lời mời'}
+              </Button>
+            </Form>
+          </div>
+        </Col>
+
+        {/* Danh sách jockey khả dụng */}
+        <Col lg={7}>
+          <div className="dash-card h-100">
+            <h5 style={{ color: '#D4AF37', marginBottom: 4 }}>Jockey khả dụng</h5>
+            <p style={{ color: '#888', fontSize: 13, marginBottom: 16 }}>
+              {watchedRegId
+                ? 'Nhấn "Chọn" để điền nhanh vào form. Jockey đang chờ/đã nhận không thể mời lại.'
+                : 'Chọn đăng ký ở form bên trái để xem trạng thái lời mời với từng jockey.'}
+            </p>
+            {jockeys.length === 0 ? (
+              <EmptyState message="Không có jockey nào khả dụng trong hệ thống." />
+            ) : (
+              <DataTable columns={jockeyColumns} rows={jockeys} />
+            )}
+          </div>
+        </Col>
+      </Row>
+
+      {/* Lịch sử lời mời đã gửi */}
+      <div className="dash-card">
+        <h5 style={{ color: '#D4AF37', marginBottom: 16 }}>Lời mời đã gửi</h5>
+        {invitations.length === 0 ? (
+          <EmptyState message="Chưa có lời mời nào được gửi." />
+        ) : (
+          <DataTable columns={invColumns} rows={invitations} />
+        )}
+      </div>
 
       <Toaster toast={toast} onClose={() => setToast(null)} />
     </div>
