@@ -10,6 +10,7 @@ let nextId = mockStore.length + 1;
 const mockService = {
   // Trả toàn bộ danh sách (không filter ownerId) để luôn thấy data khi test
   getAll: () => Promise.resolve([...mockStore]),
+  getById: (id) => Promise.resolve(mockStore.find((h) => h.id === id) ?? null),
   getByOwner: () => Promise.resolve([...mockStore]),
   create: (payload) => {
     const created = { id: nextId++, ...payload };
@@ -31,6 +32,7 @@ const mockService = {
 // Nếu backend trả field khác → sửa ở đây, KHÔNG sửa trong JSX
 const realService = {
   getAll: (params) => api.get('/horses', { params }).then((r) => r.data),
+  getById: (id) => api.get(`/horses/${id}`).then((r) => r.data),
   getByOwner: (ownerId) => api.get('/horses', { params: { ownerId } }).then((r) => r.data),
   create: (payload) => api.post('/horses', payload).then((r) => r.data),
   update: (id, payload) => api.put(`/horses/${id}`, payload).then((r) => r.data),

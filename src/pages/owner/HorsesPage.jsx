@@ -91,7 +91,7 @@ export default function OwnerHorsesPage() {
         <div className="row g-4">
           {horses.map((h) => (
             <div className="col-12 col-sm-6 col-lg-4" key={h.id}>
-              <HorseProfileCard horse={h} />
+              <HorseProfileCard horse={h} showHistory />
             </div>
           ))}
         </div>

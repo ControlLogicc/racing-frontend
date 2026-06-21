@@ -11,6 +11,7 @@ const MENU_CONFIG = {
     { path: '/admin/meetings', label: 'Meeting', icon: '🏟️' },
     { path: '/admin/races', label: 'Race', icon: '🏁' },
     { path: '/admin/race-conditions', label: 'Race Condition', icon: '📋' },
+    { path: '/admin/results', label: 'Kết quả đua', icon: '🏆' },
     { path: '/admin/reports', label: 'Báo cáo Referee', icon: '🔍' },
   ],
   [ROLES.STAFF]: [
