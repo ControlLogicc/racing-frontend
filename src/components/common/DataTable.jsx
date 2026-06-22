@@ -1,17 +1,11 @@
-import { Table } from 'react-bootstrap';
-
-// Bảng dữ liệu dùng chung mọi trang CRUD.
-// columns: [{ key, label, render?: (row) => node }]
 export default function DataTable({ columns, rows, rowKey = 'id', rowClassName }) {
   return (
-    <div className="table-responsive">
-      <Table hover responsive variant="dark" className="align-middle mb-0">
+    <div className="dash-table-wrap">
+      <table className="dash-table">
         <thead>
           <tr>
             {columns.map((col) => (
-              <th key={col.key} style={{ color: '#D4AF37', borderColor: '#333' }}>
-                {col.label}
-              </th>
+              <th key={col.key}>{col.label}</th>
             ))}
           </tr>
         </thead>
@@ -19,14 +13,14 @@ export default function DataTable({ columns, rows, rowKey = 'id', rowClassName }
           {rows.map((row) => (
             <tr key={row[rowKey]} className={rowClassName ? rowClassName(row) : undefined}>
               {columns.map((col) => (
-                <td key={col.key} style={{ borderColor: '#2a2a2a' }}>
+                <td key={col.key}>
                   {col.render ? col.render(row) : row[col.key]}
                 </td>
               ))}
             </tr>
           ))}
         </tbody>
-      </Table>
+      </table>
     </div>
   );
 }

@@ -37,6 +37,13 @@ import AdminRacesPage from '../pages/admin/RacesPage';
 import RaceConditionsPage from '../pages/admin/RaceConditionsPage';
 import AdminRefereeReportsPage from '../pages/admin/RefereeReportsPage';
 import AdminResultsPage from '../pages/admin/ResultsPage';
+import CreateSeasonWizardPage from '../pages/admin/CreateSeasonWizardPage';
+import EditSeasonPage from '../pages/admin/EditSeasonPage';
+import CreateMeetingWizardPage from '../pages/admin/CreateMeetingWizardPage';
+import EditMeetingPage from '../pages/admin/EditMeetingPage';
+import CreateRaceWizardPage from '../pages/admin/CreateRaceWizardPage';
+import EditRacePage from '../pages/admin/EditRacePage';
+import EditRaceConditionPage from '../pages/admin/EditRaceConditionPage';
 
 // Owner
 import OwnerDashboardOverview from '../pages/owner/Dashboard';
@@ -89,14 +96,35 @@ export default function AppRoutes() {
           <Route path="admin/seasons" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><SeasonsPage /></ProtectedRoute>
           } />
+          <Route path="admin/seasons/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreateSeasonWizardPage /></ProtectedRoute>
+          } />
+          <Route path="admin/seasons/edit/:id" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><EditSeasonPage /></ProtectedRoute>
+          } />
           <Route path="admin/meetings" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><MeetingsPage /></ProtectedRoute>
+          } />
+          <Route path="admin/meetings/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreateMeetingWizardPage /></ProtectedRoute>
+          } />
+          <Route path="admin/meetings/edit/:id" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><EditMeetingPage /></ProtectedRoute>
           } />
           <Route path="admin/races" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminRacesPage /></ProtectedRoute>
           } />
+          <Route path="admin/races/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreateRaceWizardPage /></ProtectedRoute>
+          } />
+          <Route path="admin/races/edit/:id" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><EditRacePage /></ProtectedRoute>
+          } />
           <Route path="admin/race-conditions" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><RaceConditionsPage /></ProtectedRoute>
+          } />
+          <Route path="admin/race-conditions/edit/:id" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><EditRaceConditionPage /></ProtectedRoute>
           } />
           <Route path="admin/reports" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminRefereeReportsPage /></ProtectedRoute>
