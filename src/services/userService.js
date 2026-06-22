@@ -13,6 +13,10 @@ const mockService = {
     _users = [..._users, created];
     return Promise.resolve(created);
   },
+  updateMe: (id, payload) => {
+    _users = _users.map((u) => (u.id === id ? { ...u, ...payload } : u));
+    return Promise.resolve(_users.find((u) => u.id === id));
+  },
   setRole: (id, role) => {
     _users = _users.map((u) => (u.id === id ? { ...u, role } : u));
     return Promise.resolve(_users.find((u) => u.id === id));
@@ -26,6 +30,7 @@ const mockService = {
 const realService = {
   getAll: () => api.get('/users').then((r) => r.data),
   create: (payload) => api.post('/users', payload).then((r) => r.data),
+  updateMe: (id, payload) => api.put(`/users/${id}`, payload).then((r) => r.data),
   setRole: (id, role) => api.patch(`/users/${id}/role`, { role }).then((r) => r.data),
   setLocked: (id, locked) => api.patch(`/users/${id}/locked`, { locked }).then((r) => r.data),
 };

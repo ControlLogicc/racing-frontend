@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Form, Badge, Button, Modal } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { Form, Badge, Button } from 'react-bootstrap';
 import { userService } from '../../services/userService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { ROLES } from '../../constants/roles';
@@ -14,16 +14,12 @@ import Toaster from '../../components/common/Toaster';
 const PAGE_SIZE = 10;
 
 export default function AdminUsersPage() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
   const [page, setPage] = useState(1);
-  const [showCreate, setShowCreate] = useState(false);
-
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
-    defaultValues: { fullName: '', email: '', password: '', role: ROLES.SPECTATOR },
-  });
 
   const load = () => {
     userService
@@ -36,19 +32,6 @@ export default function AdminUsersPage() {
   useEffect(() => { load(); }, []);
 
   const refetch = () => { setLoading(true); setError(''); load(); };
-
-  const handleClose = () => { setShowCreate(false); reset(); };
-
-  const onSubmit = async (data) => {
-    try {
-      await userService.create(data);
-      setToast({ message: 'Tạo tài khoản thành công.', variant: 'success' });
-      handleClose();
-      refetch();
-    } catch (err) {
-      setToast({ message: getApiErrorMessage(err, 'Tạo tài khoản thất bại.'), variant: 'danger' });
-    }
-  };
 
   const handleRoleChange = async (id, role) => {
     try {
@@ -73,6 +56,7 @@ export default function AdminUsersPage() {
   const columns = [
     { key: 'fullName', label: 'Họ tên' },
     { key: 'email', label: 'Email' },
+    { key: 'phone', label: 'Số điện thoại', render: (u) => u.phone || '—' },
     {
       key: 'role',
       label: 'Role',
@@ -97,13 +81,14 @@ export default function AdminUsersPage() {
       ),
     },
   ];
+
   const pageRows = users.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div>
       <div className="page-header d-flex justify-content-between align-items-center">
         <h2>Quản lý người dùng</h2>
-        <Button className="btn-gold-sm" onClick={() => setShowCreate(true)}>+ Tạo tài khoản</Button>
+        <Button className="btn-gold-sm" onClick={() => navigate('/admin/users/create')}>+ Tạo tài khoản</Button>
       </div>
 
       {loading && <Loading />}
@@ -115,59 +100,6 @@ export default function AdminUsersPage() {
           <Pagination page={page} pageSize={PAGE_SIZE} total={users.length} onPageChange={setPage} />
         </>
       )}
-
-      {/* Create Modal */}
-      <Modal show={showCreate} onHide={handleClose} centered>
-        <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>
-          <Modal.Title style={{ color: '#D4AF37' }}>Tạo tài khoản mới</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ background: '#1a1a2e' }}>
-          <Form onSubmit={handleSubmit(onSubmit)} className="d-flex flex-column gap-3" noValidate>
-            <Form.Group>
-              <Form.Label style={{ color: '#D4AF37' }}>Họ tên</Form.Label>
-              <Form.Control
-                {...register('fullName', { required: 'Họ tên là bắt buộc' })}
-                isInvalid={!!errors.fullName}
-              />
-              <Form.Control.Feedback type="invalid">{errors.fullName?.message}</Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label style={{ color: '#D4AF37' }}>Email</Form.Label>
-              <Form.Control
-                type="email"
-                {...register('email', {
-                  required: 'Email là bắt buộc',
-                  pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Email không hợp lệ' },
-                })}
-                isInvalid={!!errors.email}
-              />
-              <Form.Control.Feedback type="invalid">{errors.email?.message}</Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label style={{ color: '#D4AF37' }}>Mật khẩu</Form.Label>
-              <Form.Control
-                type="password"
-                {...register('password', {
-                  required: 'Mật khẩu là bắt buộc',
-                  minLength: { value: 6, message: 'Mật khẩu ít nhất 6 ký tự' },
-                })}
-                isInvalid={!!errors.password}
-              />
-              <Form.Control.Feedback type="invalid">{errors.password?.message}</Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label style={{ color: '#D4AF37' }}>Role</Form.Label>
-              <Form.Select {...register('role', { required: true })}>
-                {Object.values(ROLES).map((r) => <option key={r} value={r}>{r}</option>)}
-              </Form.Select>
-            </Form.Group>
-            <div className="d-flex justify-content-end gap-2 mt-2">
-              <Button variant="secondary" onClick={handleClose}>Huỷ</Button>
-              <Button type="submit" className="btn-gold-sm">Tạo</Button>
-            </div>
-          </Form>
-        </Modal.Body>
-      </Modal>
 
       <Toaster toast={toast} onClose={() => setToast(null)} />
     </div>

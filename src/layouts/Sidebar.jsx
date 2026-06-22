@@ -4,7 +4,7 @@ import { ROLES } from '../constants/roles';
 import {
   Speedometer2, PeopleFill, CalendarRange, Building, Flag,
   Sliders, Trophy, ClipboardCheck, Envelope, FileEarmarkText,
-  CheckSquare, Calendar3, FileEarmarkPlus, PersonHeart,
+  CheckSquare, Calendar3, FileEarmarkPlus, PersonHeart, PersonVcard,
 } from 'react-bootstrap-icons';
 
 const MENU_CONFIG = {
@@ -38,6 +38,7 @@ const MENU_CONFIG = {
       label: 'Main',
       items: [
         { path: '/staff', label: 'Dashboard', Icon: Speedometer2 },
+        { path: '/staff/profile', label: 'Hồ sơ cá nhân', Icon: PersonVcard },
       ],
     },
     {
@@ -72,6 +73,7 @@ const MENU_CONFIG = {
       label: 'Main',
       items: [
         { path: '/jockey', label: 'Dashboard', Icon: Speedometer2 },
+        { path: '/jockey/profile', label: 'Hồ sơ cá nhân', Icon: PersonVcard },
         { path: '/jockey/invitations', label: 'Lời mời đua', Icon: Envelope },
         { path: '/jockey/races', label: 'Lịch đua của tôi', Icon: Calendar3 },
       ],
@@ -82,6 +84,7 @@ const MENU_CONFIG = {
       label: 'Main',
       items: [
         { path: '/referee', label: 'Dashboard', Icon: Speedometer2 },
+        { path: '/referee/profile', label: 'Hồ sơ cá nhân', Icon: PersonVcard },
         { path: '/referee/reports', label: 'Báo cáo vi phạm', Icon: ClipboardCheck },
         { path: '/referee/results', label: 'Kết quả đua', Icon: Trophy },
       ],

@@ -13,7 +13,6 @@ const PHONE_REGEX = /^[0-9]{9,11}$/;
 
 const ROLE_LABEL = {
   [ROLES.OWNER]: 'Chủ ngựa (Owner)',
-  [ROLES.JOCKEY]: 'Nài ngựa (Jockey)',
   [ROLES.SPECTATOR]: 'Khán giả (Spectator)',
 };
 

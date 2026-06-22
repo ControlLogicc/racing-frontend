@@ -44,6 +44,7 @@ import EditMeetingPage from '../pages/admin/EditMeetingPage';
 import CreateRaceWizardPage from '../pages/admin/CreateRaceWizardPage';
 import EditRacePage from '../pages/admin/EditRacePage';
 import EditRaceConditionPage from '../pages/admin/EditRaceConditionPage';
+import CreateUserPage from '../pages/admin/CreateUserPage';
 
 // Owner
 import OwnerDashboardOverview from '../pages/owner/Dashboard';
@@ -58,11 +59,16 @@ import HorseDetailPage from '../pages/owner/HorseDetailPage';
 import JockeyDashboardOverview from '../pages/jockey/Dashboard';
 import JockeyInvitationsPage from '../pages/jockey/InvitationsPage';
 import JockeyRacesPage from '../pages/jockey/RacesPage';
+import JockeyProfilePage from '../pages/jockey/ProfilePage';
+
+// Staff — profile
+import StaffProfilePage from '../pages/staff/ProfilePage';
 
 // Referee
 import RefereeDashboardOverview from '../pages/referee/Dashboard';
 import RefereeResultsPage from '../pages/referee/ResultsPage';
 import RefereeReportsPage from '../pages/referee/ReportsPage';
+import RefereeProfilePage from '../pages/referee/ProfilePage';
 
 export default function AppRoutes() {
   return (
@@ -92,6 +98,9 @@ export default function AppRoutes() {
           } />
           <Route path="admin/users" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminUsersPage /></ProtectedRoute>
+          } />
+          <Route path="admin/users/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreateUserPage /></ProtectedRoute>
           } />
           <Route path="admin/seasons" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><SeasonsPage /></ProtectedRoute>
@@ -149,6 +158,9 @@ export default function AppRoutes() {
           <Route path="staff/results" element={
             <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffResultsPage /></ProtectedRoute>
           } />
+          <Route path="staff/profile" element={
+            <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffProfilePage /></ProtectedRoute>
+          } />
 
           {/* Owner: quản lý ngựa, nộp đăng ký đua, gửi lời mời jockey */}
           <Route path="owner" element={
@@ -183,6 +195,9 @@ export default function AppRoutes() {
           <Route path="jockey/races" element={
             <ProtectedRoute allowedRoles={[ROLES.JOCKEY]}><JockeyRacesPage /></ProtectedRoute>
           } />
+          <Route path="jockey/profile" element={
+            <ProtectedRoute allowedRoles={[ROLES.JOCKEY]}><JockeyProfilePage /></ProtectedRoute>
+          } />
 
           {/* Referee: nhập kết quả race, viết báo cáo vi phạm */}
           <Route path="referee" element={
@@ -193,6 +208,9 @@ export default function AppRoutes() {
           } />
           <Route path="referee/reports" element={
             <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeReportsPage /></ProtectedRoute>
+          } />
+          <Route path="referee/profile" element={
+            <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeProfilePage /></ProtectedRoute>
           } />
 
           {/* Spectator đã đăng nhập: dashboard overview (link nhanh tới /schedule, /ranking) */}

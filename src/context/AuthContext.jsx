@@ -31,6 +31,12 @@ export default function AuthProvider({ children }) {
     setUser(userData);
   };
 
+  const updateUser = (updatedFields) => {
+    const merged = { ...JSON.parse(localStorage.getItem('user') || '{}'), ...updatedFields };
+    localStorage.setItem('user', JSON.stringify(merged));
+    setUser(merged);
+  };
+
   // EXCEPTION #6: redirect bằng window.location.href, KHÔNG useNavigate trong Context
   const logout = () => {
     localStorage.removeItem('token');
@@ -40,7 +46,7 @@ export default function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
