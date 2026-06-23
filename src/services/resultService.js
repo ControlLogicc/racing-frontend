@@ -102,7 +102,20 @@ const realService = {
   create: (payload) => api.post('/results', payload).then((r) => mapResult(r.data)),
   createForRace: (raceId, payload) => api.post('/results', { raceId, ...payload }).then((r) => mapResult(r.data)),
 
-  // Backend chưa có PUT /results/{id} — không thể chỉnh sửa kết quả riêng lẻ
+  // Nhập toàn bộ kết quả cho nhiều ngựa cùng lúc (Backend không có API batch nên phải gửi nhiều Request)
+  submitRaceResults: async (resultsData) => {
+    // resultsData là mảng các object: { entryId, position, finishTime }
+    const promises = resultsData.map(data => 
+      api.post('/results', {
+        entryId: data.entryId,
+        position: data.position,
+        finishTime: data.finishTime,
+        resultStatus: 'OFFICIAL' // Staff chốt luôn là OFFICIAL
+      })
+    );
+    const responses = await Promise.all(promises);
+    return responses.map(r => mapResult(r.data));
+  },
   update: () => Promise.reject(new Error('Chỉnh sửa kết quả riêng lẻ chưa được backend hỗ trợ.')),
 
   recalculate: (raceId) =>

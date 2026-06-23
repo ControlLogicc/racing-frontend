@@ -37,6 +37,7 @@ const MENU_CONFIG = {
   ],
   [ROLES.REFEREE]: [
     { path: '/referee', label: 'Dashboard', icon: '📊' },
+    { path: '/referee/weight-check', label: 'Kiểm tra cân nặng', icon: '⚖️' },
     { path: '/referee/reports', label: 'Báo cáo vi phạm', icon: '📋' },
   ],
   [ROLES.SPECTATOR]: [

@@ -171,7 +171,7 @@ export default function AppRoutes() {
           <Route path="referee/reports" element={
             <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeReportsPage /></ProtectedRoute>
           } />
-          <Route path="referee/weight-check/:raceId" element={
+          <Route path="referee/weight-check" element={
             <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeWeightCheckPage /></ProtectedRoute>
           } />
 
