@@ -71,7 +71,14 @@ const realService = {
   // Backend không có GET /results — load qua races rồi lấy từng race
   getAll: async () => {
     try {
-      const races = await api.get('/admin/races').then((r) => Array.isArray(r.data) ? r.data : []);
+      let races = [];
+      try {
+        const res = await api.get('/staff/races');
+        races = Array.isArray(res.data) ? res.data : [];
+      } catch {
+        const res = await api.get('/admin/races');
+        races = Array.isArray(res.data) ? res.data : [];
+      }
       const withResults = races.filter((r) =>
         ['RESULT_PENDING', 'OFFICIAL', 'COMPLETED', 'RUNNING'].includes(r.status)
       );
@@ -105,4 +112,4 @@ const realService = {
     api.patch(`/race-management/races/${raceId}/status`, { status }).then((r) => r.data),
 };
 
-export const resultService = USE_MOCK ? mockService : realService;
+export const resultService = realService;

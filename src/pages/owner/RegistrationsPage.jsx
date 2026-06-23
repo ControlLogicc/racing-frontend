@@ -68,7 +68,13 @@ export default function OwnerRegistrationsPage() {
     {
       key: 'raceName',
       label: 'Race',
-      render: (r) => <span style={{ fontWeight: 700, color: '#f0e8d0' }}>{r.raceName}</span>,
+      render: (r) => (
+        <div>
+          <span style={{ fontWeight: 700, color: '#f0e8d0' }}>{r.raceName}</span>
+          <br />
+          <span style={{ color: '#888', fontSize: '0.8rem' }}>(ID: {r.id})</span>
+        </div>
+      ),
     },
     {
       key: 'horseName',

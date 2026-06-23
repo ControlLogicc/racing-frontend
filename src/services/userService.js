@@ -63,8 +63,8 @@ const mapReferees = (list) => (Array.isArray(list) ? list.map(mapReferee) : []);
 
 const realService = {
   // BACKEND PENDING: GET /admin/users chưa có trong spec (chỉ có POST).
-  // Return [] để UsersPage không crash — admin vẫn dùng được form tạo user.
-  getAll: () => api.get('/admin/users').then((r) => (Array.isArray(r.data) ? r.data : [])).catch(() => []),
+  // Chuyển sang reject để UI hiện lỗi thay vì mảng rỗng khó hiểu.
+  getAll: () => Promise.reject(new Error('Chức năng xem danh sách Users chưa được backend hỗ trợ.')),
 
   // GET /jockeys — danh sách jockey (authenticated, dùng cho Owner mời jockey)
   getJockeys: () => api.get('/jockeys').then((r) => mapJockeys(r.data)),
@@ -91,4 +91,4 @@ const realService = {
   setLocked: () => Promise.reject(new Error('Chức năng khoá tài khoản chưa được backend hỗ trợ.')),
 };
 
-export const userService = USE_MOCK ? mockService : realService;
+export const userService = realService;

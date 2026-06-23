@@ -89,13 +89,15 @@ export default function OwnerInvitationsPage() {
   const allInvitedForReg = watchedRegId > 0 && selectableJockeys.length === 0;
 
   const onSubmit = async (data) => {
-    const registration = registrations.find((r) => r.id === Number(data.registrationId));
+    const regIdNum = Number(data.registrationId);
     const jockey = jockeys.find((j) => j.id === Number(data.jockeyId));
-    if (!registration || !jockey) return;
+    
+    // Nếu mảng registrations trống (do lỗi API getByOwner), vẫn cho phép gửi bằng ID nhập tay
+    if (!regIdNum || !jockey) return;
     setIsSending(true);
     try {
       await invitationService.send({
-        raceRegistrationId: registration.id,   // backend field name
+        raceRegistrationId: regIdNum,
         jockeyId: jockey.id,
       });
       setToast({ message: `Đã gửi lời mời đến ${jockey.fullName} thành công.`, variant: 'success' });
@@ -175,25 +177,34 @@ export default function OwnerInvitationsPage() {
                 <Form.Label style={{ color: '#D4AF37' }}>
                   Đăng ký <span style={{ color: '#e55' }}>*</span>
                 </Form.Label>
-                <Form.Select
-                  {...register('registrationId', { required: 'Vui lòng chọn đăng ký' })}
-                  isInvalid={!!errors.registrationId}
-                >
-                  <option value="">-- Chọn đăng ký --</option>
-                  {registrations.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.raceName} — {r.horseName}
-                    </option>
-                  ))}
-                </Form.Select>
+                {registrations.length > 0 ? (
+                  <Form.Select
+                    {...register('registrationId', { required: 'Vui lòng chọn đăng ký' })}
+                    isInvalid={!!errors.registrationId}
+                  >
+                    <option value="">-- Chọn đăng ký --</option>
+                    {registrations.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.raceName} — {r.horseName}
+                      </option>
+                    ))}
+                  </Form.Select>
+                ) : (
+                  <>
+                    <Form.Control
+                      type="number"
+                      {...register('registrationId', { required: 'Vui lòng nhập ID Đăng ký' })}
+                      placeholder="Nhập Registration ID (VD: 1, 2)"
+                      isInvalid={!!errors.registrationId}
+                    />
+                    <Form.Text style={{ color: '#888', fontSize: '0.8rem' }}>
+                      Do Server chưa có API trả về danh sách, vui lòng tự nhập Registration ID (số ID của Đăng ký đã được duyệt).
+                    </Form.Text>
+                  </>
+                )}
                 <Form.Control.Feedback type="invalid">
                   {errors.registrationId?.message}
                 </Form.Control.Feedback>
-                {registrations.length === 0 && (
-                  <Form.Text style={{ color: '#888' }}>
-                    Bạn chưa có đăng ký nào đang hoạt động.
-                  </Form.Text>
-                )}
               </Form.Group>
 
               <Form.Group className="mb-3">
@@ -240,7 +251,7 @@ export default function OwnerInvitationsPage() {
                 type="submit"
                 className="btn-gold btn-gold-sm w-100"
                 style={{ padding: '10px' }}
-                disabled={isSending || registrations.length === 0 || allInvitedForReg}
+                disabled={isSending || allInvitedForReg}
               >
                 {isSending ? (
                   <><Spinner size="sm" animation="border" className="me-2" />Đang gửi...</>

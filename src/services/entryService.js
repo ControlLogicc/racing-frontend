@@ -136,4 +136,4 @@ const realService = {
   remove: (id) => api.put(`/entries/${id}/status`, { status: 'scratched' }).then((r) => mapEntry(r.data)),
 };
 
-export const entryService = USE_MOCK ? mockService : realService;
+export const entryService = realService;

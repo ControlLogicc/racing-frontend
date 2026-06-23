@@ -27,6 +27,91 @@ const EMPTY_FORM = {
   registrationCloseAt: '',
 };
 
+// Shared form fields (used in both create inline form and edit modal)
+const RaceFormFields = ({ reg, errs, meetings: mtgs, conditions: conds, staff: slist, referees: rlist, loading }) => (
+  <>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Meeting <span style={{ color: '#e55' }}>*</span></Form.Label>
+      <Form.Select {...reg('meetingId', { required: 'Chọn meeting' })} isInvalid={!!errs.meetingId}>
+        <option value="">-- Chọn meeting --</option>
+        {mtgs.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+      </Form.Select>
+      <Form.Control.Feedback type="invalid">{errs.meetingId?.message}</Form.Control.Feedback>
+      {mtgs.length === 0 && !loading && (
+        <Form.Text style={{ color: '#888' }}>
+          Chưa có meeting nào. Vui lòng tạo meeting trước.
+        </Form.Text>
+      )}
+    </Form.Group>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Condition</Form.Label>
+      <Form.Select {...reg('conditionId')}>
+        <option value="">-- Chọn condition (tuỳ chọn) --</option>
+        {conds.map((c) => <option key={c.id} value={c.id}>{c.conditionName} ({c.distance}m)</option>)}
+      </Form.Select>
+    </Form.Group>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Staff phụ trách</Form.Label>
+      {slist.length > 0 ? (
+        <Form.Select {...reg('staffId')}>
+          <option value="">-- Chọn staff (tuỳ chọn) --</option>
+          {slist.map((s) => <option key={s.id} value={s.id}>{s.fullName}</option>)}
+        </Form.Select>
+      ) : (
+        <>
+          <Form.Control type="number" {...reg('staffId')} placeholder="Nhập ID của Staff (VD: 1, 2)" />
+          <Form.Text style={{ color: '#888', fontSize: '0.8rem' }}>
+            Do Backend chưa có API lấy danh sách, vui lòng nhập tay Staff ID.
+          </Form.Text>
+        </>
+      )}
+    </Form.Group>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Referee phụ trách</Form.Label>
+      {rlist.length > 0 ? (
+        <Form.Select {...reg('refereeId')}>
+          <option value="">-- Chọn referee (tuỳ chọn) --</option>
+          {rlist.map((r) => <option key={r.id} value={r.id}>{r.fullName}</option>)}
+        </Form.Select>
+      ) : (
+        <>
+          <Form.Control type="number" {...reg('refereeId')} placeholder="Nhập ID của Referee" />
+          <Form.Text style={{ color: '#888', fontSize: '0.8rem' }}>
+            Do Backend chưa có API lấy danh sách, vui lòng nhập tay Referee ID.
+          </Form.Text>
+        </>
+      )}
+    </Form.Group>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Số thực tế (Race No)</Form.Label>
+      <Form.Control type="number" {...reg('raceNo')} placeholder="VD: 1" min="1" />
+    </Form.Group>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Tên race <span style={{ color: '#e55' }}>*</span></Form.Label>
+      <Form.Control {...reg('name', { required: 'Tên race là bắt buộc' })} isInvalid={!!errs.name} />
+      <Form.Control.Feedback type="invalid">{errs.name?.message}</Form.Control.Feedback>
+    </Form.Group>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Giờ đua <span style={{ color: '#e55' }}>*</span></Form.Label>
+      <Form.Control type="datetime-local" {...reg('raceTime', { required: 'Giờ đua là bắt buộc' })} isInvalid={!!errs.raceTime} />
+      <Form.Control.Feedback type="invalid">{errs.raceTime?.message}</Form.Control.Feedback>
+    </Form.Group>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Mở đăng ký <span style={{ color: '#f6a', fontSize: '0.78rem' }}>(bắt buộc để owner thấy race)</span></Form.Label>
+      <Form.Control type="datetime-local" {...reg('registrationOpenAt', { required: 'Ngày mở đăng ký là bắt buộc' })} isInvalid={!!errs.registrationOpenAt} />
+      <Form.Control.Feedback type="invalid">{errs.registrationOpenAt?.message}</Form.Control.Feedback>
+      <Form.Text style={{ color: '#888', fontSize: 11 }}>
+        Phải &lt;= ngày hiện tại để owner thấy race ngay. Backend lọc theo khoảng [mở ĐK, đóng ĐK].
+      </Form.Text>
+    </Form.Group>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Đóng đăng ký <span style={{ color: '#e55' }}>*</span></Form.Label>
+      <Form.Control type="datetime-local" {...reg('registrationCloseAt', { required: 'Thời hạn đăng ký là bắt buộc' })} isInvalid={!!errs.registrationCloseAt} />
+      <Form.Control.Feedback type="invalid">{errs.registrationCloseAt?.message}</Form.Control.Feedback>
+    </Form.Group>
+  </>
+);
+
 export default function RacesPage() {
   const [races, setRaces] = useState([]);
   const [meetings, setMeetings] = useState([]);
@@ -195,82 +280,13 @@ export default function RacesPage() {
   ];
   const pageRows = races.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  // Shared form fields (used in both create inline form and edit modal)
-  const RaceFormFields = ({ reg, errs, meetings: mtgs, conditions: conds, staff: slist, referees: rlist }) => (
-    <>
-      <Form.Group>
-        <Form.Label style={{ color: '#D4AF37' }}>Meeting <span style={{ color: '#e55' }}>*</span></Form.Label>
-        <Form.Select {...reg('meetingId', { required: 'Chọn meeting' })} isInvalid={!!errs.meetingId}>
-          <option value="">-- Chọn meeting --</option>
-          {mtgs.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-        </Form.Select>
-        <Form.Control.Feedback type="invalid">{errs.meetingId?.message}</Form.Control.Feedback>
-        {meetings.length === 0 && !loading && (
-          <Form.Text style={{ color: '#888' }}>
-            Chưa có meeting nào. Vui lòng tạo meeting trước.
-          </Form.Text>
-        )}
-      </Form.Group>
-      <Form.Group>
-        <Form.Label style={{ color: '#D4AF37' }}>Condition</Form.Label>
-        <Form.Select {...reg('conditionId')}>
-          <option value="">-- Chọn condition (tuỳ chọn) --</option>
-          {conds.map((c) => <option key={c.id} value={c.id}>{c.conditionName} ({c.distance}m)</option>)}
-        </Form.Select>
-      </Form.Group>
-      <Form.Group>
-        <Form.Label style={{ color: '#D4AF37' }}>Staff phụ trách</Form.Label>
-        <Form.Select {...reg('staffId')}>
-          <option value="">-- Chọn staff (tuỳ chọn) --</option>
-          {slist.map((s) => <option key={s.id} value={s.id}>{s.fullName}</option>)}
-        </Form.Select>
-        {slist.length === 0 && <Form.Text style={{ color: '#888' }}>Không tải được danh sách staff.</Form.Text>}
-      </Form.Group>
-      <Form.Group>
-        <Form.Label style={{ color: '#D4AF37' }}>Referee phụ trách</Form.Label>
-        <Form.Select {...reg('refereeId')}>
-          <option value="">-- Chọn referee (tuỳ chọn) --</option>
-          {rlist.map((r) => <option key={r.id} value={r.id}>{r.fullName}</option>)}
-        </Form.Select>
-        {rlist.length === 0 && <Form.Text style={{ color: '#888' }}>Không tải được danh sách referee.</Form.Text>}
-      </Form.Group>
-      <Form.Group>
-        <Form.Label style={{ color: '#D4AF37' }}>Số thứ tự (Race No)</Form.Label>
-        <Form.Control type="number" {...reg('raceNo')} placeholder="VD: 1" min="1" />
-      </Form.Group>
-      <Form.Group>
-        <Form.Label style={{ color: '#D4AF37' }}>Tên race <span style={{ color: '#e55' }}>*</span></Form.Label>
-        <Form.Control {...reg('name', { required: 'Tên race là bắt buộc' })} isInvalid={!!errs.name} />
-        <Form.Control.Feedback type="invalid">{errs.name?.message}</Form.Control.Feedback>
-      </Form.Group>
-      <Form.Group>
-        <Form.Label style={{ color: '#D4AF37' }}>Giờ đua <span style={{ color: '#e55' }}>*</span></Form.Label>
-        <Form.Control type="datetime-local" {...reg('raceTime', { required: 'Giờ đua là bắt buộc' })} isInvalid={!!errs.raceTime} />
-        <Form.Control.Feedback type="invalid">{errs.raceTime?.message}</Form.Control.Feedback>
-      </Form.Group>
-      <Form.Group>
-        <Form.Label style={{ color: '#D4AF37' }}>Mở đăng ký <span style={{ color: '#f6a', fontSize: '0.78rem' }}>(bắt buộc để owner thấy race)</span></Form.Label>
-        <Form.Control type="datetime-local" {...reg('registrationOpenAt', { required: 'Ngày mở đăng ký là bắt buộc' })} isInvalid={!!errs.registrationOpenAt} />
-        <Form.Control.Feedback type="invalid">{errs.registrationOpenAt?.message}</Form.Control.Feedback>
-        <Form.Text style={{ color: '#888', fontSize: 11 }}>
-          Phải ≤ ngày hiện tại để owner thấy race ngay. Backend lọc theo khoảng [mở ĐK, đóng ĐK].
-        </Form.Text>
-      </Form.Group>
-      <Form.Group>
-        <Form.Label style={{ color: '#D4AF37' }}>Đóng đăng ký <span style={{ color: '#e55' }}>*</span></Form.Label>
-        <Form.Control type="datetime-local" {...reg('registrationCloseAt', { required: 'Thời hạn đăng ký là bắt buộc' })} isInvalid={!!errs.registrationCloseAt} />
-        <Form.Control.Feedback type="invalid">{errs.registrationCloseAt?.message}</Form.Control.Feedback>
-      </Form.Group>
-    </>
-  );
-
   return (
     <div>
       <div className="page-header"><h2>Quản lý Race</h2></div>
 
       {/* Create inline form */}
       <Form onSubmit={submitCreate(onCreate)} className="dash-card d-flex flex-wrap gap-3 align-items-start mb-4" noValidate>
-        <RaceFormFields reg={regCreate} errs={createErrors} meetings={meetings} conditions={conditions} staff={staffList} referees={refereeList} />
+        <RaceFormFields reg={regCreate} errs={createErrors} meetings={meetings} conditions={conditions} staff={staffList} referees={refereeList} loading={loading} />
         <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px', marginTop: '32px' }} disabled={meetings.length === 0}>
           Tạo Race
         </Button>
@@ -293,7 +309,7 @@ export default function RacesPage() {
         </Modal.Header>
         <Modal.Body style={{ background: '#1a1a2e' }}>
           <Form onSubmit={submitEdit(onUpdate)} className="d-flex flex-column gap-3" noValidate>
-            <RaceFormFields reg={regEdit} errs={editErrors} meetings={meetings} conditions={conditions} staff={staffList} referees={refereeList} />
+            <RaceFormFields reg={regEdit} errs={editErrors} meetings={meetings} conditions={conditions} staff={staffList} referees={refereeList} loading={loading} />
             <div className="d-flex justify-content-end gap-2 mt-2">
               <Button variant="secondary" onClick={() => setEditRow(null)}>Huỷ</Button>
               <Button type="submit" className="btn-gold-sm">Lưu</Button>

@@ -73,6 +73,10 @@ export default function StaffRegistrationsPage() {
         </div>
       </div>
 
+      <div className="alert alert-info mb-4" style={{ fontSize: '0.9rem' }}>
+        <strong>Lưu ý quan trọng:</strong> Bạn chỉ nhìn thấy Đăng ký của những Cuộc đua (Race) mà Admin đã <strong>phân công cho bạn phụ trách</strong>. Nếu danh sách trống, hãy dùng tài khoản Admin gán Cuộc đua cho tài khoản Staff này trước!
+      </div>
+
       {loading && <Loading />}
       {!loading && error && <ErrorState message={error} onRetry={refetch} />}
       {!loading && !error && registrations.length === 0 && (

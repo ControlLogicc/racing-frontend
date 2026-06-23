@@ -139,16 +139,14 @@ export default function RegisterRacePage() {
 
   const [raceId, setRaceId] = useState(preRaceId ? String(preRaceId) : '');
   const [horseId, setHorseId] = useState('');
-  const [jockeyId, setJockeyId] = useState('');
   const [ownerNote, setOwnerNote] = useState('');
 
   useEffect(() => {
-    Promise.all([raceService.getOpen(), horseService.getByOwner(), userService.getJockeys()])
-      .then(([r, h, jockeyList]) => {
+    Promise.all([raceService.getOpen(), horseService.getByOwner()])
+      .then(([r, h]) => {
         setRaces(r);
         // Chỉ giữ ngựa thuộc owner đang login (phòng BE trả về tất cả ngựa)
         setHorses(h.filter((horse) => !horse.ownerId || Number(horse.ownerId) === Number(user.userId)));
-        setJockeys(jockeyList);
       })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu.')))
       .finally(() => setLoading(false));
@@ -156,7 +154,6 @@ export default function RegisterRacePage() {
 
   const selectedRace = races.find((r) => r.id === Number(raceId));
   const selectedHorse = horses.find((h) => h.id === Number(horseId));
-  const selectedJockey = jockeys.find((j) => j.id === Number(jockeyId));
 
   const handleConfirm = async () => {
     setSubmitting(true);
@@ -166,17 +163,6 @@ export default function RegisterRacePage() {
         horseId: Number(horseId),
       });
 
-      if (jockeyId && created?.id) {
-        try {
-          await invitationService.send({
-            raceRegistrationId: created.id,   // backend field name
-            jockeyId: Number(jockeyId),
-          });
-          setInvitationSent(true);
-        } catch {
-          setToast({ message: 'Đăng ký thành công nhưng gửi lời mời jockey thất bại. Thử lại từ trang Lời mời Jockey.', variant: 'warning' });
-        }
-      }
       setStep(3);
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Nộp đăng ký thất bại.'), variant: 'danger' });
@@ -233,14 +219,7 @@ export default function RegisterRacePage() {
                   )}
                 </Form.Group>
 
-                <Form.Group>
-                  <Form.Label>Jockey <span style={{ color: '#5a5040', fontSize: '0.78rem' }}>(tuỳ chọn)</span></Form.Label>
-                  <Form.Select value={jockeyId} onChange={(e) => setJockeyId(e.target.value)}>
-                    <option value="">-- Chọn jockey (có thể mời sau) --</option>
-                    {jockeys.map((j) => <option key={j.id} value={j.id}>{j.fullName}</option>)}
-                  </Form.Select>
-                  <Form.Text>Nếu chọn, lời mời sẽ được gửi ngay sau khi đăng ký thành công.</Form.Text>
-                </Form.Group>
+
 
                 <Form.Group>
                   <Form.Label>Ghi chú <span style={{ color: '#5a5040', fontSize: '0.78rem' }}>(tuỳ chọn)</span></Form.Label>
@@ -294,7 +273,6 @@ export default function RegisterRacePage() {
 
               <InfoRow label="Race" value={selectedRace?.name ?? '—'} />
               <InfoRow label="Ngựa" value={selectedHorse?.name ?? '—'} />
-              <InfoRow label="Jockey" value={selectedJockey?.fullName ?? '(mời sau)'} />
               <InfoRow label="Owner" value={user.fullName} />
               {ownerNote && <InfoRow label="Ghi chú" value={ownerNote} />}
 
@@ -349,21 +327,12 @@ export default function RegisterRacePage() {
               Ngựa <strong style={{ color: '#D4AF37' }}>{selectedHorse?.name}</strong> đã được đăng ký thành công.
             </div>
 
-            {invitationSent ? (
-              <div style={{
-                background: 'rgba(76,175,113,0.08)', border: '1px solid rgba(76,175,113,0.25)',
-                borderRadius: 10, padding: '12px 16px', marginBottom: 28, fontSize: '0.85rem', color: '#4caf7d',
-              }}>
-                ✉️ Lời mời đã gửi đến <strong>{selectedJockey?.fullName}</strong>
-              </div>
-            ) : (
-              <div style={{
-                background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)',
-                borderRadius: 10, padding: '12px 16px', marginBottom: 28, fontSize: '0.85rem', color: '#6a5a40',
-              }}>
-                💡 Bạn chưa mời jockey. Mời jockey ngay để hoàn thiện entry.
-              </div>
-            )}
+            <div style={{
+              background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)',
+              borderRadius: 10, padding: '12px 16px', marginBottom: 28, fontSize: '0.85rem', color: '#6a5a40',
+            }}>
+              💡 Bạn cần thực hiện bước mời Jockey ở trang Lời Mời để hoàn thiện Đăng ký.
+            </div>
 
             <div className="d-flex gap-3 justify-content-center flex-wrap">
               <button
@@ -373,15 +342,13 @@ export default function RegisterRacePage() {
               >
                 Xem đăng ký của tôi
               </button>
-              {!invitationSent && (
-                <button
-                  className="btn-gold btn-gold-sm"
-                  style={{ padding: '10px 22px' }}
-                  onClick={() => navigate('/owner/invitations')}
-                >
-                  Mời Jockey ngay
-                </button>
-              )}
+              <button
+                className="btn-gold btn-gold-sm"
+                style={{ padding: '10px 22px' }}
+                onClick={() => navigate('/owner/invitations')}
+              >
+                Mời Jockey ngay
+              </button>
             </div>
           </div>
         </div>

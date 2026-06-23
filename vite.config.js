@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://consistent-incurred-fraser-magic.trycloudflare.com',
+        target: 'https://aurora-motors-theft-queensland.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

@@ -85,60 +85,21 @@ const realService = {
   update: (id, payload) => api.put(`/admin/races/${id}`, toRacePayload(payload)).then((r) => mapRace(r.data)),
   remove: (id) => api.delete(`/admin/races/${id}`).then((r) => r.data),
 
-  // Race đang mở đăng ký — thử /races/open, fallback /races filtered by status
-  getOpen: async () => {
-    try {
-      const data = await api.get('/races/open').then((r) => r.data);
-      // eslint-disable-next-line no-console
-      console.info('[raceService.getOpen] /races/open →', data);
-      return mapRaces(data);
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[raceService.getOpen] /races/open failed:', e?.response?.status, e?.message, '— trying /races fallback');
-      try {
-        const data = await api.get('/races').then((r) => r.data);
-        // eslint-disable-next-line no-console
-        console.info('[raceService.getOpen] /races fallback →', data);
-        return mapRaces(data).filter((race) => race.status === RACE_STATUS.OPEN_FOR_ENTRY);
-      } catch (e2) {
-        // eslint-disable-next-line no-console
-        console.warn('[raceService.getOpen] /races fallback also failed:', e2?.response?.status, e2?.message);
-        return [];
-      }
-    }
-  },
+  // Race đang mở đăng ký (chỉ gọi API chuẩn, không fallback)
+  getOpen: () => api.get('/races/open').then((r) => mapRaces(r.data)),
 
-  // Spectator / jockey — thử /races (nếu có), fallback /races/open
-  getPublic: async () => {
-    try {
-      return await api.get('/races').then((r) => mapRaces(r.data));
-    } catch {
-      return api.get('/races/open').then((r) => mapRaces(r.data)).catch(() => []);
-    }
-  },
+  // Spectator / jockey xem races open
+  getPublic: () => api.get('/races/open').then((r) => mapRaces(r.data)),
 
-  // Staff races được gán — fallback admin races nếu /staff/races chưa implement
-  getAssignedToStaff: async () => {
-    try {
-      return await api.get('/staff/races').then((r) => mapRaces(r.data));
-    } catch {
-      return api.get('/admin/races').then((r) => mapRaces(r.data)).catch(() => []);
-    }
-  },
-  // Referee: thử /referee/races trước, fallback /admin/races?refereeId=X
-  getAssignedToReferee: async (refereeId) => {
-    try {
-      return await api.get('/referee/races').then((r) => mapRaces(r.data));
-    } catch {
-      return api.get('/admin/races', { params: { refereeId } })
-        .then((r) => mapRaces(r.data)).catch(() => []);
-    }
-  },
+  // Staff races được gán (chỉ gọi API chuẩn, không fallback)
+  getAssignedToStaff: () => api.get('/staff/races').then((r) => mapRaces(r.data)),
+  
+  // Referee: Backend chưa có API lấy danh sách giải đấu của Trọng tài.
+  getAssignedToReferee: () => Promise.reject(new Error('Backend chưa có API lấy danh sách giải đấu của Trọng tài.')),
 
   // Đổi trạng thái race (dành cho Staff).
-  // Admin nên dùng hàm `update` (PUT) với full payload.
   setStatus: (id, status) =>
     api.patch(`/race-management/races/${id}/status`, { status }).then((r) => mapRace(r.data)),
 };
 
-export const raceService = USE_MOCK ? mockService : realService;
+export const raceService = realService;
