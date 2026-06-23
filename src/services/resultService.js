@@ -43,14 +43,73 @@ const mockService = {
   },
 };
 
+// ─── Field mapper ─────────────────────────────────────────────────────────────
+// Backend RaceResultResponse: { resultId, entryId, raceId, raceName, horseId, horseName,
+//   jockeyId, jockeyName, position, finishTime, resultStatus, prizeAmount, scoreAwarded }
+// Frontend JSX: { id, ... }
+const mapResult = (r) => ({
+  id: r.resultId,
+  resultId: r.resultId,
+  entryId: r.entryId,
+  raceId: r.raceId,
+  raceName: r.raceName,
+  horseId: r.horseId,
+  horseName: r.horseName,
+  jockeyId: r.jockeyId,
+  jockeyName: r.jockeyName,
+  position: r.position,
+  finishTime: r.finishTime,
+  resultStatus: r.resultStatus,
+  prizeAmount: r.prizeAmount,
+  scoreAwarded: r.scoreAwarded,
+  createdAt: r.createdAt,
+  updatedAt: r.updatedAt,
+});
+const mapResults = (list) => (Array.isArray(list) ? list.map(mapResult) : []);
+
 const realService = {
-  getAll: () => api.get('/race-results').then((r) => r.data),
-  getByRace: (raceId) => api.get(`/race-results/race/${raceId}`).then((r) => r.data),
-  getByHorse: (horseId) => api.get(`/race-results/horse/${horseId}`).then((r) => r.data),
-  create: (payload) => api.post('/race-results', payload).then((r) => r.data),
-  update: (id, payload) => api.put(`/race-results/${id}`, payload).then((r) => r.data),
+  // Backend không có GET /results — load qua races rồi lấy từng race
+  getAll: async () => {
+    try {
+      let races = [];
+      try {
+        const res = await api.get('/staff/races');
+        races = Array.isArray(res.data) ? res.data : [];
+      } catch {
+        const res = await api.get('/admin/races');
+        races = Array.isArray(res.data) ? res.data : [];
+      }
+      const withResults = races.filter((r) =>
+        ['RESULT_PENDING', 'OFFICIAL', 'COMPLETED', 'RUNNING'].includes(r.status)
+      );
+      if (!withResults.length) return [];
+      const sets = await Promise.all(
+        withResults.map((r) =>
+          api.get(`/results/${r.raceId}`).then((res) => mapResults(res.data)).catch(() => [])
+        )
+      );
+      return sets.flat();
+    } catch {
+      return [];
+    }
+  },
+
+  // GET /results/{raceId} (NOT /races/{raceId}/results)
+  getByRace: (raceId) => api.get(`/results/${raceId}`).then((r) => mapResults(r.data)),
+  getByHorse: (horseId) => api.get(`/results/horse/${horseId}`).then((r) => mapResults(r.data)),
+
+  // POST /results { entryId, position, finishTime, resultStatus }
+  create: (payload) => api.post('/results', payload).then((r) => mapResult(r.data)),
+  createForRace: (raceId, payload) => api.post('/results', { raceId, ...payload }).then((r) => mapResult(r.data)),
+
+  // Backend chưa có PUT /results/{id} — không thể chỉnh sửa kết quả riêng lẻ
+  update: () => Promise.reject(new Error('Chỉnh sửa kết quả riêng lẻ chưa được backend hỗ trợ.')),
+
+  recalculate: (raceId) =>
+    api.post(`/admin/races/${raceId}/recalculate-prizes`).then((r) => r.data),
+
   setRaceStatus: (raceId, status) =>
-    api.patch(`/race-results/race/${raceId}/status`, { status }).then((r) => r.data),
+    api.patch(`/race-management/races/${raceId}/status`, { status }).then((r) => r.data),
 };
 
-export const resultService = USE_MOCK ? mockService : realService;
+export const resultService = realService;

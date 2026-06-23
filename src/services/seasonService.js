@@ -23,11 +23,35 @@ const mockService = {
   },
 };
 
+// SeasonResponse: { seasonId, seasonName, startDate, endDate, status, createdAt }
+// Frontend JSX: { id, name, startDate, endDate }
+const mapSeason = (s) => ({
+  id: s.seasonId,
+  seasonId: s.seasonId,
+  name: s.seasonName,
+  startDate: s.startDate,
+  endDate: s.endDate,
+  status: s.status,
+  createdAt: s.createdAt,
+});
+const mapSeasons = (list) => (Array.isArray(list) ? list.map(mapSeason) : []);
+
+// SeasonRequest: { seasonName, startDate, endDate, status }
+// JSX form sends: { name, startDate, endDate }
+// Backend validates lowercase: 'draft' | 'active' | 'completed' | 'cancelled'
+const toSeasonPayload = ({ name, seasonName, startDate, endDate, status }) => ({
+  seasonName: seasonName || name,
+  startDate,
+  endDate,
+  status: (status || 'active').toLowerCase(),
+});
+
 const realService = {
-  getAll: () => api.get('/seasons').then((r) => r.data),
-  create: (payload) => api.post('/seasons', payload).then((r) => r.data),
-  update: (id, payload) => api.put(`/seasons/${id}`, payload).then((r) => r.data),
-  remove: (id) => api.delete(`/seasons/${id}`).then((r) => r.data),
+  getAll: () => api.get('/admin/seasons').then((r) => mapSeasons(r.data)),
+  getById: (id) => api.get(`/admin/seasons/${id}`).then((r) => mapSeason(r.data)),
+  create: (payload) => api.post('/admin/seasons', toSeasonPayload(payload)).then((r) => mapSeason(r.data)),
+  update: (id, payload) => api.put(`/admin/seasons/${id}`, toSeasonPayload(payload)).then((r) => mapSeason(r.data)),
+  remove: (id) => api.delete(`/admin/seasons/${id}`).then((r) => r.data),
 };
 
 export const seasonService = USE_MOCK ? mockService : realService;

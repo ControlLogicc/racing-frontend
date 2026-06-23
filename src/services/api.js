@@ -12,9 +12,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response: xử lý 401 toàn cục, NHƯNG bỏ qua route auth (EXCEPTION #5)
+// Response: unwrap ApiResponse wrapper { success, message, data } nếu backend dùng
+// và xử lý 401 toàn cục
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    const body = res.data;
+    // Backend wraps: { success: true, message: "...", data: <payload> }
+    // Unwrap để các service chỉ cần .then(r => r.data) như bình thường
+    if (
+      body !== null &&
+      typeof body === 'object' &&
+      'success' in body &&
+      'data' in body
+    ) {
+      return { ...res, data: body.data };
+    }
+    return res;
+  },
   (error) => {
     const url = error.config?.url || '';
     const isAuthCall = url.includes('/auth/login') || url.includes('/auth/register');
@@ -22,9 +36,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isAuthCall) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login'; // EXCEPTION #6: dùng window.location, KHÔNG useNavigate
+      window.location.href = '/login';
     }
-    return Promise.reject(error); // luôn reject để nơi gọi tự bắt lỗi
+    return Promise.reject(error);
   }
 );
 

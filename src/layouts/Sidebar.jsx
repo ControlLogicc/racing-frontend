@@ -6,12 +6,14 @@ import { ROLES } from '../constants/roles';
 const MENU_CONFIG = {
   [ROLES.ADMIN]: [
     { path: '/admin', label: 'Dashboard', icon: '📊' },
-    { path: '/admin/users', label: 'Quản lý người dùng', icon: '👥' },
+    { path: '/admin/users', label: 'Người dùng', icon: '👥' },
     { path: '/admin/seasons', label: 'Season', icon: '📅' },
+    { path: '/admin/racecourses', label: 'Đường đua', icon: '🗺️' },
     { path: '/admin/meetings', label: 'Meeting', icon: '🏟️' },
-    { path: '/admin/races', label: 'Race', icon: '🏁' },
     { path: '/admin/race-conditions', label: 'Race Condition', icon: '📋' },
-    { path: '/admin/results', label: 'Kết quả đua', icon: '🏆' },
+    { path: '/admin/races', label: 'Race', icon: '🏁' },
+    { path: '/admin/prizes', label: 'Giải thưởng', icon: '🏆' },
+    { path: '/admin/results', label: 'Kết quả đua', icon: '📈' },
     { path: '/admin/reports', label: 'Báo cáo Referee', icon: '🔍' },
   ],
   [ROLES.STAFF]: [

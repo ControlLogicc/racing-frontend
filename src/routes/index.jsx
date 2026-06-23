@@ -35,6 +35,8 @@ import SeasonsPage from '../pages/admin/SeasonsPage';
 import MeetingsPage from '../pages/admin/MeetingsPage';
 import AdminRacesPage from '../pages/admin/RacesPage';
 import RaceConditionsPage from '../pages/admin/RaceConditionsPage';
+import RacecoursesPage from '../pages/admin/RacecoursesPage';
+import PrizesPage from '../pages/admin/PrizesPage';
 import AdminRefereeReportsPage from '../pages/admin/RefereeReportsPage';
 import AdminResultsPage from '../pages/admin/ResultsPage';
 
@@ -97,6 +99,12 @@ export default function AppRoutes() {
           } />
           <Route path="admin/race-conditions" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><RaceConditionsPage /></ProtectedRoute>
+          } />
+          <Route path="admin/racecourses" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><RacecoursesPage /></ProtectedRoute>
+          } />
+          <Route path="admin/prizes" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><PrizesPage /></ProtectedRoute>
           } />
           <Route path="admin/reports" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminRefereeReportsPage /></ProtectedRoute>

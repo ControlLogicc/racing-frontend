@@ -5,11 +5,11 @@ import { Table } from 'react-bootstrap';
 export default function DataTable({ columns, rows, rowKey = 'id', rowClassName }) {
   return (
     <div className="table-responsive">
-      <Table hover responsive variant="dark" className="align-middle mb-0">
+      <Table hover responsive variant="dark" className="align-middle mb-0 lux-table">
         <thead>
           <tr>
             {columns.map((col) => (
-              <th key={col.key} style={{ color: '#D4AF37', borderColor: '#333' }}>
+              <th key={col.key} style={{ borderColor: 'transparent' }}>
                 {col.label}
               </th>
             ))}
@@ -19,7 +19,7 @@ export default function DataTable({ columns, rows, rowKey = 'id', rowClassName }
           {rows.map((row) => (
             <tr key={row[rowKey]} className={rowClassName ? rowClassName(row) : undefined}>
               {columns.map((col) => (
-                <td key={col.key} style={{ borderColor: '#2a2a2a' }}>
+                <td key={col.key} style={{ borderColor: 'transparent' }}>
                   {col.render ? col.render(row) : row[col.key]}
                 </td>
               ))}
