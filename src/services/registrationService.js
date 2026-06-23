@@ -41,19 +41,62 @@ const mapReg = (r) => ({
   horseName: r.horseName,
   ownerId: r.ownerId,
   ownerName: r.ownerName,
-  status: r.status,
+  status: r.status || r.registrationStatus,
   submittedAt: r.submittedAt,
   reviewedAt: r.reviewedAt,
+  canInviteJockey: r.canInviteJockey,
 });
 const mapRegs = (list) => (Array.isArray(list) ? list.map(mapReg) : []);
 
 // ─── Real API (VITE_USE_MOCK=false) ───────────────────────────────────────────
 const realService = {
-  // Owner xem đăng ký của mình.
-  // BE Server cũ KHÔNG CÓ GET /registrations/my -> Bị lỗi 400.
-  // Giải pháp tạm thời: Lấy danh sách registrations dựa vào danh sách invitations.
-  // Nhược điểm: Đăng ký nào chưa từng có invitation (chưa mời Jockey) sẽ KHÔNG hiện lên màn hình.
-  getByOwner: () => api.get('/registrations/my').then((r) => mapRegs(r.data)).catch(() => []),
+  // Lấy các đăng ký đã duyệt của Owner (dùng cho việc mời Jockey)
+  getApprovedByOwner: () => api.get('/owner/registrations/approved').then((r) => mapRegs(r.data)).catch(() => []),
+
+  // Owner lấy toàn bộ danh sách Đăng ký của mình (Lịch sử)
+  // Backend thiếu API GET /owner/registrations, nên ta kết hợp API approved và dữ liệu từ invitations
+  getByOwner: async () => {
+    try {
+      // Lấy danh sách đã duyệt
+      const approved = await api.get('/owner/registrations/approved').then(r => r.data).catch(() => []);
+      
+      // Lấy danh sách từ invitations (để khôi phục những đăng ký pending/rejected nhưng có lời mời cũ, nếu có)
+      const invs = await api.get('/invitations').then(r => r.data).catch(() => []);
+      
+      const seen = new Map();
+      
+      // Thêm các đăng ký đã duyệt vào Map
+      if (Array.isArray(approved)) {
+        for (const reg of approved) {
+          seen.set(reg.registrationId, mapReg(reg));
+        }
+      }
+      
+      // Thêm các đăng ký từ invitations vào Map (nếu chưa có)
+      if (Array.isArray(invs)) {
+        for (const inv of invs) {
+          const rid = inv.raceRegistrationId || inv.registrationId;
+          if (!rid) continue;
+          if (!seen.has(rid)) {
+            seen.set(rid, mapReg({
+              registrationId: rid,
+              raceId: inv.raceId,
+              raceName: inv.raceName,
+              horseId: inv.horseId,
+              horseName: inv.horseName,
+              ownerId: inv.ownerId,
+              ownerName: inv.ownerName,
+              status: inv.registrationStatus || 'APPROVED', // fallback
+              submittedAt: inv.submittedAt || inv.sentAt,
+            }));
+          }
+        }
+      }
+      return Array.from(seen.values());
+    } catch {
+      return [];
+    }
+  },
 
   // Staff xem registrations cho race được gán — BE trả thêm canApprove/canReject
   getAll: (params) => api.get('/staff/registrations', { params }).then((r) => mapRegs(r.data)),

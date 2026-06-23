@@ -179,18 +179,193 @@ Admin tạo Season/Meeting/Race/Condition/Prize
 → Referee review/pre-check/result/report
 → Staff edit final result nếu cần
 → Staff publish final result + xử lý payout/prize
+# 🏇 FRONTEND AI RULES — Horse Racing Management System
+
+> **Mục đích:** File này là **luật duy nhất (single source of truth)** cho mọi AI / mọi người code frontend dự án này. Bất kỳ ai (hoặc AI nào) generate code đều **PHẢI đọc và tuân theo** file này để code ra đồng nhất.
+>
+> **Cách dùng:** Đặt file ở **root repo** với tên `CLAUDE.md` (hoặc copy sang `.github/copilot-instructions.md` / `.cursorrules`). Copilot sẽ tự quét; với Claude/Cursor thì reference file này trước khi nhờ gen code.
+>
+> **Nguyên tắc vàng:** Nếu một quyết định **CHƯA có** trong file này → **KHÔNG tự chọn**. Hỏi lại người dev, chốt xong thì **bổ sung vào file** rồi mới code. Không bao giờ "đoán" stack, cấu trúc, hay tên field.
+
+---
+
+## 🤖 AI OPERATING PROTOCOL — ĐỌC TRƯỚC TIÊN, MỖI LẦN
+
+> Phần này dành cho AI (Copilot / Claude / Cursor / Gemini). **Mỗi khi nhận yêu cầu làm tính năng mới, BẮT BUỘC chạy đủ 4 bước dưới đây TRƯỚC khi viết dòng code đầu tiên.**
+
+**Bạn (AI) đang đóng vai một senior frontend dev mới join dự án này.** Bạn không được code như thể đây là dự án trống. Trước khi build bất cứ thứ gì:
+
+### Bước 1 — QUÉT (Scan) hiện trạng
+Quét toàn bộ `src/` và xác định:
+- Đã có những page/role nào trong `pages/<role>/`?
+- Đã có service nào trong `services/`? Pattern CRUD đang viết thế nào?
+- Đã có component dùng chung nào trong `components/common/` và `components/shared/`?
+- Routing đã khai báo ở đâu (`routes/index.jsx`), `ProtectedRoute` dùng ra sao?
+- AuthContext / useAuth đang expose gì?
+- Tính năng cần làm có **liên quan / phụ thuộc** cái đã có không?
+
+### Bước 2 — BÁO CÁO (Report) ngắn gọn
+Trước khi code, in ra cho người dev một bản tóm tắt:
+```
+📋 ĐÃ CÓ SẴN (tái sử dụng được):
+- ...
+🆕 SẼ TẠO MỚI:
+- file A → đặt ở thư mục nào
+- file B → ...
+🔗 PHỤ THUỘC / ẢNH HƯỞNG:
+- sửa route X, thêm service Y...
+⚠️ CHƯA RÕ, CẦN HỎI:
+- (nếu có quyết định chưa nằm trong file này)
+```
+
+### Bước 3 — PLAN (Đề xuất kế hoạch)
+Đưa ra thứ tự file sẽ tạo/sửa, **tái sử dụng tối đa** cái đã có (đừng viết lại `DataTable`, `Loading`, `Pagination` nếu đã tồn tại). Nếu có chỗ "CHƯA RÕ" ở bước 2 → **DỪNG LẠI HỎI**, không tự bịa.
+
+### Bước 4 — CODE
+Chỉ code sau khi plan rõ. Code phải:
+- Đúng cấu trúc thư mục (Mục 2 & 3)
+- Đúng stack (Mục 1) — không thêm lib lạ
+- Đúng convention đặt tên (Mục 10)
+- Có guard route nếu cần auth (Mục 5)
+- Đi qua `services/`, không import axios trong component (Mục 6)
+- Có đủ 3 trạng thái Loading / Empty / Error (Mục 14)
+- Tôn trọng state machine nghiệp vụ (Mục 15)
+
+> ❌ AI **KHÔNG được** code thẳng vào một feature lớn rồi mới giải thích. Luôn Scan → Report → Plan → Code.
+
+---
+
+## 0. DECISIONS (đã chốt — đổi thì sửa luôn vào đây)
+
+| # | Quyết định | Đang chọn | Lý do |
+|---|---|---|---|
+| D1 | Betting / "Đặt cược" | ❌ KHÔNG (out-of-scope) | ERD không có bảng cược. Cần thì bổ sung DB trước, đừng để AI bịa schema. |
+| D2 | Ngôn ngữ | **JavaScript (.jsx)** — KHÔNG TypeScript | Khớp `.jsx` trong README |
+| D3 | Router | react-router-dom **v7** | Package đã upgrade lên v7.17.0; API `<Routes>`/`element` vẫn tương thích |
+| D4 | Global state | **Context API** (chỉ cho Auth). Business data để local state từng page | Đủ cho đồ án; không thêm Redux/Zustand/React Query |
+| D5 | Form | react-hook-form | Logic-only, không đụng UI Bootstrap |
+| D6 | Icons | react-bootstrap-icons | Chốt 1 bộ |
+| D7 | Toast/Alert | **Component `react-bootstrap` (Toast/Alert)** — KHÔNG thêm react-toastify | Giữ nguyên tắc "ưu tiên Bootstrap có sẵn" |
+| D8 | Pagination param | `?page=1&pageSize=10` | Chốt 1 kiểu, AI không đoán (xem Mục 16) |
+| D9 | Date/time hiển thị | `DD/MM/YYYY HH:mm` (giờ VN) | Có helper trong `utils/` (xem Mục 17) |
+| D10 | Giai đoạn hiện tại | **Mock-data-first** (code UI tĩnh trước, ghép API sau) | Code song song với backend (xem Mục 18) |
+| D11 | Workflow nghiệp vụ hiện tại | **Registration không cần duyệt; Race Entry tự tạo sau khi Jockey accept; Staff vận hành invite/entry/result/payout; Admin tạo cấu hình hệ thống** | Đây là workflow đã chốt mới nhất, AI phải ưu tiên hơn mọi flow cũ. |
+
+> ⚠️ **Lưu ý về React Query:** Dự án **KHÔNG dùng** `@tanstack/react-query` ở giai đoạn này (mâu thuẫn D4 + Mục 12). Re-render được giải quyết bằng cách tách Context (chỉ Auth) + để business data ở local state từng page. Nếu sau này thật sự cần → phải sửa D4 và Mục 1 trước khi thêm.
+
+---
+
+## 1. TECH STACK (PINNED — không tự thêm/đổi)
+
+| Thành phần | Công nghệ | Bắt buộc |
+|---|---|---|
+| Runtime | Node.js 20 LTS | ✅ |
+| Framework | ReactJS + Vite | ✅ |
+| Ngôn ngữ | JavaScript (`.jsx`, `.js`) — **KHÔNG TypeScript** | ✅ |
+| UI | bootstrap 5 + react-bootstrap | ✅ |
+| Icons | react-bootstrap-icons | ✅ |
+| Routing | react-router-dom v7 | ✅ |
+| HTTP | axios (qua instance tập trung) | ✅ |
+| Form | react-hook-form | ✅ |
+| State | React Context API (chỉ Auth) + local state | ✅ |
+| Toast/Alert | react-bootstrap (Toast, Alert) | ✅ |
+
+**CẤM:** Tailwind, Ant Design, MUI, styled-components, react-toastify, react-query, hay bất kỳ UI/state lib nào khác chưa có trong bảng này → gây xung đột giao diện với Bootstrap & lệch convention. CSS dùng class Bootstrap; CSS custom chỉ khi thật cần, để file `.css` cùng component.
+
+Import Bootstrap CSS **một lần duy nhất** ở đầu `src/main.jsx`:
+```js
+import 'bootstrap/dist/css/bootstrap.min.css';
+```
+
+---
+
+## 2. CẤU TRÚC THƯ MỤC
+
+> **Mô hình: ROLE-DRIVEN.** Trang chia theo role trong `pages/<role>/`. Logic API gom vào `services/`. Component nghiệp vụ dùng chung nhiều role vào `components/shared/`.
+>
+> ❌ **KHÔNG thêm `features/`** — dự án theo role-driven, trộn `features/` vào sẽ thành 2 triết lý tổ chức song song → loạn.
+
+```
+src/
+├── main.jsx                 # entry, import bootstrap css ở đây
+├── App.jsx                  # gắn Router + AuthProvider
+├── routes/
+│   ├── index.jsx            # khai báo TOÀN BỘ route (có cả /forbidden, /not-found, path="*")
+│   └── ProtectedRoute.jsx   # guard kiểm tra auth + role
+├── layouts/                 # PublicLayout, DashboardLayout, Navbar, Sidebar, Footer
+├── components/
+│   ├── common/              # UI generic: Button, DataTable, Modal, Input,
+│   │                        #   Loading, Pagination, EmptyState, ErrorState, Toaster
+│   └── shared/              # component NGHIỆP VỤ dùng chung nhiều role
+│                            #   (RegistrationForm, RegistrationTable, EntryTable, RaceResultTable...)
+├── pages/                   # CHIA THEO ROLE — chữ thường, khớp giá trị role trong DB
+│   ├── auth/                # LoginPage.jsx, RegisterPage.jsx
+│   ├── admin/
+│   ├── staff/
+│   ├── referee/
+│   ├── owner/
+│   ├── jockey/
+│   ├── spectator/
+│   └── errors/              # NotFoundPage.jsx, ForbiddenPage.jsx
+├── services/                # TẤT CẢ gọi API ở đây, KHÔNG gọi axios trong component
+│   ├── api.js               # axios instance + interceptor
+│   ├── authService.js
+│   ├── horseService.js
+│   └── <entity>Service.js
+├── context/
+│   └── AuthContext.jsx      # user hiện tại + token + login/logout
+├── hooks/                   # hook dùng chung (useAuth, useDebounce...)
+├── utils/                   # hàm thuần: formatters (date), validators
+├── constants/
+│   ├── roles.js             # ROLES + map role → trang chủ
+│   ├── status.js            # các enum trạng thái nghiệp vụ (Mục 15)
+│   └── index.js
+├── mocks/                   # 🟡 GIAI ĐOẠN HIỆN TẠI: mock data tách riêng (Mục 18)
+│   ├── mockHorses.js
+│   └── ...
+└── assets/                  # ảnh, logo
+```
+
+**Quy tắc đặt file (chống lệch):**
+- Trang (page) **luôn** nằm trong `pages/<role>/`. Folder role viết **chữ thường**, đúng giá trị `USER.role`. ❌ KHÔNG có `pages/HorseOwner`.
+- Component UI generic → `components/common/`. Component nghiệp vụ dùng ở **≥ 2 role** → `components/shared/` (viết 1 lần, các role import dùng chung — chống lặp).
+- Mọi lời gọi API → qua `services/`. Component/hook **KHÔNG** import axios trực tiếp.
+- Khung layout → `layouts/` (chỉ **2 shell**: PublicLayout + DashboardLayout; xem Mục 4).
+
+---
+
+## 3. MÀN HÌNH THEO ROLE (map từ ERD)
+
+| Role (`pages/<role>/`) | Màn hình chính | Bảng ERD |
+|---|---|---|
+| auth | Login, Register | USER |
+| admin | Quản lý user, gán role, khoá/mở tài khoản; tạo/quản lý Season, Meeting, Race, Condition, Prize | USER, STAFF, REFEREE, JOCKEY, SEASON, RACE_MEETING, RACE, RACE_CONDITION, PRIZE_STRUCTURES |
+| staff | Staff dashboard; theo dõi Race Invitation; chỉnh deadline invitation; loại invitation/entry expired; confirm/edit Race Entry; xem referee review; edit/publish final result; xử lý payout/prize | RACE_INVITATION, RACE_ENTRY, RACE_RESULT, REFEREE_REPORT, PRIZE_STRUCTURES |
+| referee | Review/pre-check; nhập kết quả/review race; viết báo cáo vi phạm | RACE_RESULT, REFEREE_REPORT, RACE_ENTRY |
+| owner | Quản lý ngựa; đăng ký ngựa vào race; gửi lời mời jockey | HORSE, RACE_REGISTRATION, RACE_INVITATION |
+| jockey | Xem & phản hồi lời mời; lịch đua của mình | RACE_INVITATION, RACE_ENTRY |
+| spectator | Xem lịch đua, BXH, hồ sơ ngựa (read-only) | (đọc) |
+
+Component dùng chung **≥ 2 role** → `components/shared/` (chống lặp ở luồng xuyên role): `InvitationTable`, `EntryTable`, `RaceResultTable`, `HorseProfileCard`, `RaceInfoCard`.
+
+**Core workflow đã chốt — AI phải tôn trọng tuyệt đối:**
+```
+Admin tạo Season/Meeting/Race/Condition/Prize
+→ Owner đăng ký ngựa vào Race
+→ Owner gửi Race Invitation cho Jockey
+→ Staff chỉnh deadline invitation nếu cần
+→ Jockey ACCEPT/DECLINE invitation
+→ Nếu Jockey ACCEPT: hệ thống tự tạo Race Entry
+→ Staff confirm/edit/remove Race Entry
+→ Referee review/pre-check/result/report
+→ Staff edit final result nếu cần
+→ Staff publish final result + xử lý payout/prize
 ```
 
 **Điểm khác workflow cũ:**
-- `RACE_REGISTRATION` **KHÔNG cần Staff duyệt**. AI không được tạo nút `Approve registration` / `Reject registration` cho Staff nữa.
-- `RACE_INVITATION` không do Staff tạo. Staff chỉ xem thông tin Owner mời Jockey và chỉnh deadline.
-- Hết deadline thì invitation chuyển `EXPIRED`; Staff loại expired khỏi race thủ công.
-- `RACE_ENTRY` **tự động tạo sau khi Jockey accept**. Staff không tạo Entry từ registration approved như flow cũ.
-- Admin, không phải Staff, tạo/quản lý Season, Meeting, Race, Condition, Prize, Account, Role/Permission.
-
-Vì luồng này đi xuyên nhiều role, UI/logic chung phải ở `components/shared/` + `services/`, **KHÔNG copy-paste** vào từng `pages/<role>/`.
-
----
+- RACE_REGISTRATION **BẮT BUỘC Staff duyệt** (Khác với quy định cũ). API backend đã hỗ trợ /api/registrations/{id}/approve.
+- RACE_INVITATION không do Staff tạo. Staff chỉ xem thông tin Owner mời Jockey và chỉnh deadline.
+- Hết deadline thì invitation chuyển EXPIRED; Staff loại expired khỏi race thủ công.
 
 ## 4. ROLES & PHÂN QUYỀN
 
@@ -415,7 +590,7 @@ Báo thành công/lỗi hành động (create/update/delete) → dùng **Toast/A
 `src/constants/status.js` định nghĩa enum trạng thái. **AI KHÔNG được cho phép hành động sai trạng thái.**
 
 ```
-RACE_REGISTRATION:  SUBMITTED | ACTIVE | CANCELLED
+RACE_REGISTRATION:  PENDING | APPROVED | REJECTED | CANCELLED
 RACE_INVITATION:    SENT → ACCEPTED | DECLINED | EXPIRED | REMOVED
 RACE_ENTRY:         AUTO_CREATED → PENDING_CONFIRMATION → CONFIRMED | REMOVED
 RACE_RESULT:        DRAFT → REVIEWED_BY_REFEREE → FINAL_EDITED_BY_STAFF → PUBLISHED
@@ -513,7 +688,7 @@ Giai đoạn mock cũng phải render thử **Loading / Empty / Error** (Mục 1
 - [ ] Chỉ dùng stack Mục 1, không thêm lib lạ?
 - [ ] Có đủ Loading / Empty / Error (Mục 14)?
 - [ ] Tôn trọng state machine nghiệp vụ mới nhất (Mục 15)?
-- [ ] Không còn flow cũ `Staff duyệt registration` hoặc `Staff tạo entry từ approved registration`?
+- [ ] Đã cập nhật flow `Staff PHẢI duyệt registration` và `Staff KHÔNG tạo entry từ approved registration`?
 - [ ] Pagination dùng `?page=&pageSize=` (Mục 16)?
 - [ ] Date format qua helper chung (Mục 17)?
 - [ ] Nếu đang mock: data tách `src/mocks/`, render `.map()`, đi qua service (Mục 18)?

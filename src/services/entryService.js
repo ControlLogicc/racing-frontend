@@ -132,6 +132,7 @@ const realService = {
 
   create: (payload) => api.post('/entries', payload).then((r) => mapEntry(r.data)),
   updateWeight: (id, payload) => api.put(`/entries/${id}/weight`, payload).then((r) => mapEntry(r.data)),
+  batchWeightCheck: (raceId, payload) => api.put(`/entries/race/${raceId}/weight-check`, payload).then((r) => mapEntries(r.data)),
   confirm: (id) => api.put(`/entries/${id}/status`, { status: 'declared' }).then((r) => mapEntry(r.data)),
   remove: (id) => api.put(`/entries/${id}/status`, { status: 'scratched' }).then((r) => mapEntry(r.data)),
 };

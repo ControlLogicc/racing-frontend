@@ -75,16 +75,27 @@ const realService = {
   // GET /referees — danh sách referee (dùng để admin assign referee vào race)
   getReferees: () => api.get('/referees').then((r) => mapReferees(r.data)).catch(() => []),
 
-  // POST /admin/users — tạo tài khoản nội bộ (ADMIN)
-  // Backend cần role UPPERCASE (STAFF, REFEREE...) và fullName
-  create: ({ fullName, email, password, role, phone }) =>
-    api.post('/admin/users', {
-      fullName,
-      email,
-      password,
-      role: role ? role.toUpperCase() : 'SPECTATOR',
-      phone: phone || '',
-    }).then((r) => r.data),
+  // POST /admin/internal-accounts -> Tạo tài khoản cho Staff, Jockey, Referee (kèm Profile)
+  // POST /admin/users -> Tạo tài khoản cho các role khác (Spectator, Owner, v.v.)
+  create: (payload) => {
+    const role = payload.role ? payload.role.toUpperCase() : 'SPECTATOR';
+    const isInternalProfile = ['STAFF', 'JOCKEY', 'REFEREE'].includes(role);
+
+    if (isInternalProfile) {
+      return api.post('/admin/internal-accounts', {
+        ...payload,
+        role,
+      }).then((r) => r.data);
+    } else {
+      return api.post('/admin/users', {
+        fullName: payload.fullName,
+        email: payload.email,
+        password: payload.password,
+        role,
+        phone: payload.phone || '',
+      }).then((r) => r.data);
+    }
+  },
 
   // Backend chưa có endpoints cho change role/lock
   setRole: () => Promise.reject(new Error('Chức năng đổi role chưa được backend hỗ trợ.')),

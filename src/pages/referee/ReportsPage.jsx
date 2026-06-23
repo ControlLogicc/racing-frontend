@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Form, Button, Badge, Modal, Row, Col } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
 import { refereeReportService } from '../../services/refereeReportService';
-import { raceService } from '../../services/raceService';
+import { refereeRaceService } from '../../services/refereeRaceService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
 import Loading from '../../components/common/Loading';
@@ -41,7 +41,7 @@ export default function RefereeReportsPage() {
 
   const load = async () => {
     try {
-      const assignedRaces = await raceService.getAssignedToReferee(user?.userId);
+      const assignedRaces = await refereeRaceService.getAssignedRaces();
       setRaces(assignedRaces);
       const reportSets = await Promise.all(
         assignedRaces.map((r) => refereeReportService.getByRace(r.id))

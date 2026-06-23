@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge, Button } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
-import { raceService } from '../../services/raceService';
+import { refereeRaceService } from '../../services/refereeRaceService';
 import { refereeReportService } from '../../services/refereeReportService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
@@ -75,19 +75,21 @@ export default function RefereeDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const load = () => {
+  const load = async () => {
     setLoading(true);
     setError('');
-    Promise.all([
-      raceService.getAssignedToReferee(user?.userId),
-      refereeReportService.getByReferee(user?.userId),
-    ])
-      .then(([r, rep]) => {
-        setRaces(r);
-        setReports(rep);
-      })
-      .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu.')))
-      .finally(() => setLoading(false));
+    try {
+      const r = await refereeRaceService.getAssignedRaces();
+      setRaces(r);
+      const repSets = await Promise.all(
+        r.map(race => refereeReportService.getByRace(race.id).catch(() => []))
+      );
+      setReports(repSets.flat());
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Không tải được dữ liệu.'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -128,10 +130,10 @@ export default function RefereeDashboard() {
       {/* Stat cards */}
       <div className="row g-4 mb-4">
         <div className="col-12 col-sm-6 col-xl-3">
-          <StatCard label="Race được phân công" value={races.length} hint="Tổng cộng" accent="primary" />
+          <StatCard label="Race đang mở" value={races.length} hint="Tổng số" accent="primary" />
         </div>
         <div className="col-12 col-sm-6 col-xl-3">
-          <StatCard label="Cần nhập kết quả" value={pendingResultRaces.length} hint="Race đã hoàn thành, chưa có kết quả" accent="danger" />
+          <StatCard label="Chưa kiểm tra cân nặng" value={upcomingRaces.length} hint="Các race sắp diễn ra" accent="danger" />
         </div>
         <div className="col-12 col-sm-6 col-xl-3">
           <StatCard label="Báo cáo đã nộp" value={reports.length} hint="Của bạn" accent="info" />
@@ -147,16 +149,11 @@ export default function RefereeDashboard() {
         <div className="col-12 col-lg-8">
           <div className="card shadow-sm" style={CARD_STYLE}>
             <div className="card-header d-flex justify-content-between align-items-center" style={HEADER_STYLE}>
-              <h5 className="mb-0" style={{ color: GOLD }}>Race được phân công</h5>
-              <Link to="/referee/results">
-                <Button size="sm" style={{ borderColor: GOLD, color: GOLD, backgroundColor: 'transparent' }}>
-                  Xem tất cả kết quả
-                </Button>
-              </Link>
+              <h5 className="mb-0" style={{ color: GOLD }}>Race đang mở</h5>
             </div>
 
             {races.length === 0 ? (
-              <div className="card-body"><EmptyState message="Bạn chưa được phân công race nào." /></div>
+              <div className="card-body"><EmptyState message="Không có race nào đang mở." /></div>
             ) : (
               <div className="table-responsive">
                 <table className="table table-dark table-hover align-middle mb-0">
@@ -184,10 +181,10 @@ export default function RefereeDashboard() {
                         </td>
                         <td style={{ borderColor: '#2a2a2a' }}>
                           <div className="d-flex gap-2 flex-wrap">
-                            {race.status === RACE_STATUS.COMPLETED && !race.resultStatus && (
-                              <Link to="/referee/results">
+                            {race.status !== RACE_STATUS.COMPLETED && (
+                              <Link to={`/referee/weight-check/${race.id}`}>
                                 <Button size="sm" variant="warning" style={{ fontSize: '12px' }}>
-                                  Nhập kết quả
+                                  Kiểm tra cân nặng
                                 </Button>
                               </Link>
                             )}

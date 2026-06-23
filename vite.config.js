@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://aurora-motors-theft-queensland.trycloudflare.com',
+        target: 'https://rays-object-looked-social.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

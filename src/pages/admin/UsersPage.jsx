@@ -26,9 +26,11 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
     defaultValues: { fullName: '', email: '', password: '', phone: '', role: ROLES.SPECTATOR },
   });
+
+  const selectedRole = watch('role');
 
   const load = () => {
     userService
@@ -144,6 +146,46 @@ export default function AdminUsersPage() {
                 {Object.values(ROLES).map((r) => <option key={r} value={r}>{r}</option>)}
               </Form.Select>
             </Form.Group>
+
+            {/* Các trường bổ sung theo Role */}
+            {selectedRole === ROLES.STAFF && (
+              <>
+                <Form.Group>
+                  <Form.Label style={{ color: '#D4AF37' }}>Staff Code *</Form.Label>
+                  <Form.Control {...register('staffCode', { required: 'Staff code là bắt buộc' })} isInvalid={!!errors.staffCode} />
+                  <Form.Control.Feedback type="invalid">{errors.staffCode?.message}</Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label style={{ color: '#D4AF37' }}>Phòng ban (Department) *</Form.Label>
+                  <Form.Control {...register('department', { required: 'Phòng ban là bắt buộc' })} isInvalid={!!errors.department} />
+                  <Form.Control.Feedback type="invalid">{errors.department?.message}</Form.Control.Feedback>
+                </Form.Group>
+              </>
+            )}
+
+            {selectedRole === ROLES.JOCKEY && (
+              <div className="d-flex gap-3">
+                <Form.Group className="flex-fill">
+                  <Form.Label style={{ color: '#D4AF37' }}>Cân nặng (kg) *</Form.Label>
+                  <Form.Control type="number" step="0.1" min="0" {...register('weight', { required: 'Cân nặng là bắt buộc', min: 0.1 })} isInvalid={!!errors.weight} />
+                  <Form.Control.Feedback type="invalid">{errors.weight?.message}</Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group className="flex-fill">
+                  <Form.Label style={{ color: '#D4AF37' }}>Năm kinh nghiệm *</Form.Label>
+                  <Form.Control type="number" min="0" {...register('experienceYears', { required: 'Kinh nghiệm là bắt buộc', min: 0 })} isInvalid={!!errors.experienceYears} />
+                  <Form.Control.Feedback type="invalid">{errors.experienceYears?.message}</Form.Control.Feedback>
+                </Form.Group>
+              </div>
+            )}
+
+            {selectedRole === ROLES.REFEREE && (
+              <Form.Group>
+                <Form.Label style={{ color: '#D4AF37' }}>Số giấy phép (License No) *</Form.Label>
+                <Form.Control {...register('licenseNo', { required: 'License No là bắt buộc' })} isInvalid={!!errors.licenseNo} />
+                <Form.Control.Feedback type="invalid">{errors.licenseNo?.message}</Form.Control.Feedback>
+              </Form.Group>
+            )}
+
             <div className="d-flex justify-content-end gap-2 mt-2">
               <Button variant="secondary" onClick={handleClose}>Huỷ</Button>
               <Button type="submit" className="btn-gold-sm">Tạo</Button>

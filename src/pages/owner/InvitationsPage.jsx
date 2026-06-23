@@ -54,14 +54,15 @@ export default function OwnerInvitationsPage() {
 
   const load = () => {
     Promise.all([
-      registrationService.getByOwner(),
+      registrationService.getApprovedByOwner(),
       invitationService.getAll(),
       userService.getJockeys(),   // /jockeys endpoint — accessible by OWNER
     ])
       .then(([regs, invs, jockeyList]) => {
-        // getByOwner() đã chỉ trả về registrations có invitation (đều được duyệt)
-        setRegistrations(regs);
-        setInvitations(invs.filter((i) => regs.some((r) => r.id === i.registrationId)));
+        // getByOwner() trả về tất cả đăng ký của owner. Chỉ cho phép mời nếu đã được duyệt (APPROVED)
+        const approvedRegs = regs.filter((r) => r.status === 'APPROVED');
+        setRegistrations(approvedRegs);
+        setInvitations(invs.filter((i) => approvedRegs.some((r) => r.id === i.registrationId)));
         setJockeys(jockeyList);
       })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu lời mời.')))
@@ -184,8 +185,8 @@ export default function OwnerInvitationsPage() {
                   >
                     <option value="">-- Chọn đăng ký --</option>
                     {registrations.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.raceName} — {r.horseName}
+                      <option key={r.id} value={r.id} disabled={r.canInviteJockey === false}>
+                        {r.raceName} — {r.horseName} {r.canInviteJockey === false ? '(Lỗi BE: Bị kẹt Entry)' : ''}
                       </option>
                     ))}
                   </Form.Select>

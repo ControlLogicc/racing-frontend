@@ -56,8 +56,8 @@ import JockeyRacesPage from '../pages/jockey/RacesPage';
 
 // Referee
 import RefereeDashboardOverview from '../pages/referee/Dashboard';
-import RefereeResultsPage from '../pages/referee/ResultsPage';
 import RefereeReportsPage from '../pages/referee/ReportsPage';
+import RefereeWeightCheckPage from '../pages/referee/WeightCheckPage';
 
 export default function AppRoutes() {
   return (
@@ -164,15 +164,15 @@ export default function AppRoutes() {
             <ProtectedRoute allowedRoles={[ROLES.JOCKEY]}><JockeyRacesPage /></ProtectedRoute>
           } />
 
-          {/* Referee: nhập kết quả race, viết báo cáo vi phạm */}
+          {/* Referee */}
           <Route path="referee" element={
             <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeDashboardOverview /></ProtectedRoute>
           } />
-          <Route path="referee/results" element={
-            <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeResultsPage /></ProtectedRoute>
-          } />
           <Route path="referee/reports" element={
             <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeReportsPage /></ProtectedRoute>
+          } />
+          <Route path="referee/weight-check/:raceId" element={
+            <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeWeightCheckPage /></ProtectedRoute>
           } />
 
           {/* Spectator đã đăng nhập: dashboard overview (link nhanh tới /schedule, /ranking) */}

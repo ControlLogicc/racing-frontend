@@ -38,7 +38,6 @@ const MENU_CONFIG = {
   [ROLES.REFEREE]: [
     { path: '/referee', label: 'Dashboard', icon: '📊' },
     { path: '/referee/reports', label: 'Báo cáo vi phạm', icon: '📋' },
-    { path: '/referee/results', label: 'Kết quả đua', icon: '🏆' },
   ],
   [ROLES.SPECTATOR]: [
     { path: '/spectator', label: 'Dashboard', icon: '📊' },

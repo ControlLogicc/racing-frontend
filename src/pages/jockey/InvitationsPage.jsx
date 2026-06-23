@@ -133,7 +133,11 @@ export default function JockeyInvitationsPage() {
       setToast({ message: 'Đã nhận lời mời.', variant: 'success' });
       refetch();
     } catch (err) {
-      setToast({ message: getApiErrorMessage(err, 'Thao tác thất bại.'), variant: 'danger' });
+      let msg = getApiErrorMessage(err, 'Thao tác thất bại.');
+      if (err?.response?.status === 409) {
+        msg = 'Không thể nhận: Bạn đã tham gia Race này rồi, HOẶC ngựa này bị kẹt Entry (lỗi BE).';
+      }
+      setToast({ message: msg, variant: 'danger' });
     }
   };
 
