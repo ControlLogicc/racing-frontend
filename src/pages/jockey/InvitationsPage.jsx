@@ -25,7 +25,7 @@ function PrizeList({ prizes }) {
             {POSITION_MEDAL[p.position] ?? `Hạng ${p.position}`} Hạng {p.position}
           </span>
           <span style={{ color: '#D4AF37', fontWeight: 700 }}>
-            ${p.prizeAmount.toLocaleString()}
+            ${(p.amount ?? 0).toLocaleString()}
           </span>
         </div>
       ))}
@@ -34,7 +34,7 @@ function PrizeList({ prizes }) {
 }
 
 function InvitationCard({ inv, race, prizes, onAccept, onDecline }) {
-  const isPending = inv.status === RACE_INVITATION_STATUS.SENT;
+  const isPending = inv.status === RACE_INVITATION_STATUS.SENT || inv.status === RACE_INVITATION_STATUS.PENDING_RESPONSE;
 
   return (
     <div className="dash-card" style={{ borderLeft: isPending ? '3px solid #D4AF37' : '3px solid #333' }}>
@@ -115,8 +115,8 @@ export default function JockeyInvitationsPage() {
   const load = () => {
     Promise.all([
       invitationService.getByJockey(user.userId),
-      raceService.getAll(),
-      prizeService.getAll(),
+      raceService.getPublic(),
+      prizeService.getPublicAll(),
     ])
       .then(([invs, r, p]) => { setInvitations(invs); setRaces(r); setPrizes(p); })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được lời mời.')))

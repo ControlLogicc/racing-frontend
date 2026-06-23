@@ -46,9 +46,9 @@ export default function SeasonsPage() {
     if (editRow) {
       resetEdit({
         name: editRow.name,
-        startDate: editRow.startDate,
-        endDate: editRow.endDate,
-        status: editRow.status ?? 'open',
+        startDate: editRow.startDate ? editRow.startDate.slice(0, 10) : '',
+        endDate: editRow.endDate ? editRow.endDate.slice(0, 10) : '',
+        status: editRow.status ?? 'active',
       });
     }
   }, [editRow, resetEdit]);
@@ -181,8 +181,10 @@ export default function SeasonsPage() {
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Trạng thái</Form.Label>
               <Form.Select {...regEdit('status', { required: true })}>
-                <option value="open">Open</option>
-                <option value="closed">Closed</option>
+                <option value="active">Active (Đang hoạt động)</option>
+                <option value="draft">Draft (Bản nháp)</option>
+                <option value="completed">Completed (Đã kết thúc)</option>
+                <option value="cancelled">Cancelled (Đã huỷ)</option>
               </Form.Select>
             </Form.Group>
             <div className="d-flex justify-content-end gap-2 mt-2">

@@ -7,7 +7,7 @@ import { invitationService } from '../../services/invitationService';
 import { userService } from '../../services/userService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
-import { RACE_REGISTRATION_STATUS, RACE_INVITATION_STATUS } from '../../constants/status';
+import { RACE_REGISTRATION_STATUS, RACE_INVITATION_STATUS, canOwnerInviteJockey } from '../../constants/status';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
@@ -54,15 +54,15 @@ export default function OwnerInvitationsPage() {
 
   const load = () => {
     Promise.all([
-      registrationService.getByOwner(user.userId),
+      registrationService.getByOwner(),
       invitationService.getAll(),
-      userService.getAll(),
+      userService.getJockeys(),   // /jockeys endpoint — accessible by OWNER
     ])
-      .then(([regs, invs, users]) => {
-        const activeRegs = regs.filter((r) => r.status !== RACE_REGISTRATION_STATUS.CANCELLED);
-        setRegistrations(activeRegs);
-        setInvitations(invs.filter((i) => activeRegs.some((r) => r.id === i.registrationId)));
-        setJockeys(users.filter((u) => u.role === 'jockey' && !u.locked));
+      .then(([regs, invs, jockeyList]) => {
+        // getByOwner() đã chỉ trả về registrations có invitation (đều được duyệt)
+        setRegistrations(regs);
+        setInvitations(invs.filter((i) => regs.some((r) => r.id === i.registrationId)));
+        setJockeys(jockeyList);
       })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu lời mời.')))
       .finally(() => setLoading(false));
@@ -95,16 +95,12 @@ export default function OwnerInvitationsPage() {
     setIsSending(true);
     try {
       await invitationService.send({
-        registrationId: registration.id,
-        raceName: registration.raceName,
-        horseName: registration.horseName,
+        raceRegistrationId: registration.id,   // backend field name
         jockeyId: jockey.id,
-        jockeyName: jockey.fullName,
-        message: data.message.trim() || null,
       });
       setToast({ message: `Đã gửi lời mời đến ${jockey.fullName} thành công.`, variant: 'success' });
       reset();
-      // chỉ reload invitations để không mất filter state
+      // Reload lại danh sách invitations để cập nhật trạng thái mới nhất từ server.
       invitationService.getAll().then((invs) =>
         setInvitations(invs.filter((i) => registrations.some((r) => r.id === i.registrationId)))
       );
@@ -115,17 +111,6 @@ export default function OwnerInvitationsPage() {
     }
   };
 
-  const handleCancel = async (id) => {
-    try {
-      await invitationService.cancel(id);
-      setToast({ message: 'Đã huỷ lời mời.', variant: 'success' });
-      invitationService.getAll().then((invs) =>
-        setInvitations(invs.filter((i) => registrations.some((r) => r.id === i.registrationId)))
-      );
-    } catch (err) {
-      setToast({ message: getApiErrorMessage(err, 'Huỷ thất bại.'), variant: 'danger' });
-    }
-  };
 
   const invColumns = [
     { key: 'raceName', label: 'Race' },
@@ -135,14 +120,9 @@ export default function OwnerInvitationsPage() {
     { key: 'deadline', label: 'Deadline', render: (r) => (r.deadline ? formatDate(r.deadline) : '—') },
     { key: 'status', label: 'Trạng thái', render: (r) => <StatusBadge status={r.status} /> },
     {
-      key: 'actions',
-      label: 'Hành động',
-      render: (r) =>
-        r.status === RACE_INVITATION_STATUS.SENT ? (
-          <button className="btn-outline-gold-sm" onClick={() => handleCancel(r.id)}>
-            Huỷ lời mời
-          </button>
-        ) : '—',
+      key: 'respondedAt',
+      label: 'Ngày trả lời',
+      render: (r) => r.respondedAt ? formatDate(r.respondedAt) : '—',
     },
   ];
 

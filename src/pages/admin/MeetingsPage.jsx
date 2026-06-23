@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { meetingService } from '../../services/meetingService';
 import { seasonService } from '../../services/seasonService';
+import { racecourseService } from '../../services/racecourseService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
 import Loading from '../../components/common/Loading';
@@ -13,11 +14,12 @@ import Pagination from '../../components/common/Pagination';
 import Toaster from '../../components/common/Toaster';
 
 const PAGE_SIZE = 10;
-const EMPTY_FORM = { seasonId: '', name: '', racecourse: '', date: '' };
+const EMPTY_FORM = { seasonId: '', name: '', racecourseId: '', date: '' };
 
 export default function MeetingsPage() {
   const [meetings, setMeetings] = useState([]);
   const [seasons, setSeasons] = useState([]);
+  const [racecourses, setRacecourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
@@ -29,6 +31,7 @@ export default function MeetingsPage() {
     handleSubmit: submitCreate,
     formState: { errors: createErrors },
     reset: resetCreate,
+    watch: watchCreate,
   } = useForm({ defaultValues: EMPTY_FORM });
 
   const {
@@ -36,14 +39,18 @@ export default function MeetingsPage() {
     handleSubmit: submitEdit,
     formState: { errors: editErrors },
     reset: resetEdit,
+    watch: watchEdit,
   } = useForm();
 
   const load = () => {
-    Promise.all([meetingService.getAll(), seasonService.getAll()])
-      .then(([m, s]) => { setMeetings(m); setSeasons(s); })
+    Promise.all([meetingService.getAll(), seasonService.getAll(), racecourseService.getAll().catch(() => [])])
+      .then(([m, s, rc]) => { setMeetings(m); setSeasons(s); setRacecourses(rc); })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được danh sách meeting.')))
       .finally(() => setLoading(false));
   };
+
+  const watchedCreateSeasonId = watchCreate('seasonId');
+  const watchedEditSeasonId = watchEdit('seasonId');
 
   useEffect(() => { load(); }, []);
 
@@ -52,17 +59,44 @@ export default function MeetingsPage() {
       resetEdit({
         seasonId: String(editRow.seasonId),
         name: editRow.name,
-        racecourse: editRow.racecourse,
-        date: editRow.date ? editRow.date.slice(0, 16) : '',
+        racecourseId: editRow.racecourseId ? String(editRow.racecourseId) : '',
+        date: editRow.date ? editRow.date.slice(0, 10) : '',
       });
     }
   }, [editRow, resetEdit]);
 
   const refetch = () => { setLoading(true); setError(''); load(); };
 
+  const validateDateWithinSeason = (dateValue, seasonId) => {
+    if (!seasonId || !dateValue) {
+      return true; // Để validator 'required' xử lý các trường rỗng
+    }
+    const season = seasons.find((s) => s.id === Number(seasonId));
+    if (!season) {
+      return true; // Bỏ qua nếu không tìm thấy season
+    }
+
+    const meetingDate = new Date(dateValue);
+    const seasonStart = new Date(season.startDate);
+    seasonStart.setHours(0, 0, 0, 0); // Bắt đầu của ngày bắt đầu season
+    const seasonEnd = new Date(season.endDate);
+    seasonEnd.setHours(23, 59, 59, 999); // Kết thúc của ngày kết thúc season
+
+    if (meetingDate < seasonStart || meetingDate > seasonEnd) {
+      const startDateStr = new Date(season.startDate).toLocaleDateString('vi-VN');
+      const endDateStr = new Date(season.endDate).toLocaleDateString('vi-VN');
+      return `Ngày meeting phải nằm trong khoảng của season (${startDateStr} - ${endDateStr})`;
+    }
+    return true;
+  };
+
   const onCreate = async (data) => {
     try {
-      await meetingService.create({ ...data, seasonId: Number(data.seasonId) });
+      await meetingService.create({
+        ...data,
+        seasonId: Number(data.seasonId),
+        racecourseId: data.racecourseId ? Number(data.racecourseId) : undefined,
+      });
       setToast({ message: 'Tạo meeting thành công.', variant: 'success' });
       resetCreate(EMPTY_FORM);
       refetch();
@@ -73,7 +107,11 @@ export default function MeetingsPage() {
 
   const onUpdate = async (data) => {
     try {
-      await meetingService.update(editRow.id, { ...data, seasonId: Number(data.seasonId) });
+      await meetingService.update(editRow.id, {
+        ...data,
+        seasonId: Number(data.seasonId),
+        racecourseId: data.racecourseId ? Number(data.racecourseId) : undefined,
+      });
       setToast({ message: 'Cập nhật meeting thành công.', variant: 'success' });
       setEditRow(null);
       refetch();
@@ -98,7 +136,7 @@ export default function MeetingsPage() {
   const columns = [
     { key: 'name', label: 'Tên meeting' },
     { key: 'seasonId', label: 'Season', render: (r) => seasonName(r.seasonId) },
-    { key: 'racecourse', label: 'Đường đua' },
+    { key: 'racecourseName', label: 'Đường đua', render: (r) => r.racecourseName || '—' },
     { key: 'date', label: 'Ngày', render: (r) => formatDate(r.date) },
     {
       key: 'actions',
@@ -128,6 +166,11 @@ export default function MeetingsPage() {
             {seasons.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </Form.Select>
           <Form.Control.Feedback type="invalid">{createErrors.seasonId?.message}</Form.Control.Feedback>
+          {seasons.length === 0 && !loading && (
+            <Form.Text style={{ color: '#888' }}>
+              Chưa có season nào. Vui lòng tạo season trước.
+            </Form.Text>
+          )}
         </Form.Group>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Tên meeting</Form.Label>
@@ -139,22 +182,33 @@ export default function MeetingsPage() {
         </Form.Group>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Đường đua</Form.Label>
-          <Form.Control
-            {...regCreate('racecourse', { required: 'Đường đua là bắt buộc' })}
-            isInvalid={!!createErrors.racecourse}
-          />
-          <Form.Control.Feedback type="invalid">{createErrors.racecourse?.message}</Form.Control.Feedback>
+          <Form.Select {...regCreate('racecourseId')} isInvalid={!!createErrors.racecourseId}>
+            <option value="">-- Chọn đường đua --</option>
+            {racecourses.map((rc) => (
+              <option key={rc.racecourseId} value={rc.racecourseId}>
+                {rc.racecourseName}{rc.location ? ` — ${rc.location}` : ''}
+              </option>
+            ))}
+          </Form.Select>
+          {racecourses.length === 0 && !loading && (
+            <Form.Text style={{ color: '#e55' }}>
+              Chưa có đường đua nào. Tạo đường đua trước tại <a href="/admin/racecourses" style={{ color: '#D4AF37' }}>Đường đua</a>.
+            </Form.Text>
+          )}
         </Form.Group>
         <Form.Group>
           <Form.Label style={{ color: '#D4AF37' }}>Ngày</Form.Label>
           <Form.Control
-            type="datetime-local"
-            {...regCreate('date', { required: 'Ngày là bắt buộc' })}
+            type="date"
+            {...regCreate('date', {
+              required: 'Ngày là bắt buộc',
+              validate: (value) => validateDateWithinSeason(value, watchedCreateSeasonId),
+            })}
             isInvalid={!!createErrors.date}
           />
           <Form.Control.Feedback type="invalid">{createErrors.date?.message}</Form.Control.Feedback>
         </Form.Group>
-        <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px', marginTop: '32px' }}>
+        <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px', marginTop: '32px' }} disabled={seasons.length === 0}>
           Tạo Meeting
         </Button>
       </Form>
@@ -196,17 +250,23 @@ export default function MeetingsPage() {
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Đường đua</Form.Label>
-              <Form.Control
-                {...regEdit('racecourse', { required: 'Đường đua là bắt buộc' })}
-                isInvalid={!!editErrors.racecourse}
-              />
-              <Form.Control.Feedback type="invalid">{editErrors.racecourse?.message}</Form.Control.Feedback>
+              <Form.Select {...regEdit('racecourseId')}>
+                <option value="">-- Chọn đường đua --</option>
+                {racecourses.map((rc) => (
+                  <option key={rc.racecourseId} value={rc.racecourseId}>
+                    {rc.racecourseName}{rc.location ? ` — ${rc.location}` : ''}
+                  </option>
+                ))}
+              </Form.Select>
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Ngày</Form.Label>
               <Form.Control
-                type="datetime-local"
-                {...regEdit('date', { required: 'Ngày là bắt buộc' })}
+                type="date"
+                {...regEdit('date', {
+                  required: 'Ngày là bắt buộc',
+                  validate: (value) => validateDateWithinSeason(value, watchedEditSeasonId),
+                })}
                 isInvalid={!!editErrors.date}
               />
               <Form.Control.Feedback type="invalid">{editErrors.date?.message}</Form.Control.Feedback>

@@ -10,19 +10,22 @@ import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import DataTable from '../../components/common/DataTable';
 import Toaster from '../../components/common/Toaster';
-import {
-  VIOLATION_TYPE,
-  VIOLATION_LABEL,
-  DECISION,
-  DECISION_LABEL,
-  DECISION_BADGE,
-} from '../../mocks/mockRefereeReports';
+
+// Backend reportType values
+const REPORT_TYPES = [
+  { value: 'PRE_RACE', label: 'Trước đua' },
+  { value: 'VIOLATION', label: 'Vi phạm' },
+  { value: 'DECISION', label: 'Quyết định' },
+];
+
+const TYPE_BADGE = { PRE_RACE: 'info', VIOLATION: 'warning', DECISION: 'primary' };
 
 const EMPTY_FORM = {
   raceId: '',
-  violationType: VIOLATION_TYPE.NONE,
-  decision: DECISION.NO_ACTION,
+  reportType: 'PRE_RACE',
   content: '',
+  violations: '',
+  decisions: '',
 };
 
 export default function RefereeReportsPage() {
@@ -36,11 +39,19 @@ export default function RefereeReportsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [detailRow, setDetailRow] = useState(null);
 
-  const load = () => {
-    Promise.all([refereeReportService.getAll(), raceService.getAll()])
-      .then(([rep, r]) => { setReports(rep); setRaces(r); })
-      .catch((err) => setError(getApiErrorMessage(err, 'Không tải được báo cáo.')))
-      .finally(() => setLoading(false));
+  const load = async () => {
+    try {
+      const assignedRaces = await raceService.getAssignedToReferee(user?.userId);
+      setRaces(assignedRaces);
+      const reportSets = await Promise.all(
+        assignedRaces.map((r) => refereeReportService.getByRace(r.id))
+      );
+      setReports(reportSets.flat());
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Không tải được báo cáo.'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -51,18 +62,15 @@ export default function RefereeReportsPage() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    const race = races.find((r) => r.id === Number(form.raceId));
-    if (!race) return;
+    if (!form.raceId || !form.content.trim()) return;
     setSubmitting(true);
     try {
       await refereeReportService.create({
-        raceId: race.id,
-        raceName: race.name,
-        refereeId: user.userId,
-        refereeName: user.fullName,
-        violationType: form.violationType,
-        decision: form.decision,
+        raceId: Number(form.raceId),
+        reportType: form.reportType,
         content: form.content,
+        violations: form.violations || null,
+        decisions: form.decisions || null,
       });
       setToast({ message: 'Đã gửi báo cáo.', variant: 'success' });
       setForm(EMPTY_FORM);
@@ -77,23 +85,11 @@ export default function RefereeReportsPage() {
   const columns = [
     { key: 'raceName', label: 'Race' },
     {
-      key: 'violationType',
-      label: 'Loại vi phạm',
+      key: 'reportType',
+      label: 'Loại báo cáo',
       render: (r) => (
-        <Badge
-          bg={r.violationType === VIOLATION_TYPE.NONE ? 'secondary' : 'warning'}
-          text={r.violationType === VIOLATION_TYPE.NONE ? undefined : 'dark'}
-        >
-          {VIOLATION_LABEL[r.violationType] ?? r.violationType}
-        </Badge>
-      ),
-    },
-    {
-      key: 'decision',
-      label: 'Quyết định',
-      render: (r) => (
-        <Badge bg={DECISION_BADGE[r.decision] ?? 'secondary'}>
-          {DECISION_LABEL[r.decision] ?? r.decision}
+        <Badge bg={TYPE_BADGE[r.reportType] ?? 'secondary'}>
+          {REPORT_TYPES.find((t) => t.value === r.reportType)?.label ?? r.reportType}
         </Badge>
       ),
     },
@@ -121,49 +117,66 @@ export default function RefereeReportsPage() {
 
   return (
     <div>
-      <div className="page-header"><h2>Báo cáo vi phạm</h2></div>
+      <div className="page-header"><h2>Báo cáo đua</h2></div>
 
       <Form onSubmit={handleCreate} className="dash-card mb-4">
         <div className="d-flex flex-wrap gap-3 align-items-end">
           <Form.Group>
             <Form.Label style={{ color: '#D4AF37' }}>Race</Form.Label>
-            <Form.Select value={form.raceId} onChange={set('raceId')} required style={{ minWidth: 160 }}>
+            <Form.Select value={form.raceId} onChange={set('raceId')} required style={{ minWidth: 180 }}>
               <option value="">-- Chọn race --</option>
               {races.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
             </Form.Select>
           </Form.Group>
 
           <Form.Group>
-            <Form.Label style={{ color: '#D4AF37' }}>Loại vi phạm</Form.Label>
-            <Form.Select value={form.violationType} onChange={set('violationType')} style={{ minWidth: 160 }}>
-              {Object.entries(VIOLATION_LABEL).map(([val, label]) => (
-                <option key={val} value={val}>{label}</option>
+            <Form.Label style={{ color: '#D4AF37' }}>Loại báo cáo</Form.Label>
+            <Form.Select value={form.reportType} onChange={set('reportType')} style={{ minWidth: 160 }}>
+              {REPORT_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
               ))}
             </Form.Select>
           </Form.Group>
+        </div>
 
-          <Form.Group>
-            <Form.Label style={{ color: '#D4AF37' }}>Quyết định</Form.Label>
-            <Form.Select value={form.decision} onChange={set('decision')} style={{ minWidth: 160 }}>
-              {Object.entries(DECISION_LABEL).map(([val, label]) => (
-                <option key={val} value={val}>{label}</option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-
-          <Form.Group style={{ flex: 1, minWidth: 220 }}>
-            <Form.Label style={{ color: '#D4AF37' }}>Nội dung</Form.Label>
+        <div className="d-flex flex-wrap gap-3 mt-3">
+          <Form.Group style={{ flex: 2, minWidth: 220 }}>
+            <Form.Label style={{ color: '#D4AF37' }}>Nội dung <span style={{ color: '#e55' }}>*</span></Form.Label>
             <Form.Control
               as="textarea"
-              rows={1}
+              rows={2}
               value={form.content}
               onChange={set('content')}
               required
-              placeholder="Mô tả chi tiết vi phạm..."
+              placeholder="Mô tả tình huống / nội dung báo cáo..."
             />
           </Form.Group>
 
-          <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px' }} disabled={submitting}>
+          <Form.Group style={{ flex: 1, minWidth: 180 }}>
+            <Form.Label style={{ color: '#D4AF37' }}>Vi phạm (nếu có)</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={2}
+              value={form.violations}
+              onChange={set('violations')}
+              placeholder="Mô tả vi phạm..."
+            />
+          </Form.Group>
+
+          <Form.Group style={{ flex: 1, minWidth: 180 }}>
+            <Form.Label style={{ color: '#D4AF37' }}>Quyết định (nếu có)</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={2}
+              value={form.decisions}
+              onChange={set('decisions')}
+              placeholder="Nội dung quyết định..."
+            />
+          </Form.Group>
+        </div>
+
+        <div className="mt-3">
+          <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 24px' }} disabled={submitting || !form.raceId}>
             {submitting ? 'Đang gửi...' : 'Gửi báo cáo'}
           </Button>
         </div>
@@ -175,7 +188,6 @@ export default function RefereeReportsPage() {
 
       <Toaster toast={toast} onClose={() => setToast(null)} />
 
-      {/* Detail Modal */}
       <Modal show={!!detailRow} onHide={() => setDetailRow(null)} centered size="lg">
         <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#D4AF37' }}>
           <Modal.Title style={{ color: '#D4AF37' }}>Chi tiết báo cáo</Modal.Title>
@@ -195,37 +207,38 @@ export default function RefereeReportsPage() {
               </Row>
               <Row>
                 <Col sm={6}>
-                  <div style={{ color: '#888', fontSize: 12 }}>Loại vi phạm</div>
-                  <Badge
-                    bg={detailRow.violationType === VIOLATION_TYPE.NONE ? 'secondary' : 'warning'}
-                    text={detailRow.violationType === VIOLATION_TYPE.NONE ? undefined : 'dark'}
-                    style={{ fontSize: 13 }}
-                  >
-                    {VIOLATION_LABEL[detailRow.violationType] ?? detailRow.violationType}
+                  <div style={{ color: '#888', fontSize: 12 }}>Loại báo cáo</div>
+                  <Badge bg={TYPE_BADGE[detailRow.reportType] ?? 'secondary'} style={{ fontSize: 13 }}>
+                    {REPORT_TYPES.find((t) => t.value === detailRow.reportType)?.label ?? detailRow.reportType}
                   </Badge>
                 </Col>
                 <Col sm={6}>
-                  <div style={{ color: '#888', fontSize: 12 }}>Quyết định</div>
-                  <Badge bg={DECISION_BADGE[detailRow.decision] ?? 'secondary'} style={{ fontSize: 13 }}>
-                    {DECISION_LABEL[detailRow.decision] ?? detailRow.decision}
-                  </Badge>
+                  <div style={{ color: '#888', fontSize: 12 }}>Referee</div>
+                  <div style={{ color: '#ccc' }}>{detailRow.refereeName ?? '—'}</div>
                 </Col>
               </Row>
               <div>
-                <div style={{ color: '#888', fontSize: 12, marginBottom: 6 }}>Nội dung báo cáo</div>
-                <div
-                  style={{
-                    background: '#0d0d1a',
-                    border: '1px solid #333',
-                    borderRadius: 6,
-                    padding: '12px 16px',
-                    lineHeight: 1.7,
-                    whiteSpace: 'pre-wrap',
-                  }}
-                >
+                <div style={{ color: '#888', fontSize: 12, marginBottom: 6 }}>Nội dung</div>
+                <div style={{ background: '#0d0d1a', border: '1px solid #333', borderRadius: 6, padding: '12px 16px', whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
                   {detailRow.content}
                 </div>
               </div>
+              {detailRow.violations && (
+                <div>
+                  <div style={{ color: '#888', fontSize: 12, marginBottom: 6 }}>Vi phạm</div>
+                  <div style={{ background: '#0d0d1a', border: '1px solid #444', borderRadius: 6, padding: '12px 16px', whiteSpace: 'pre-wrap' }}>
+                    {detailRow.violations}
+                  </div>
+                </div>
+              )}
+              {detailRow.decisions && (
+                <div>
+                  <div style={{ color: '#888', fontSize: 12, marginBottom: 6 }}>Quyết định</div>
+                  <div style={{ background: '#0d0d1a', border: '1px solid #444', borderRadius: 6, padding: '12px 16px', whiteSpace: 'pre-wrap' }}>
+                    {detailRow.decisions}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </Modal.Body>

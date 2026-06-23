@@ -13,7 +13,7 @@ export default function SpectatorHorsesPage() {
 
   const load = () => {
     horseService
-      .getAll()
+      .getPublicAll()
       .then(setHorses)
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được hồ sơ ngựa.')))
       .finally(() => setLoading(false));

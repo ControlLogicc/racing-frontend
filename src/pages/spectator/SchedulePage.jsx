@@ -18,7 +18,7 @@ export default function SpectatorSchedulePage() {
   const [error, setError] = useState('');
 
   const load = () => {
-    Promise.all([raceService.getAll(), meetingService.getAll()])
+    Promise.all([raceService.getPublic(), meetingService.getPublic()])
       .then(([r, m]) => { setRaces(r); setMeetings(m); })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được lịch đua.')))
       .finally(() => setLoading(false));
@@ -37,7 +37,7 @@ export default function SpectatorSchedulePage() {
       key: 'result',
       label: 'Kết quả',
       render: (r) =>
-        r.status === RACE_STATUS.COMPLETED ? (
+        r.status === RACE_STATUS.OFFICIAL ? (
           <Link to={`/race-results/${r.id}`} className="btn btn-sm btn-outline-warning">
             Xem kết quả
           </Link>

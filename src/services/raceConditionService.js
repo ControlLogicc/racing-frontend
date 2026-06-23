@@ -24,12 +24,27 @@ const mockService = {
   },
 };
 
+// RaceConditionResponse: { conditionId, conditionName, distance, trackType, minEntries, maxEntries, classRequirement }
+// Frontend JSX: { id, conditionName, ... }
+const mapCond = (c) => ({
+  id: c.conditionId,
+  conditionId: c.conditionId,
+  conditionName: c.conditionName,
+  distance: c.distance,
+  trackType: c.trackType,
+  minEntries: c.minEntries,
+  maxEntries: c.maxEntries,
+  classRequirement: c.classRequirement,
+  createdAt: c.createdAt,
+});
+const mapConds = (list) => (Array.isArray(list) ? list.map(mapCond) : []);
+
 const realService = {
-  getAll: () => api.get('/race-conditions').then((r) => r.data),
-  getByRace: (raceId) => api.get('/race-conditions', { params: { raceId } }).then((r) => r.data),
-  create: (payload) => api.post('/race-conditions', payload).then((r) => r.data),
-  update: (id, payload) => api.put(`/race-conditions/${id}`, payload).then((r) => r.data),
-  remove: (id) => api.delete(`/race-conditions/${id}`).then((r) => r.data),
+  getAll: () => api.get('/admin/race-conditions').then((r) => mapConds(r.data)),
+  getByRace: (raceId) => api.get('/admin/race-conditions', { params: { raceId } }).then((r) => mapConds(r.data)),
+  create: (payload) => api.post('/admin/race-conditions', payload).then((r) => mapCond(r.data)),
+  update: (id, payload) => api.put(`/admin/race-conditions/${id}`, payload).then((r) => mapCond(r.data)),
+  remove: (id) => api.delete(`/admin/race-conditions/${id}`).then((r) => r.data),
 };
 
 export const raceConditionService = USE_MOCK ? mockService : realService;

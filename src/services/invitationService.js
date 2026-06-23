@@ -51,19 +51,55 @@ const mockService = {
   },
 };
 
+// ─── Field mapper ─────────────────────────────────────────────────────────────
+// Backend InvitationResponse: { invitationId, raceRegistrationId, raceId, raceName,
+//   horseId, horseName, ownerId, ownerName, jockeyId, jockeyName, status, sentAt, respondedAt, message }
+// Frontend JSX dùng: { id, registrationId, ... } — map invitationId→id, raceRegistrationId→registrationId
+const mapInv = (i) => ({
+  id: i.invitationId,
+  invitationId: i.invitationId,
+  registrationId: i.raceRegistrationId,   // raceRegistrationId → registrationId
+  raceId: i.raceId,
+  raceName: i.raceName,
+  horseId: i.horseId,
+  horseName: i.horseName,
+  ownerId: i.ownerId,
+  ownerName: i.ownerName,
+  jockeyId: i.jockeyId,
+  jockeyName: i.jockeyName,
+  status: i.status,
+  sentAt: i.sentAt,
+  respondedAt: i.respondedAt,
+  deadline: i.deadline,
+  message: i.message,
+});
+const mapInvs = (list) => (Array.isArray(list) ? list.map(mapInv) : []);
+
 const realService = {
-  getAll: () => api.get('/race-invitations').then((r) => r.data),
+  // Owner/Jockey: GET /invitations — backend filter theo JWT + role
+  getAll: () => api.get('/invitations').then((r) => mapInvs(r.data)),
   getByRegistration: (registrationId) =>
-    api.get('/race-invitations', { params: { registrationId } }).then((r) => r.data),
-  getByJockey: (jockeyId) =>
-    api.get('/race-invitations', { params: { jockeyId } }).then((r) => r.data),
-  send: (payload) => api.post('/race-invitations', payload).then((r) => r.data),
-  cancel: (id) => api.delete(`/race-invitations/${id}`).then((r) => r.data),
-  accept: (id) => api.patch(`/race-invitations/${id}/accept`).then((r) => r.data),
-  decline: (id) => api.patch(`/race-invitations/${id}/decline`).then((r) => r.data),
-  setDeadline: (id, deadline) =>
-    api.patch(`/race-invitations/${id}/deadline`, { deadline }).then((r) => r.data),
-  removeExpired: (id) => api.patch(`/race-invitations/${id}/remove`).then((r) => r.data),
+    api.get('/invitations', { params: { raceRegistrationId: registrationId } }).then((r) => mapInvs(r.data)),
+
+  // Jockey: cùng endpoint /invitations — backend tự biết qua JWT
+  getByJockey: () => api.get('/invitations').then((r) => mapInvs(r.data)),
+
+  // Owner gửi lời mời — backend field là raceRegistrationId
+  send: ({ registrationId, raceRegistrationId, jockeyId, message }) =>
+    api.post('/invitations', {
+      raceRegistrationId: raceRegistrationId || registrationId,
+      jockeyId,
+      message,
+    }).then((r) => mapInv(r.data)),
+
+  // Jockey accept/decline — PUT
+  accept: (id) => api.put(`/invitations/${id}/accept`).then((r) => mapInv(r.data)),
+  decline: (id) => api.put(`/invitations/${id}/decline`).then((r) => mapInv(r.data)),
+
+  // Backend chưa có endpoint — sẽ trả lỗi rõ ràng thay vì gọi sai
+  cancel: () => Promise.reject(new Error('Chức năng huỷ lời mời chưa được backend hỗ trợ.')),
+  setDeadline: () => Promise.reject(new Error('Chức năng chỉnh deadline chưa được backend hỗ trợ.')),
+  removeExpired: () => Promise.reject(new Error('Chức năng loại hết hạn chưa được backend hỗ trợ.')),
 };
 
 export const invitationService = USE_MOCK ? mockService : realService;

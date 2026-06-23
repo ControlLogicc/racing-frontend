@@ -5,7 +5,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': { target: 'https://traveller-bags-spring-rica.trycloudflare.com', changeOrigin: true },
+      '/api': {
+        target: 'https://consistent-incurred-fraser-magic.trycloudflare.com',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

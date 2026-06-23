@@ -20,7 +20,7 @@ function exportCSV(rows) {
     r.jockeyName,
     r.position,
     r.finishTime,
-    r.prize ?? 0,
+    r.prizeAmount ?? 0,
     STATUS_LABEL[r.resultStatus] ?? r.resultStatus,
     formatDate(r.createdAt),
   ]);
@@ -91,8 +91,8 @@ export default function AdminResultsPage() {
     {
       key: 'prize',
       label: 'Giải thưởng',
-      render: (r) => r.prize != null
-        ? <span style={{ color: '#4caf50' }}>{r.prize.toLocaleString('vi-VN')}đ</span>
+      render: (r) => r.prizeAmount != null
+        ? <span style={{ color: '#4caf50' }}>{r.prizeAmount.toLocaleString('vi-VN')}đ</span>
         : '—',
     },
     {
@@ -211,7 +211,7 @@ export default function AdminResultsPage() {
                 <Col sm={6}>
                   <div style={{ color: '#888', fontSize: 12 }}>Giải thưởng</div>
                   <div style={{ color: '#4caf50', fontWeight: 600 }}>
-                    {detailRow.prize != null ? detailRow.prize.toLocaleString('vi-VN') + 'đ' : '—'}
+                    {detailRow.prizeAmount != null ? detailRow.prizeAmount.toLocaleString('vi-VN') + 'đ' : '—'}
                   </div>
                 </Col>
               </Row>

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { raceService } from '../../services/raceService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
-import { RACE_STATUS } from '../../constants/status';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
@@ -19,8 +18,8 @@ export default function OwnerOpenRacesPage() {
 
   const load = () => {
     raceService
-      .getAll()
-      .then((data) => setRaces(data.filter((r) => r.status === RACE_STATUS.UPCOMING)))
+      .getOpen()
+      .then((data) => setRaces(data))
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được danh sách race.')))
       .finally(() => setLoading(false));
   };

@@ -1,18 +1,23 @@
 import { useNavigate } from 'react-router-dom';
 import '../../pages/owner/owner-theme.css';
 
-function getClassLabel(rating) {
-  if (rating >= 85) return { label: 'Class 1', css: 'horse-class-1' };
-  if (rating >= 80) return { label: 'Class 2', css: 'horse-class-2' };
-  if (rating >= 60) return { label: 'Class 3', css: 'horse-class-3' };
-  if (rating >= 40) return { label: 'Class 4', css: 'horse-class-other' };
-  return { label: 'Class 5', css: 'horse-class-other' };
+// Dùng horseClass trực tiếp từ backend (đã lưu trong DB), không tự tính từ điểm
+function getClassBadge(horseClass) {
+  const c = Number(horseClass);
+  if (c === 1) return { label: 'Class 1', css: 'horse-class-1' };
+  if (c === 2) return { label: 'Class 2', css: 'horse-class-2' };
+  if (c === 3) return { label: 'Class 3', css: 'horse-class-3' };
+  if (c === 4) return { label: 'Class 4', css: 'horse-class-other' };
+  return { label: 'Class 5', css: 'horse-class-other' };   // mặc định 5 khi 0 điểm
 }
 
 export default function HorseProfileCard({ horse, showHistory = false }) {
   const navigate = useNavigate();
-  const cls = horse.rating != null ? getClassLabel(horse.rating) : null;
-  const ratingPct = horse.rating != null ? Math.min(100, horse.rating) : null;
+  // horseClass: lấy từ DB (backend đã tính sẵn). Fallback sang class 5 nếu thiếu.
+  const horseClass = horse.horseClass ?? 5;
+  const cls = getClassBadge(horseClass);
+  // Progress bar: điểm thực tế, max 600 để scale
+  const ratingPct = horse.rating != null ? Math.min(100, (horse.rating / 600) * 100) : null;
 
   return (
     <div className="horse-card">
@@ -40,7 +45,11 @@ export default function HorseProfileCard({ horse, showHistory = false }) {
         </div>
         <div className="horse-stat-row">
           <span className="horse-stat-label">Giống</span>
-          <span className="horse-stat-value">{horse.breed}</span>
+          <span className="horse-stat-value">{horse.breed || '—'}</span>
+        </div>
+        <div className="horse-stat-row">
+          <span className="horse-stat-label">Hạng</span>
+          <span className={`horse-class-badge ${cls.css}`} style={{ fontSize: '0.72rem', padding: '2px 8px' }}>{cls.label}</span>
         </div>
 
         {ratingPct != null && (

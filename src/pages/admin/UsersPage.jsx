@@ -13,6 +13,11 @@ import Toaster from '../../components/common/Toaster';
 
 const PAGE_SIZE = 10;
 
+const ROLE_BADGE = {
+  ADMIN: 'danger', STAFF: 'warning', REFEREE: 'info',
+  OWNER: 'primary', JOCKEY: 'success', SPECTATOR: 'secondary',
+};
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +27,7 @@ export default function AdminUsersPage() {
   const [showCreate, setShowCreate] = useState(false);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
-    defaultValues: { fullName: '', email: '', password: '', role: ROLES.SPECTATOR },
+    defaultValues: { fullName: '', email: '', password: '', phone: '', role: ROLES.SPECTATOR },
   });
 
   const load = () => {
@@ -50,51 +55,25 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleRoleChange = async (id, role) => {
-    try {
-      await userService.setRole(id, role);
-      setToast({ message: 'Đã cập nhật role.', variant: 'success' });
-      refetch();
-    } catch (err) {
-      setToast({ message: getApiErrorMessage(err, 'Cập nhật role thất bại.'), variant: 'danger' });
-    }
-  };
-
-  const handleToggleLock = async (id, locked) => {
-    try {
-      await userService.setLocked(id, !locked);
-      setToast({ message: !locked ? 'Đã khoá tài khoản.' : 'Đã mở khoá tài khoản.', variant: 'success' });
-      refetch();
-    } catch (err) {
-      setToast({ message: getApiErrorMessage(err, 'Thao tác thất bại.'), variant: 'danger' });
-    }
-  };
-
   const columns = [
     { key: 'fullName', label: 'Họ tên' },
     { key: 'email', label: 'Email' },
     {
       key: 'role',
       label: 'Role',
-      render: (u) => (
-        <Form.Select size="sm" value={u.role} style={{ maxWidth: 160 }} onChange={(e) => handleRoleChange(u.id, e.target.value)}>
-          {Object.values(ROLES).map((r) => <option key={r} value={r}>{r}</option>)}
-        </Form.Select>
-      ),
+      render: (u) => {
+        const role = u.role?.toUpperCase();
+        return <Badge bg={ROLE_BADGE[role] ?? 'secondary'}>{role || '—'}</Badge>;
+      },
     },
     {
-      key: 'locked',
+      key: 'status',
       label: 'Trạng thái',
-      render: (u) => <Badge bg={u.locked ? 'danger' : 'success'}>{u.locked ? 'Đã khoá' : 'Hoạt động'}</Badge>,
-    },
-    {
-      key: 'actions',
-      label: 'Hành động',
-      render: (u) => (
-        <button className={u.locked ? 'btn-gold-sm' : 'btn-outline-gold-sm'} onClick={() => handleToggleLock(u.id, u.locked)}>
-          {u.locked ? 'Mở khoá' : 'Khoá'}
-        </button>
-      ),
+      render: (u) => {
+        const s = u.status ?? (u.locked ? 'SUSPENDED' : 'ACTIVE');
+        const bgMap = { ACTIVE: 'success', PENDING: 'warning', REJECTED: 'danger', SUSPENDED: 'danger', INACTIVE: 'secondary' };
+        return <Badge bg={bgMap[s] ?? 'secondary'}>{s}</Badge>;
+      },
     },
   ];
   const pageRows = users.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -154,6 +133,10 @@ export default function AdminUsersPage() {
                 isInvalid={!!errors.password}
               />
               <Form.Control.Feedback type="invalid">{errors.password?.message}</Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label style={{ color: '#D4AF37' }}>Số điện thoại</Form.Label>
+              <Form.Control type="tel" {...register('phone')} placeholder="0901234567" />
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Role</Form.Label>

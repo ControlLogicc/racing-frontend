@@ -143,11 +143,12 @@ export default function RegisterRacePage() {
   const [ownerNote, setOwnerNote] = useState('');
 
   useEffect(() => {
-    Promise.all([raceService.getAll(), horseService.getByOwner(user.userId), userService.getAll()])
-      .then(([r, h, users]) => {
-        setRaces(r.filter((race) => race.status === RACE_STATUS.UPCOMING));
-        setHorses(h);
-        setJockeys(users.filter((u) => u.role === 'jockey' && !u.locked));
+    Promise.all([raceService.getOpen(), horseService.getByOwner(), userService.getJockeys()])
+      .then(([r, h, jockeyList]) => {
+        setRaces(r);
+        // Chỉ giữ ngựa thuộc owner đang login (phòng BE trả về tất cả ngựa)
+        setHorses(h.filter((horse) => !horse.ownerId || Number(horse.ownerId) === Number(user.userId)));
+        setJockeys(jockeyList);
       })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu.')))
       .finally(() => setLoading(false));
@@ -162,22 +163,14 @@ export default function RegisterRacePage() {
     try {
       const created = await registrationService.create({
         raceId: Number(raceId),
-        raceName: selectedRace?.name,
         horseId: Number(horseId),
-        horseName: selectedHorse?.name,
-        ownerId: user.userId,
-        ownerName: user.fullName,
-        ownerNote,
       });
 
       if (jockeyId && created?.id) {
         try {
           await invitationService.send({
-            registrationId: created.id,
-            raceName: selectedRace?.name,
-            horseName: selectedHorse?.name,
+            raceRegistrationId: created.id,   // backend field name
             jockeyId: Number(jockeyId),
-            jockeyName: selectedJockey?.fullName,
           });
           setInvitationSent(true);
         } catch {

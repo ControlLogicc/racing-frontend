@@ -5,7 +5,7 @@ import { registrationService } from '../../services/registrationService';
 import { invitationService } from '../../services/invitationService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
-import { RACE_REGISTRATION_STATUS, RACE_INVITATION_STATUS } from '../../constants/status';
+import { RACE_REGISTRATION_STATUS, RACE_INVITATION_STATUS, canOwnerInviteJockey } from '../../constants/status';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
@@ -52,7 +52,7 @@ export default function OwnerRegistrationsPage() {
   };
 
   const load = () => {
-    Promise.all([registrationService.getByOwner(user.userId), invitationService.getAll()])
+    Promise.all([registrationService.getByOwner(), invitationService.getAll()])
       .then(([regs, invs]) => {
         setRows(regs.map((r) => ({ ...r, ...pickJockey(invs, r.id) })));
       })
@@ -90,7 +90,7 @@ export default function OwnerRegistrationsPage() {
       key: 'action',
       label: '',
       render: (r) =>
-        r.status !== RACE_REGISTRATION_STATUS.CANCELLED && !r.jockeyName ? (
+        canOwnerInviteJockey(r.status) && !r.jockeyName ? (
           <button
             className="btn-outline-gold-sm"
             onClick={() => navigate('/owner/invitations')}
@@ -101,8 +101,8 @@ export default function OwnerRegistrationsPage() {
     },
   ];
 
-  const active = rows.filter((r) => r.status === RACE_REGISTRATION_STATUS.ACTIVE).length;
-  const submitted = rows.filter((r) => r.status === RACE_REGISTRATION_STATUS.SUBMITTED).length;
+  const active = rows.filter((r) => r.status === RACE_REGISTRATION_STATUS.APPROVED || r.status === 'APPROVED').length;
+  const submitted = rows.filter((r) => r.status === RACE_REGISTRATION_STATUS.PENDING_REVIEW || r.status === RACE_REGISTRATION_STATUS.SUBMITTED || r.status === 'PENDING_REVIEW' || r.status === 'SUBMITTED').length;
 
   if (loading) return <Loading />;
   if (error) return <ErrorState message={error} onRetry={refetch} />;

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { raceConditionService } from '../../services/raceConditionService';
-import { raceService } from '../../services/raceService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
@@ -21,52 +20,41 @@ const EMPTY_FORM = {
 };
 
 export default function RaceConditionsPage() {
-  const [races, setRaces] = useState([]);
   const [conditions, setConditions] = useState([]);
-  const [selectedRaceId, setSelectedRaceId] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editRow, setEditRow] = useState(null);
   const [editForm, setEditForm] = useState(EMPTY_FORM);
 
-  useEffect(() => {
-    raceService
+  const load = () => {
+    raceConditionService
       .getAll()
-      .then(setRaces)
-      .catch((err) => setError(getApiErrorMessage(err, 'Không tải được danh sách race.')))
+      .then(setConditions)
+      .catch((err) => setError(getApiErrorMessage(err, 'Không tải được danh sách condition.')))
       .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    if (!selectedRaceId) { setConditions([]); return; }
-    raceConditionService
-      .getByRace(Number(selectedRaceId))
-      .then(setConditions)
-      .catch((err) => setToast({ message: getApiErrorMessage(err, 'Không tải được condition.'), variant: 'danger' }));
-  }, [selectedRaceId]);
-
-  const refetch = () => {
-    if (!selectedRaceId) return;
-    raceConditionService
-      .getByRace(Number(selectedRaceId))
-      .then(setConditions)
-      .catch((err) => setToast({ message: getApiErrorMessage(err, 'Không tải được condition.'), variant: 'danger' }));
   };
+
+  useEffect(() => { load(); }, []);
+
+  const refetch = () => { setLoading(true); setError(''); load(); };
 
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
       await raceConditionService.create({
-        ...form,
-        raceId: Number(selectedRaceId),
+        conditionName: form.conditionName,
         distance: Number(form.distance),
-        minEntries: Number(form.minEntries),
-        maxEntries: Number(form.maxEntries),
+        trackType: form.trackType,
+        minEntries: form.minEntries ? Number(form.minEntries) : null,
+        maxEntries: form.maxEntries ? Number(form.maxEntries) : null,
+        classRequirement: form.classRequirement || null,
       });
       setToast({ message: 'Tạo condition thành công.', variant: 'success' });
       setForm(EMPTY_FORM);
+      setShowCreate(false);
       refetch();
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Tạo condition thất bại.'), variant: 'danger' });
@@ -76,12 +64,12 @@ export default function RaceConditionsPage() {
   const openEdit = (row) => {
     setEditRow(row);
     setEditForm({
-      conditionName: row.conditionName,
-      distance: String(row.distance),
-      trackType: row.trackType,
-      minEntries: String(row.minEntries),
-      maxEntries: String(row.maxEntries),
-      classRequirement: row.classRequirement,
+      conditionName: row.conditionName ?? '',
+      distance: String(row.distance ?? ''),
+      trackType: row.trackType ?? 'turf',
+      minEntries: String(row.minEntries ?? ''),
+      maxEntries: String(row.maxEntries ?? ''),
+      classRequirement: row.classRequirement ?? '',
     });
   };
 
@@ -89,12 +77,14 @@ export default function RaceConditionsPage() {
     e.preventDefault();
     try {
       await raceConditionService.update(editRow.id, {
-        ...editForm,
+        conditionName: editForm.conditionName,
         distance: Number(editForm.distance),
-        minEntries: Number(editForm.minEntries),
-        maxEntries: Number(editForm.maxEntries),
+        trackType: editForm.trackType,
+        minEntries: editForm.minEntries ? Number(editForm.minEntries) : null,
+        maxEntries: editForm.maxEntries ? Number(editForm.maxEntries) : null,
+        classRequirement: editForm.classRequirement || null,
       });
-      setToast({ message: 'Cập nhật condition thành công.', variant: 'success' });
+      setToast({ message: 'Cập nhật thành công.', variant: 'success' });
       setEditRow(null);
       refetch();
     } catch (err) {
@@ -114,12 +104,13 @@ export default function RaceConditionsPage() {
   };
 
   const columns = [
-    { key: 'conditionName', label: 'Tên condition' },
+    { key: 'conditionId', label: 'ID' },
+    { key: 'conditionName', label: 'Tên Condition' },
     { key: 'distance', label: 'Cự ly (m)' },
-    { key: 'trackType', label: 'Loại đường đua' },
-    { key: 'minEntries', label: 'Số ngựa tối thiểu' },
-    { key: 'maxEntries', label: 'Số ngựa tối đa' },
-    { key: 'classRequirement', label: 'Hạng yêu cầu' },
+    { key: 'trackType', label: 'Đường đua' },
+    { key: 'minEntries', label: 'Tối thiểu' },
+    { key: 'maxEntries', label: 'Tối đa' },
+    { key: 'classRequirement', label: 'Hạng yêu cầu', render: (r) => r.classRequirement ?? '—' },
     {
       key: 'actions',
       label: 'Hành động',
@@ -132,113 +123,62 @@ export default function RaceConditionsPage() {
     },
   ];
 
-  const selectedRaceName = races.find((r) => r.id === Number(selectedRaceId))?.name ?? '';
-  const hasCondition = conditions.length > 0;
-
   if (loading) return <Loading />;
-  if (error) return <ErrorState message={error} />;
+  if (error) return <ErrorState message={error} onRetry={refetch} />;
 
   return (
     <div>
-      <div className="page-header"><h2>Quản lý Race Condition</h2></div>
-
-      {/* Chọn race */}
-      <div className="dash-card mb-4">
-        <Form.Group>
-          <Form.Label style={{ color: '#D4AF37' }}>Chọn Race</Form.Label>
-          <Form.Select
-            value={selectedRaceId}
-            onChange={(e) => setSelectedRaceId(e.target.value)}
-            style={{ maxWidth: 320 }}
-          >
-            <option value="">-- Chọn race để xem / tạo condition --</option>
-            {races.map((r) => (
-              <option key={r.id} value={r.id}>{r.name}</option>
-            ))}
-          </Form.Select>
-        </Form.Group>
+      <div className="page-header d-flex justify-content-between align-items-center">
+        <h2>Quản lý Race Condition</h2>
+        <Button className="btn-gold-sm" onClick={() => setShowCreate(true)}>+ Tạo Condition</Button>
       </div>
 
-      {/* Chưa chọn race */}
-      {!selectedRaceId && (
-        <EmptyState message="Chọn một race để xem hoặc tạo condition." />
-      )}
+      {conditions.length === 0
+        ? <EmptyState message="Chưa có condition nào. Condition được dùng khi tạo Race." />
+        : <DataTable columns={columns} rows={conditions} />}
 
-      {/* Đã chọn race — hiển thị condition nếu có */}
-      {selectedRaceId && (
-        <>
-          {hasCondition ? (
-            <>
-              <h5 style={{ color: '#D4AF37' }} className="mb-3">
-                Condition của <strong>{selectedRaceName}</strong>
-              </h5>
-              <DataTable columns={columns} rows={conditions} />
-            </>
-          ) : (
-            <>
-              <h5 style={{ color: '#D4AF37' }} className="mb-3">
-                Tạo condition cho <strong>{selectedRaceName}</strong>
-              </h5>
-              <Form onSubmit={handleCreate} className="dash-card d-flex flex-wrap gap-3 align-items-end">
-                <Form.Group>
-                  <Form.Label style={{ color: '#D4AF37' }}>Tên condition</Form.Label>
-                  <Form.Control
-                    value={form.conditionName}
-                    onChange={(e) => setForm({ ...form, conditionName: e.target.value })}
-                    placeholder="VD: 1800m Turf Class 1"
-                    required
-                  />
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label style={{ color: '#D4AF37' }}>Cự ly (m)</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={form.distance}
-                    onChange={(e) => setForm({ ...form, distance: e.target.value })}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label style={{ color: '#D4AF37' }}>Loại đường đua</Form.Label>
-                  <Form.Select value={form.trackType} onChange={(e) => setForm({ ...form, trackType: e.target.value })}>
-                    {TRACK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-                  </Form.Select>
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối thiểu</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={form.minEntries}
-                    onChange={(e) => setForm({ ...form, minEntries: e.target.value })}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối đa</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={form.maxEntries}
-                    onChange={(e) => setForm({ ...form, maxEntries: e.target.value })}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label style={{ color: '#D4AF37' }}>Hạng yêu cầu</Form.Label>
-                  <Form.Control
-                    value={form.classRequirement}
-                    onChange={(e) => setForm({ ...form, classRequirement: e.target.value })}
-                    placeholder="VD: Class 1-2"
-                    required
-                  />
-                </Form.Group>
-                <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px' }}>
-                  Tạo Condition
-                </Button>
-              </Form>
-            </>
-          )}
-        </>
-      )}
+      {/* Create Modal */}
+      <Modal show={showCreate} onHide={() => { setShowCreate(false); setForm(EMPTY_FORM); }} centered>
+        <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>
+          <Modal.Title style={{ color: '#D4AF37' }}>Tạo Race Condition</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: '#1a1a2e' }}>
+          <Form onSubmit={handleCreate} className="d-flex flex-column gap-3">
+            <Form.Group>
+              <Form.Label style={{ color: '#D4AF37' }}>Tên condition <span style={{ color: '#e55' }}>*</span></Form.Label>
+              <Form.Control value={form.conditionName} onChange={(e) => setForm({ ...form, conditionName: e.target.value })} placeholder="VD: 1800m Turf Class 1" required />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label style={{ color: '#D4AF37' }}>Cự ly (m) <span style={{ color: '#e55' }}>*</span></Form.Label>
+              <Form.Control type="number" value={form.distance} onChange={(e) => setForm({ ...form, distance: e.target.value })} required min="100" />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label style={{ color: '#D4AF37' }}>Loại đường đua</Form.Label>
+              <Form.Select value={form.trackType} onChange={(e) => setForm({ ...form, trackType: e.target.value })}>
+                {TRACK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              </Form.Select>
+            </Form.Group>
+            <div className="d-flex gap-3">
+              <Form.Group style={{ flex: 1 }}>
+                <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối thiểu</Form.Label>
+                <Form.Control type="number" value={form.minEntries} onChange={(e) => setForm({ ...form, minEntries: e.target.value })} min="1" />
+              </Form.Group>
+              <Form.Group style={{ flex: 1 }}>
+                <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối đa</Form.Label>
+                <Form.Control type="number" value={form.maxEntries} onChange={(e) => setForm({ ...form, maxEntries: e.target.value })} min="1" />
+              </Form.Group>
+            </div>
+            <Form.Group>
+              <Form.Label style={{ color: '#D4AF37' }}>Hạng yêu cầu</Form.Label>
+              <Form.Control value={form.classRequirement} onChange={(e) => setForm({ ...form, classRequirement: e.target.value })} placeholder="VD: Class 1-2" />
+            </Form.Group>
+            <div className="d-flex justify-content-end gap-2 mt-2">
+              <Button variant="secondary" onClick={() => { setShowCreate(false); setForm(EMPTY_FORM); }}>Huỷ</Button>
+              <Button type="submit" className="btn-gold-sm">Tạo</Button>
+            </div>
+          </Form>
+        </Modal.Body>
+      </Modal>
 
       {/* Edit Modal */}
       <Modal show={!!editRow} onHide={() => setEditRow(null)} centered>
@@ -249,20 +189,11 @@ export default function RaceConditionsPage() {
           <Form onSubmit={handleUpdate} className="d-flex flex-column gap-3">
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Tên condition</Form.Label>
-              <Form.Control
-                value={editForm.conditionName}
-                onChange={(e) => setEditForm({ ...editForm, conditionName: e.target.value })}
-                required
-              />
+              <Form.Control value={editForm.conditionName} onChange={(e) => setEditForm({ ...editForm, conditionName: e.target.value })} required />
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Cự ly (m)</Form.Label>
-              <Form.Control
-                type="number"
-                value={editForm.distance}
-                onChange={(e) => setEditForm({ ...editForm, distance: e.target.value })}
-                required
-              />
+              <Form.Control type="number" value={editForm.distance} onChange={(e) => setEditForm({ ...editForm, distance: e.target.value })} required />
             </Form.Group>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Loại đường đua</Form.Label>
@@ -270,31 +201,19 @@ export default function RaceConditionsPage() {
                 {TRACK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </Form.Select>
             </Form.Group>
-            <Form.Group>
-              <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối thiểu</Form.Label>
-              <Form.Control
-                type="number"
-                value={editForm.minEntries}
-                onChange={(e) => setEditForm({ ...editForm, minEntries: e.target.value })}
-                required
-              />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối đa</Form.Label>
-              <Form.Control
-                type="number"
-                value={editForm.maxEntries}
-                onChange={(e) => setEditForm({ ...editForm, maxEntries: e.target.value })}
-                required
-              />
-            </Form.Group>
+            <div className="d-flex gap-3">
+              <Form.Group style={{ flex: 1 }}>
+                <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối thiểu</Form.Label>
+                <Form.Control type="number" value={editForm.minEntries} onChange={(e) => setEditForm({ ...editForm, minEntries: e.target.value })} />
+              </Form.Group>
+              <Form.Group style={{ flex: 1 }}>
+                <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối đa</Form.Label>
+                <Form.Control type="number" value={editForm.maxEntries} onChange={(e) => setEditForm({ ...editForm, maxEntries: e.target.value })} />
+              </Form.Group>
+            </div>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Hạng yêu cầu</Form.Label>
-              <Form.Control
-                value={editForm.classRequirement}
-                onChange={(e) => setEditForm({ ...editForm, classRequirement: e.target.value })}
-                required
-              />
+              <Form.Control value={editForm.classRequirement} onChange={(e) => setEditForm({ ...editForm, classRequirement: e.target.value })} />
             </Form.Group>
             <div className="d-flex justify-content-end gap-2 mt-2">
               <Button variant="secondary" onClick={() => setEditRow(null)}>Huỷ</Button>

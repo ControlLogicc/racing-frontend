@@ -25,8 +25,8 @@ export default function OwnerHorsesPage() {
 
   const load = () => {
     horseService
-      .getByOwner(user.userId)
-      .then(setHorses)
+      .getByOwner()
+      .then((h) => setHorses(h.filter((horse) => !horse.ownerId || Number(horse.ownerId) === Number(user.userId))))
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được danh sách ngựa.')))
       .finally(() => setLoading(false));
   };

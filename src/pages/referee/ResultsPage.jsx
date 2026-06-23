@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form, Button } from 'react-bootstrap';
+import { useAuth } from '../../hooks/useAuth';
 import { resultService } from '../../services/resultService';
 import { entryService } from '../../services/entryService';
 import { raceService } from '../../services/raceService';
@@ -13,6 +14,7 @@ import Toaster from '../../components/common/Toaster';
 import RaceResultTable from '../../components/shared/RaceResultTable';
 
 export default function RefereeResultsPage() {
+  const { user } = useAuth();
   const [results, setResults] = useState([]);
   const [entries, setEntries] = useState([]);
   const [races, setRaces] = useState([]);
@@ -25,7 +27,11 @@ export default function RefereeResultsPage() {
   });
 
   const load = () => {
-    Promise.all([resultService.getAll(), entryService.getAll(), raceService.getAll()])
+    Promise.all([
+      resultService.getAll(),
+      entryService.getForReferee(user?.userId),
+      raceService.getAssignedToReferee(user?.userId),
+    ])
       .then(([res, ent, r]) => { setResults(res); setEntries(ent); setRaces(r); })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu kết quả.')))
       .finally(() => setLoading(false));
