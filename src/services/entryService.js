@@ -1,9 +1,39 @@
 import api from './api';
 import { MOCK_ENTRIES } from '../mocks/mockEntries';
 import { RACE_ENTRY_STATUS } from '../constants/status';
+<<<<<<< HEAD
+import { raceService } from './raceService';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
+const normalizeEntryStatus = (status) => {
+  if (!status) return status;
+  const normalized = String(status).trim().toUpperCase();
+  if (normalized === 'SCRATCHED' || normalized === 'REMOVED' || normalized === 'DNF') {
+    return RACE_ENTRY_STATUS.WITHDRAWN;
+  }
+  if (normalized === 'READY' || normalized === 'READY_TO_RACE' || normalized === 'VALID_RESULT') {
+    return RACE_ENTRY_STATUS.PASSED;
+  }
+  if (normalized === 'PENALIZED' || normalized === 'DISQUALIFIED') {
+    return RACE_ENTRY_STATUS.FAILED;
+  }
+  if (normalized === 'CHECKED_IN' || normalized === 'PRE_RACE_CHECK') {
+    return RACE_ENTRY_STATUS.DECLARED;
+  }
+  return normalized;
+};
+
+const normalizeWeightCheckStatus = (status) => {
+  if (!status) return status;
+  return String(status).toUpperCase();
+};
+
+=======
+
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 // ─── Mock (VITE_USE_MOCK=true) ────────────────────────────────────────────────
 let mockStore = [...MOCK_ENTRIES];
 
@@ -15,7 +45,11 @@ const mockService = {
   confirm: (id) => {
     mockStore = mockStore.map((e) =>
       e.id === id
+<<<<<<< HEAD
+        ? { ...e, status: RACE_ENTRY_STATUS.DECLARED, confirmedAt: new Date().toISOString() }
+=======
         ? { ...e, status: RACE_ENTRY_STATUS.CONFIRMED, confirmedAt: new Date().toISOString() }
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
         : e
     );
     return Promise.resolve(mockStore.find((e) => e.id === id));
@@ -23,10 +57,81 @@ const mockService = {
   // Staff remove entry khỏi race
   remove: (id) => {
     mockStore = mockStore.map((e) =>
+<<<<<<< HEAD
+      e.id === id ? { ...e, status: RACE_ENTRY_STATUS.SCRATCHED } : e
+    );
+    return Promise.resolve({ success: true });
+  },
+  updateWeight: (id, payload) => {
+    mockStore = mockStore.map((e) =>
+      e.id === id
+        ? {
+            ...e,
+            handicapWeight: payload.handicapWeight ?? e.handicapWeight,
+            actualWeight: payload.actualWeight,
+            weightCheckStatus: payload.weightCheckStatus,
+            preCheckNote: payload.note ?? e.preCheckNote,
+            status: payload.weightCheckStatus === 'FAILED' ? RACE_ENTRY_STATUS.FAILED : RACE_ENTRY_STATUS.PASSED,
+            updatedAt: new Date().toISOString(),
+          }
+        : e
+    );
+    return Promise.resolve(mockStore.find((e) => e.id === id));
+  },
+  checkIn: (id) => {
+    mockStore = mockStore.map((e) =>
+      e.id === id
+        ? { ...e, status: RACE_ENTRY_STATUS.PRE_RACE_CHECK, updatedAt: new Date().toISOString() }
+        : e
+    );
+    return Promise.resolve(mockStore.find((e) => e.id === id));
+  },
+  markReady: (id) => {
+    mockStore = mockStore.map((e) =>
+      e.id === id
+        ? { ...e, status: RACE_ENTRY_STATUS.READY_TO_RACE, updatedAt: new Date().toISOString() }
+        : e
+    );
+    return Promise.resolve(mockStore.find((e) => e.id === id));
+  },
+  preCheck: (id, payload) => mockService.updateWeight(id, payload),
+  create: (payload) => {
+    const newEntry = {
+      id: mockStore.length + 1,
+      entryId: mockStore.length + 1,
+      registrationId: payload.registrationId,
+      jockeyId: payload.jockeyId,
+      handicapWeight: payload.handicapWeight,
+      gateNumber: payload.gateNumber,
+      status: RACE_ENTRY_STATUS.DECLARED,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    mockStore.push(newEntry);
+    return Promise.resolve(newEntry);
+  },
+  randomizeGates: (raceId) => {
+    const entries = mockStore.filter((e) => e.raceId === raceId);
+    const shuffled = [...Array(entries.length).keys()].map((i) => i + 1);
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    mockStore = mockStore.map((e) => {
+      if (e.raceId === raceId) {
+        const idx = entries.findIndex((entry) => entry.id === e.id);
+        return { ...e, gateNumber: shuffled[idx] };
+      }
+      return e;
+    });
+    return Promise.resolve(mockStore.filter((e) => e.raceId === raceId));
+  },
+=======
       e.id === id ? { ...e, status: RACE_ENTRY_STATUS.REMOVED } : e
     );
     return Promise.resolve({ success: true });
   },
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 };
 
 // ─── Field mapper ─────────────────────────────────────────────────────────────
@@ -49,12 +154,22 @@ const mapEntry = (e) => ({
   drawNumber: e.drawNumber,
   handicapWeight: e.handicapWeight,
   actualWeight: e.actualWeight,
+<<<<<<< HEAD
+  weightCheckStatus: normalizeWeightCheckStatus(e.weightCheckStatus),
+  preCheckNote: e.preCheckNote,
+  status: normalizeEntryStatus(e.entryStatus),              // entryStatus → status
+=======
   weightCheckStatus: e.weightCheckStatus,
   status: e.entryStatus,              // entryStatus → status
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   confirmedByStaffId: e.confirmedByStaffId,
   confirmedByStaffName: e.confirmedByStaffName,
   createdAt: e.createdAt,
   updatedAt: e.updatedAt,
+<<<<<<< HEAD
+  scheduledTime: e.scheduledTime,
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 });
 const mapEntries = (list) => (Array.isArray(list) ? list.map(mapEntry) : []);
 
@@ -91,6 +206,29 @@ const realService = {
     }
   },
 
+<<<<<<< HEAD
+  // Backend không có /entries/jockey — lấy từ invitations ACCEPTED/USED của jockey và fetch chi tiết từ backend nếu có entryId
+  getByJockey: async () => {
+    try {
+      const invs = await api.get('/invitations').then((r) => Array.isArray(r.data) ? r.data : []);
+      const acceptedInvs = invs.filter((inv) => inv.status === 'ACCEPTED' || inv.status === 'USED');
+      
+      const entryPromises = acceptedInvs.map(async (inv) => {
+        if (inv.entryId) {
+          try {
+            const res = await api.get(`/entries/${inv.entryId}`);
+            return mapEntry(res.data);
+          } catch {
+            // fallback
+          }
+        }
+        return mapEntry({
+          entryId: inv.entryId || inv.invitationId,
+          raceId: inv.raceId,
+          raceName: inv.raceName,
+          registrationId: inv.raceRegistrationId,
+          invitationId: inv.invitationId,
+=======
   // Backend không có /entries/jockey — lấy từ invitations ACCEPTED của jockey
   getByJockey: async () => {
     try {
@@ -101,19 +239,38 @@ const realService = {
           entryId: inv.invitationId,
           raceId: inv.raceId,
           raceName: inv.raceName,
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
           horseId: inv.horseId,
           horseName: inv.horseName,
           jockeyId: inv.jockeyId,
           jockeyName: inv.jockeyName,
+<<<<<<< HEAD
+          entryStatus: 'declared',
+          createdAt: inv.respondedAt || inv.sentAt,
+          scheduledTime: inv.scheduledTime,
+        });
+      });
+      return await Promise.all(entryPromises);
+=======
           entryStatus: 'CONFIRMED',
           createdAt: inv.respondedAt || inv.sentAt,
         }));
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
     } catch {
       return [];
     }
   },
 
   // Referee: lấy entries từ races được phân công cho referee
+<<<<<<< HEAD
+  getForReferee: async (refereeInput) => {
+    try {
+      const races = await raceService.getAssignedToReferee(refereeInput);
+      if (!races.length) return [];
+      const sets = await Promise.all(
+        races.map((r) =>
+          api.get(`/entries/race/${r.id}`).then((res) => mapEntries(res.data)).catch(() => [])
+=======
   getForReferee: async (refereeId) => {
     try {
       const races = await api.get('/admin/races', { params: { refereeId } })
@@ -122,6 +279,7 @@ const realService = {
       const sets = await Promise.all(
         races.map((r) =>
           api.get(`/entries/race/${r.raceId}`).then((res) => mapEntries(res.data)).catch(() => [])
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
         )
       );
       return sets.flat();
@@ -132,8 +290,25 @@ const realService = {
 
   create: (payload) => api.post('/entries', payload).then((r) => mapEntry(r.data)),
   updateWeight: (id, payload) => api.put(`/entries/${id}/weight`, payload).then((r) => mapEntry(r.data)),
+<<<<<<< HEAD
+  preCheck: (id, { handicapWeight, actualWeight, note }) =>
+    api.put(`/entries/${id}/pre-check`, {
+      handicapWeight: handicapWeight != null ? Number(handicapWeight) : null,
+      actualWeight: Number(actualWeight),
+      note: note || null,
+    }).then((r) => mapEntry(r.data)),
+  checkIn: (id) => api.put(`/entries/${id}/status`, { status: 'pre_race_check' }).then((r) => mapEntry(r.data)),
+  markReady: (id) => api.put(`/entries/${id}/status`, { status: 'ready_to_race' }).then((r) => mapEntry(r.data)),
+  confirm: (id) => api.put(`/entries/${id}/status`, { status: 'declared' }).then((r) => mapEntry(r.data)),
+  remove: (id) => api.put(`/entries/${id}/status`, { status: 'scratched' }).then((r) => mapEntry(r.data)),
+  randomizeGates: (raceId) => api.put(`/entries/race/${raceId}/random-gates`).then((r) => mapEntries(r.data)),
+};
+
+export const entryService = USE_MOCK ? mockService : realService;
+=======
   confirm: (id) => api.put(`/entries/${id}/status`, { status: 'declared' }).then((r) => mapEntry(r.data)),
   remove: (id) => api.put(`/entries/${id}/status`, { status: 'scratched' }).then((r) => mapEntry(r.data)),
 };
 
 export const entryService = realService;
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8

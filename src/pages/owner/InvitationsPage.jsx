@@ -89,6 +89,15 @@ export default function OwnerInvitationsPage() {
   const allInvitedForReg = watchedRegId > 0 && selectableJockeys.length === 0;
 
   const onSubmit = async (data) => {
+<<<<<<< HEAD
+    const registration = registrations.find((r) => r.id === Number(data.registrationId));
+    const jockey = jockeys.find((j) => j.id === Number(data.jockeyId));
+    if (!registration || !jockey) return;
+    setIsSending(true);
+    try {
+      await invitationService.send({
+        raceRegistrationId: registration.id,   // backend field name
+=======
     const regIdNum = Number(data.registrationId);
     const jockey = jockeys.find((j) => j.id === Number(data.jockeyId));
     
@@ -98,6 +107,7 @@ export default function OwnerInvitationsPage() {
     try {
       await invitationService.send({
         raceRegistrationId: regIdNum,
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
         jockeyId: jockey.id,
       });
       setToast({ message: `Đã gửi lời mời đến ${jockey.fullName} thành công.`, variant: 'success' });
@@ -177,6 +187,28 @@ export default function OwnerInvitationsPage() {
                 <Form.Label style={{ color: '#D4AF37' }}>
                   Đăng ký <span style={{ color: '#e55' }}>*</span>
                 </Form.Label>
+<<<<<<< HEAD
+                <Form.Select
+                  {...register('registrationId', { required: 'Vui lòng chọn đăng ký' })}
+                  isInvalid={!!errors.registrationId}
+                >
+                  <option value="">-- Chọn đăng ký --</option>
+                  {registrations.filter((r) => canOwnerInviteJockey(r.status)).map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.raceName} — {r.horseName}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errors.registrationId?.message}
+                </Form.Control.Feedback>
+                {registrations.filter((r) => canOwnerInviteJockey(r.status)).length === 0 && (
+                  <Form.Text style={{ color: '#888' }}>
+                    Bạn chưa có đăng ký nào được duyệt (APPROVED) để mời Jockey.
+                  </Form.Text>
+                )}
+              </Form.Group>
+=======
                 {registrations.length > 0 ? (
                   <Form.Select
                     {...register('registrationId', { required: 'Vui lòng chọn đăng ký' })}
@@ -207,6 +239,7 @@ export default function OwnerInvitationsPage() {
                 </Form.Control.Feedback>
               </Form.Group>
 
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
               <Form.Group className="mb-3">
                 <Form.Label style={{ color: '#D4AF37' }}>
                   Jockey <span style={{ color: '#e55' }}>*</span>
@@ -251,7 +284,11 @@ export default function OwnerInvitationsPage() {
                 type="submit"
                 className="btn-gold btn-gold-sm w-100"
                 style={{ padding: '10px' }}
+<<<<<<< HEAD
+                disabled={isSending || registrations.length === 0 || allInvitedForReg}
+=======
                 disabled={isSending || allInvitedForReg}
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
               >
                 {isSending ? (
                   <><Spinner size="sm" animation="border" className="me-2" />Đang gửi...</>

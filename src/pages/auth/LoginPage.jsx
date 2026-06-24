@@ -27,6 +27,20 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       const data = await authService.login(values);
+<<<<<<< HEAD
+      const payloadUser = data.user || data;
+      
+      // Backend trả về flat object: { token, userId, fullName, email, role: "OWNER" }
+      const user = {
+        userId: payloadUser.userId ?? payloadUser.user_id,
+        fullName: payloadUser.fullName ?? payloadUser.full_name,
+        email: payloadUser.email,
+        role: payloadUser.role.toLowerCase(), // Đổi sang chữ thường để map đúng đường dẫn
+        ownerId: payloadUser.ownerId,
+        jockeyId: payloadUser.jockeyId,
+        staffId: payloadUser.staffId,
+        refereeId: payloadUser.refereeId,
+=======
       
       // Backend trả về flat object: { token, userId, fullName, email, role: "OWNER" }
       const user = {
@@ -34,6 +48,7 @@ export default function LoginPage() {
         fullName: data.fullName,
         email: data.email,
         role: data.role.toLowerCase(), // Đổi sang chữ thường để map đúng đường dẫn
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
       };
 
       login(user, data.token);
@@ -110,4 +125,8 @@ export default function LoginPage() {
       </Card>
     </Container>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8

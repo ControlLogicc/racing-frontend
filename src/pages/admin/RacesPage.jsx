@@ -7,6 +7,10 @@ import { raceConditionService } from '../../services/raceConditionService';
 import { userService } from '../../services/userService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
+<<<<<<< HEAD
+import { useAuth } from '../../hooks/useAuth';
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 import { RACE_STATUS } from '../../constants/status';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
@@ -28,6 +32,84 @@ const EMPTY_FORM = {
 };
 
 // Shared form fields (used in both create inline form and edit modal)
+<<<<<<< HEAD
+function RaceFormFields({ reg, errs, meetings: mtgs, conditions: conds, staff: slist, referees: rlist, loading }) {
+  return (
+    <>
+      <Form.Group>
+        <Form.Label style={{ color: '#D4AF37' }}>Meeting <span style={{ color: '#e55' }}>*</span></Form.Label>
+        <Form.Select {...reg('meetingId', { required: 'Chọn meeting' })} isInvalid={!!errs.meetingId}>
+          <option value="">-- Chọn meeting --</option>
+          {mtgs.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+        </Form.Select>
+        <Form.Control.Feedback type="invalid">{errs.meetingId?.message}</Form.Control.Feedback>
+        {mtgs.length === 0 && !loading && (
+          <Form.Text style={{ color: '#888' }}>
+            Chưa có meeting nào. Vui lòng tạo meeting trước.
+          </Form.Text>
+        )}
+      </Form.Group>
+      <Form.Group>
+        <Form.Label style={{ color: '#D4AF37' }}>Condition</Form.Label>
+        <Form.Select {...reg('conditionId')}>
+          <option value="">-- Chọn condition (tuỳ chọn) --</option>
+          {conds.map((c) => <option key={c.id} value={c.id}>{c.conditionName} ({c.distance}m)</option>)}
+        </Form.Select>
+      </Form.Group>
+      <Form.Group>
+        <Form.Label style={{ color: '#D4AF37' }}>Staff phụ trách</Form.Label>
+        <Form.Select {...reg('staffId')}>
+          <option value="">-- Chọn staff (tuỳ chọn) --</option>
+          {slist.map((s) => <option key={s.staffId} value={s.staffId}>{s.fullName}</option>)}
+        </Form.Select>
+        {slist.length === 0 && (
+          <Form.Text style={{ color: '#888' }}>
+            Chưa có staff profile. Tạo tài khoản Staff mới trong trang Người dùng trước khi assign race.
+          </Form.Text>
+        )}
+      </Form.Group>
+      <Form.Group>
+        <Form.Label style={{ color: '#D4AF37' }}>Referee phụ trách</Form.Label>
+        <Form.Select {...reg('refereeId')}>
+          <option value="">-- Chọn referee (tuỳ chọn) --</option>
+          {rlist.map((r) => <option key={r.refereeId} value={r.refereeId}>{r.fullName}</option>)}
+        </Form.Select>
+        {rlist.length === 0 && <Form.Text style={{ color: '#888' }}>Không tải được danh sách referee.</Form.Text>}
+      </Form.Group>
+      <Form.Group>
+        <Form.Label style={{ color: '#D4AF37' }}>Số thứ tự (Race No)</Form.Label>
+        <Form.Control type="number" {...reg('raceNo')} placeholder="VD: 1" min="1" />
+      </Form.Group>
+      <Form.Group>
+        <Form.Label style={{ color: '#D4AF37' }}>Tên race <span style={{ color: '#e55' }}>*</span></Form.Label>
+        <Form.Control {...reg('name', { required: 'Tên race là bắt buộc' })} isInvalid={!!errs.name} />
+        <Form.Control.Feedback type="invalid">{errs.name?.message}</Form.Control.Feedback>
+      </Form.Group>
+      <Form.Group>
+        <Form.Label style={{ color: '#D4AF37' }}>Giờ đua <span style={{ color: '#e55' }}>*</span></Form.Label>
+        <Form.Control type="datetime-local" {...reg('raceTime', { required: 'Giờ đua là bắt buộc' })} isInvalid={!!errs.raceTime} />
+        <Form.Control.Feedback type="invalid">{errs.raceTime?.message}</Form.Control.Feedback>
+      </Form.Group>
+      <Form.Group>
+        <Form.Label style={{ color: '#D4AF37' }}>Mở đăng ký <span style={{ color: '#f6a', fontSize: '0.78rem' }}>(bắt buộc để owner thấy race)</span></Form.Label>
+        <Form.Control type="datetime-local" {...reg('registrationOpenAt', { required: 'Ngày mở đăng ký là bắt buộc' })} isInvalid={!!errs.registrationOpenAt} />
+        <Form.Control.Feedback type="invalid">{errs.registrationOpenAt?.message}</Form.Control.Feedback>
+        <Form.Text style={{ color: '#888', fontSize: 11 }}>
+          Phải ≤ ngày hiện tại để owner thấy race ngay. Backend lọc theo khoảng [mở ĐK, đóng ĐK].
+        </Form.Text>
+      </Form.Group>
+      <Form.Group>
+        <Form.Label style={{ color: '#D4AF37' }}>Đóng đăng ký <span style={{ color: '#e55' }}>*</span></Form.Label>
+        <Form.Control type="datetime-local" {...reg('registrationCloseAt', { required: 'Thời hạn đăng ký là bắt buộc' })} isInvalid={!!errs.registrationCloseAt} />
+        <Form.Control.Feedback type="invalid">{errs.registrationCloseAt?.message}</Form.Control.Feedback>
+      </Form.Group>
+    </>
+  );
+}
+
+export default function RacesPage() {
+  const { user } = useAuth();
+=======
 const RaceFormFields = ({ reg, errs, meetings: mtgs, conditions: conds, staff: slist, referees: rlist, loading }) => (
   <>
     <Form.Group>
@@ -113,6 +195,7 @@ const RaceFormFields = ({ reg, errs, meetings: mtgs, conditions: conds, staff: s
 );
 
 export default function RacesPage() {
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   const [races, setRaces] = useState([]);
   const [meetings, setMeetings] = useState([]);
   const [conditions, setConditions] = useState([]);
@@ -221,7 +304,10 @@ export default function RacesPage() {
     try {
       const raceToUpdate = races.find((r) => r.id === id);
       if (!raceToUpdate) throw new Error('Race not found in local state.');
+<<<<<<< HEAD
+=======
 
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
       let payload = { ...raceToUpdate, status };
 
       // Khi mở đăng ký: nếu registrationOpenAt chưa có → tự set về now
@@ -247,6 +333,10 @@ export default function RacesPage() {
     { key: 'meetingId', label: 'Meeting', render: (r) => meetingName(r.meetingId) },
     { key: 'conditionId', label: 'Condition', render: (r) => conditionName(r.conditionId) },
     { key: 'raceTime', label: 'Giờ đua', render: (r) => formatDate(r.raceTime) },
+<<<<<<< HEAD
+    { key: 'registrationOpenAt', label: 'Mở ĐK', render: (r) => r.registrationOpenAt ? formatDate(r.registrationOpenAt) : '—' },
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
     { key: 'registrationCloseAt', label: 'Đóng ĐK', render: (r) => r.registrationCloseAt ? formatDate(r.registrationCloseAt) : '—' },
     { key: 'status', label: 'Trạng thái', render: (r) => <StatusBadge status={r.status} /> },
     {
@@ -254,13 +344,48 @@ export default function RacesPage() {
       label: 'Đổi trạng thái',
       render: (r) => (
         <Form.Select size="sm" value={r.status} style={{ maxWidth: 160 }} onChange={(e) => handleStatusChange(r.id, e.target.value)}>
+<<<<<<< HEAD
+          {[...new Set(Object.values(RACE_STATUS))].map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+=======
           {Object.values(RACE_STATUS).map((s) => <option key={s} value={s}>{s}</option>)}
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
         </Form.Select>
       ),
     },
     {
       key: 'actions',
       label: 'Hành động',
+<<<<<<< HEAD
+      render: (row) => {
+        const isStaff = user?.role?.toLowerCase() === 'staff';
+        return (
+          <div className="d-flex gap-2 flex-wrap">
+            {(row.status === RACE_STATUS.DRAFT || row.status === RACE_STATUS.SCHEDULED) && (
+              <button
+                className="btn btn-sm btn-success"
+                title="Open registration for Owner"
+                onClick={() => handleStatusChange(row.id, RACE_STATUS.OPEN_FOR_ENTRY)}
+              >
+                Mo DK
+              </button>
+            )}
+            {false && (
+              <button
+                className="btn btn-sm btn-success"
+                title="Mở đăng ký cho Owner"
+                onClick={() => handleStatusChange(row.id, nextStatus)}
+              >
+                🔓 Mở ĐK
+              </button>
+            )}
+            {!isStaff && <button className="btn-gold-sm" onClick={() => setEditRow(row)}>Sửa</button>}
+            {!isStaff && <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(row.id)}>Xoá</button>}
+          </div>
+        );
+      },
+=======
       render: (row) => (
         <div className="d-flex gap-2 flex-wrap">
           {(row.status === RACE_STATUS.DRAFT || row.status === RACE_STATUS.SCHEDULED) && (
@@ -276,6 +401,7 @@ export default function RacesPage() {
           <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(row.id)}>Xoá</button>
         </div>
       ),
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
     },
   ];
   const pageRows = races.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -285,12 +411,23 @@ export default function RacesPage() {
       <div className="page-header"><h2>Quản lý Race</h2></div>
 
       {/* Create inline form */}
+<<<<<<< HEAD
+      {user?.role?.toLowerCase() !== 'staff' && (
+        <Form onSubmit={submitCreate(onCreate)} className="dash-card d-flex flex-wrap gap-3 align-items-start mb-4" noValidate>
+          <RaceFormFields reg={regCreate} errs={createErrors} meetings={meetings} conditions={conditions} staff={staffList} referees={refereeList} loading={loading} />
+          <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px', marginTop: '32px' }} disabled={meetings.length === 0}>
+            Tạo Race
+          </Button>
+        </Form>
+      )}
+=======
       <Form onSubmit={submitCreate(onCreate)} className="dash-card d-flex flex-wrap gap-3 align-items-start mb-4" noValidate>
         <RaceFormFields reg={regCreate} errs={createErrors} meetings={meetings} conditions={conditions} staff={staffList} referees={refereeList} loading={loading} />
         <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px', marginTop: '32px' }} disabled={meetings.length === 0}>
           Tạo Race
         </Button>
       </Form>
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 
       {loading && <Loading />}
       {!loading && error && <ErrorState message={error} onRetry={refetch} />}

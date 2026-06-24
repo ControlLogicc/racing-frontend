@@ -26,10 +26,20 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
 
+<<<<<<< HEAD
+  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm({
+    defaultValues: { fullName: '', email: '', password: '', phone: '', role: ROLES.SPECTATOR },
+    shouldUnregister: true,
+  });
+
+  const selectedRole = watch('role');
+
+=======
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: { fullName: '', email: '', password: '', phone: '', role: ROLES.SPECTATOR },
   });
 
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   const load = () => {
     userService
       .getAll()
@@ -144,6 +154,80 @@ export default function AdminUsersPage() {
                 {Object.values(ROLES).map((r) => <option key={r} value={r}>{r}</option>)}
               </Form.Select>
             </Form.Group>
+<<<<<<< HEAD
+
+            {/* Profile fields for STAFF */}
+            {selectedRole === ROLES.STAFF && (
+              <>
+                <Form.Group>
+                  <Form.Label style={{ color: '#D4AF37' }}>Mã nhân viên</Form.Label>
+                  <Form.Control
+                    {...register('staffCode', { required: 'Mã nhân viên là bắt buộc' })}
+                    isInvalid={!!errors.staffCode}
+                    placeholder="STF-123"
+                  />
+                  <Form.Control.Feedback type="invalid">{errors.staffCode?.message}</Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label style={{ color: '#D4AF37' }}>Phòng ban</Form.Label>
+                  <Form.Control
+                    {...register('department', { required: 'Phòng ban là bắt buộc' })}
+                    isInvalid={!!errors.department}
+                    placeholder="Operations"
+                  />
+                  <Form.Control.Feedback type="invalid">{errors.department?.message}</Form.Control.Feedback>
+                </Form.Group>
+              </>
+            )}
+
+            {/* Profile fields for REFEREE */}
+            {selectedRole === ROLES.REFEREE && (
+              <Form.Group>
+                <Form.Label style={{ color: '#D4AF37' }}>Số giấy phép trọng tài</Form.Label>
+                <Form.Control
+                  {...register('licenseNo', { required: 'Số giấy phép là bắt buộc' })}
+                  isInvalid={!!errors.licenseNo}
+                  placeholder="LIC-12345"
+                />
+                <Form.Control.Feedback type="invalid">{errors.licenseNo?.message}</Form.Control.Feedback>
+              </Form.Group>
+            )}
+
+            {/* Profile fields for JOCKEY */}
+            {selectedRole === ROLES.JOCKEY && (
+              <>
+                <Form.Group>
+                  <Form.Label style={{ color: '#D4AF37' }}>Cân nặng (kg)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    step="0.01"
+                    {...register('weight', {
+                      required: 'Cân nặng là bắt buộc',
+                      min: { value: 30, message: 'Cân nặng phải từ 30kg đến 80kg' },
+                      max: { value: 80, message: 'Cân nặng phải từ 30kg đến 80kg' },
+                    })}
+                    isInvalid={!!errors.weight}
+                    placeholder="52.5"
+                  />
+                  <Form.Control.Feedback type="invalid">{errors.weight?.message}</Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label style={{ color: '#D4AF37' }}>Số năm kinh nghiệm</Form.Label>
+                  <Form.Control
+                    type="number"
+                    {...register('experienceYears', {
+                      required: 'Kinh nghiệm là bắt buộc',
+                      min: { value: 0, message: 'Số năm kinh nghiệm không thể âm' },
+                    })}
+                    isInvalid={!!errors.experienceYears}
+                    placeholder="5"
+                  />
+                  <Form.Control.Feedback type="invalid">{errors.experienceYears?.message}</Form.Control.Feedback>
+                </Form.Group>
+              </>
+            )}
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
             <div className="d-flex justify-content-end gap-2 mt-2">
               <Button variant="secondary" onClick={handleClose}>Huỷ</Button>
               <Button type="submit" className="btn-gold-sm">Tạo</Button>

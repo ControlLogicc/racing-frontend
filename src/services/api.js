@@ -42,4 +42,8 @@ api.interceptors.response.use(
   }
 );
 
+<<<<<<< HEAD
 export default api;
+=======
+export default api;
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8

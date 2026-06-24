@@ -82,9 +82,17 @@ const realService = {
   // Admin: quản lý toàn bộ ngựa
   adminGetAll: (params) => api.get('/admin/horses', { params }).then((r) => mapHorses(r.data)),
   adminGetById: (id) => api.get(`/admin/horses/${id}`).then((r) => mapHorse(r.data)),
+<<<<<<< HEAD
+  adminCreate: (payload) => api.post('/admin/horses', payload).then((r) => mapHorse(r.data)),
+=======
   adminCreate: () => Promise.reject(new Error('Chức năng Admin tạo ngựa không được Backend hỗ trợ.')),
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   adminUpdate: (id, payload) => api.put(`/admin/horses/${id}`, payload).then((r) => mapHorse(r.data)),
   adminRemove: (id) => api.delete(`/admin/horses/${id}`).then((r) => r.data),
 };
 
+<<<<<<< HEAD
+export const horseService = USE_MOCK ? mockService : realService;
+=======
 export const horseService = realService;
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8

@@ -18,6 +18,10 @@ const MENU_CONFIG = {
   ],
   [ROLES.STAFF]: [
     { path: '/staff', label: 'Dashboard', icon: '📊' },
+<<<<<<< HEAD
+    { path: '/admin/races', label: 'Quản lý Race', icon: '🏁' },
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
     { path: '/staff/invitations', label: 'Lời mời Jockey', icon: '✉️' },
     { path: '/staff/registrations', label: 'Đăng ký', icon: '📝' },
     { path: '/staff/entries', label: 'Quản lý Entry', icon: '✅' },
@@ -37,6 +41,10 @@ const MENU_CONFIG = {
   ],
   [ROLES.REFEREE]: [
     { path: '/referee', label: 'Dashboard', icon: '📊' },
+<<<<<<< HEAD
+    { path: '/referee/checks', label: 'Kiểm tra trước đua', icon: '✅' },
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
     { path: '/referee/reports', label: 'Báo cáo vi phạm', icon: '📋' },
     { path: '/referee/results', label: 'Kết quả đua', icon: '🏆' },
   ],
@@ -63,4 +71,8 @@ export default function Sidebar() {
       </div>
     </aside>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8

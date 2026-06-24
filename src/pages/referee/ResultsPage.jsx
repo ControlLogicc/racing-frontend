@@ -29,8 +29,13 @@ export default function RefereeResultsPage() {
   const load = () => {
     Promise.all([
       resultService.getAll(),
+<<<<<<< HEAD
+      entryService.getForReferee(user),
+      raceService.getAssignedToReferee(user),
+=======
       entryService.getForReferee(user?.userId),
       raceService.getAssignedToReferee(user?.userId),
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
     ])
       .then(([res, ent, r]) => { setResults(res); setEntries(ent); setRaces(r); })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu kết quả.')))
@@ -41,7 +46,11 @@ export default function RefereeResultsPage() {
 
   const refetch = () => { setLoading(true); setError(''); load(); };
 
+<<<<<<< HEAD
+  // Chỉ entry thuộc race RESULT_PENDING, chưa có kết quả.
+=======
   // Chỉ entry thuộc race COMPLETED, chưa có kết quả (Mục 15 CLAUDE.md)
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   const enterableEntries = entries.filter((e) => {
     const race = races.find((r) => r.id === e.raceId);
     const alreadyHasResult = results.some((res) => res.entryId === e.id);
@@ -52,12 +61,17 @@ export default function RefereeResultsPage() {
     const entry = enterableEntries.find((en) => en.id === Number(data.entryId));
     if (!entry) return;
     try {
+<<<<<<< HEAD
+      await resultService.createForRace(entry.raceId, {
+        entryId: entry.id,
+=======
       await resultService.create({
         raceId: entry.raceId,
         raceName: entry.raceName,
         entryId: entry.id,
         horseName: entry.horseName,
         jockeyName: entry.jockeyName,
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
         position: Number(data.position),
         finishTime: data.finishTime,
       });
@@ -77,7 +91,11 @@ export default function RefereeResultsPage() {
       <div className="page-header"><h2>Nhập kết quả đua</h2></div>
 
       {enterableEntries.length === 0 ? (
+<<<<<<< HEAD
+        <EmptyState message="Không có entry nào thuộc race RESULT_PENDING đang chờ nhập kết quả." />
+=======
         <EmptyState message="Không có entry nào thuộc race đã COMPLETED đang chờ nhập kết quả." />
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
       ) : (
         <Form onSubmit={handleSubmit(onSubmit)} className="dash-card d-flex flex-wrap gap-3 align-items-start mb-4" noValidate>
           <Form.Group>
@@ -108,7 +126,11 @@ export default function RefereeResultsPage() {
           <Form.Group>
             <Form.Label style={{ color: '#D4AF37' }}>Thời gian về đích</Form.Label>
             <Form.Control
+<<<<<<< HEAD
+              placeholder="00:01:10.250"
+=======
               placeholder="01:12.45"
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
               {...register('finishTime', { required: 'Thời gian là bắt buộc' })}
               isInvalid={!!errors.finishTime}
             />
