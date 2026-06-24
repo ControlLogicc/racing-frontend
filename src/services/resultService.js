@@ -71,7 +71,18 @@ const realService = {
   // Backend không có GET /results — load qua races rồi lấy từng race
   getAll: async () => {
     try {
+<<<<<<< HEAD
       const races = await api.get('/races').then((r) => Array.isArray(r.data) ? r.data : []);
+=======
+      let races = [];
+      try {
+        const res = await api.get('/staff/races');
+        races = Array.isArray(res.data) ? res.data : [];
+      } catch {
+        const res = await api.get('/admin/races');
+        races = Array.isArray(res.data) ? res.data : [];
+      }
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
       const withResults = races.filter((r) =>
         ['RESULT_PENDING', 'OFFICIAL', 'COMPLETED', 'RUNNING'].includes(r.status)
       );
@@ -93,10 +104,14 @@ const realService = {
 
   // POST /results { entryId, position, finishTime, resultStatus }
   create: (payload) => api.post('/results', payload).then((r) => mapResult(r.data)),
+<<<<<<< HEAD
   createForRace: (raceId, payload) => {
     const results = Array.isArray(payload?.results) ? payload.results : [payload];
     return api.post(`/races/${raceId}/results`, { results }).then((r) => mapResults(r.data));
   },
+=======
+  createForRace: (raceId, payload) => api.post('/results', { raceId, ...payload }).then((r) => mapResult(r.data)),
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 
   // Backend chưa có PUT /results/{id} — không thể chỉnh sửa kết quả riêng lẻ
   update: () => Promise.reject(new Error('Chỉnh sửa kết quả riêng lẻ chưa được backend hỗ trợ.')),
@@ -108,4 +123,8 @@ const realService = {
     api.patch(`/race-management/races/${raceId}/status`, { status }).then((r) => r.data),
 };
 
+<<<<<<< HEAD
 export const resultService = USE_MOCK ? mockService : realService;
+=======
+export const resultService = realService;
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8

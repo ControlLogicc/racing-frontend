@@ -1,5 +1,8 @@
 import { createContext, useState, useEffect } from 'react';
+<<<<<<< HEAD
 import api from '../services/api';
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 
 export const AuthContext = createContext(null);
 
@@ -7,6 +10,7 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+<<<<<<< HEAD
   const normalizeUser = (payloadUser) => ({
     userId: payloadUser.userId ?? payloadUser.user_id,
     fullName: payloadUser.fullName ?? payloadUser.full_name,
@@ -45,6 +49,24 @@ export default function AuthProvider({ children }) {
 
     restoreSession();
     return () => { alive = false; };
+=======
+  // Khôi phục session từ localStorage khi app mount
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem('token');
+      const rawUser = localStorage.getItem('user');
+      if (token && rawUser) {
+        setUser(JSON.parse(rawUser)); // parse an toàn trong try/catch
+      }
+    } catch {
+      // chuỗi user hỏng -> dọn sạch để tránh treo app
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+    } finally {
+      setLoading(false); // luôn tắt loading dù thành công hay lỗi
+    }
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   }, []);
 
   // EXCEPTION #1: lưu CẢ token + user object
@@ -67,4 +89,8 @@ export default function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8

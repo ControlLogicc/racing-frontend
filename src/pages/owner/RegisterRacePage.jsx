@@ -5,9 +5,17 @@ import { useAuth } from '../../hooks/useAuth';
 import { raceService } from '../../services/raceService';
 import { horseService } from '../../services/horseService';
 import { registrationService } from '../../services/registrationService';
+<<<<<<< HEAD
 import { prizeService } from '../../services/prizeService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
+=======
+import { invitationService } from '../../services/invitationService';
+import { userService } from '../../services/userService';
+import { getApiErrorMessage } from '../../utils/apiError';
+import { formatDate } from '../../utils/formatDate';
+import { RACE_STATUS } from '../../constants/status';
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 import Loading from '../../components/common/Loading';
 import ErrorState from '../../components/common/ErrorState';
 import Toaster from '../../components/common/Toaster';
@@ -32,7 +40,13 @@ function StepIndicator({ current }) {
                 : current === s.num
                   ? 'linear-gradient(135deg,#D4AF37,#b8941d)'
                   : 'rgba(255,255,255,0.04)',
+<<<<<<< HEAD
               border: current >= s.num ? 'none' : '1px solid rgba(255,255,255,0.1)',
+=======
+              border: current >= s.num
+                ? 'none'
+                : '1px solid rgba(255,255,255,0.1)',
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 18,
               boxShadow: current === s.num ? '0 0 20px rgba(212,175,55,0.35)' : 'none',
@@ -77,7 +91,11 @@ function InfoRow({ label, value }) {
   );
 }
 
+<<<<<<< HEAD
 function RacePreviewCard({ race, prizes = [] }) {
+=======
+function RacePreviewCard({ race }) {
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   if (!race) {
     return (
       <div className="lux-panel d-flex flex-column align-items-center justify-content-center text-center"
@@ -105,6 +123,7 @@ function RacePreviewCard({ race, prizes = [] }) {
         <InfoRow key={label} label={label} value={val} />
       ))}
 
+<<<<<<< HEAD
       {prizes.length > 0 && (
         <div style={{ marginTop: 18 }}>
           <div style={{
@@ -123,6 +142,15 @@ function RacePreviewCard({ race, prizes = [] }) {
             ))}
         </div>
       )}
+=======
+      <div style={{
+        marginTop: 18, background: 'rgba(212,175,55,0.05)', borderRadius: 8,
+        padding: '12px 14px', borderLeft: '3px solid rgba(212,175,55,0.4)',
+        fontSize: '0.8rem', color: '#6a6250', lineHeight: 1.6,
+      }}>
+        Đăng ký sẽ được ghi nhận ngay lập tức. Bạn có thể mời jockey ngay sau khi đăng ký thành công.
+      </div>
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
     </div>
   );
 }
@@ -137,26 +165,44 @@ export default function RegisterRacePage() {
   const [step, setStep] = useState(1);
   const [races, setRaces] = useState([]);
   const [horses, setHorses] = useState([]);
+<<<<<<< HEAD
   const [prizes, setPrizes] = useState([]);
+=======
+  const [jockeys, setJockeys] = useState([]);
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
+<<<<<<< HEAD
 
   const [raceId, setRaceId] = useState(preRaceId ? String(preRaceId) : '');
   const [horseId, setHorseId] = useState('');
 
   // Load races & horses
+=======
+  const [invitationSent, setInvitationSent] = useState(false);
+
+  const [raceId, setRaceId] = useState(preRaceId ? String(preRaceId) : '');
+  const [horseId, setHorseId] = useState('');
+  const [ownerNote, setOwnerNote] = useState('');
+
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   useEffect(() => {
     Promise.all([raceService.getOpen(), horseService.getByOwner()])
       .then(([r, h]) => {
         setRaces(r);
+<<<<<<< HEAD
+=======
+        // Chỉ giữ ngựa thuộc owner đang login (phòng BE trả về tất cả ngựa)
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
         setHorses(h.filter((horse) => !horse.ownerId || Number(horse.ownerId) === Number(user.userId)));
       })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu.')))
       .finally(() => setLoading(false));
   }, []);
 
+<<<<<<< HEAD
   // Load prizes when race changes
   useEffect(() => {
     if (raceId) {
@@ -166,16 +212,26 @@ export default function RegisterRacePage() {
     }
   }, [raceId]);
 
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   const selectedRace = races.find((r) => r.id === Number(raceId));
   const selectedHorse = horses.find((h) => h.id === Number(horseId));
 
   const handleConfirm = async () => {
     setSubmitting(true);
     try {
+<<<<<<< HEAD
       await registrationService.create({
         raceId: Number(raceId),
         horseId: Number(horseId),
       });
+=======
+      const created = await registrationService.create({
+        raceId: Number(raceId),
+        horseId: Number(horseId),
+      });
+
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
       setStep(3);
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Nộp đăng ký thất bại.'), variant: 'danger' });
@@ -192,7 +248,11 @@ export default function RegisterRacePage() {
       <div className="page-header mb-4">
         <div>
           <h2>Đăng ký đua</h2>
+<<<<<<< HEAD
           <p style={{ margin: 0, marginTop: 4 }}>Nộp đăng ký ngựa tham dự race</p>
+=======
+          <p style={{ margin: 0, marginTop: 4 }}>Nộp đăng ký ngựa tham dự race và tuỳ chọn mời jockey</p>
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
         </div>
       </div>
 
@@ -232,6 +292,27 @@ export default function RegisterRacePage() {
                   )}
                 </Form.Group>
 
+<<<<<<< HEAD
+=======
+
+
+                <Form.Group>
+                  <Form.Label>Ghi chú <span style={{ color: '#5a5040', fontSize: '0.78rem' }}>(tuỳ chọn)</span></Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={ownerNote}
+                    onChange={(e) => setOwnerNote(e.target.value)}
+                    placeholder="Tình trạng ngựa, yêu cầu đặc biệt..."
+                    maxLength={500}
+                    style={{ resize: 'none' }}
+                  />
+                  <div style={{ textAlign: 'right', fontSize: '0.72rem', color: '#3a3028', marginTop: 4 }}>
+                    {ownerNote.length} / 500
+                  </div>
+                </Form.Group>
+
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
                 <div className="d-flex gap-3 pt-2">
                   <button
                     type="button"
@@ -254,7 +335,11 @@ export default function RegisterRacePage() {
             </div>
           </Col>
           <Col md={6}>
+<<<<<<< HEAD
             <RacePreviewCard race={selectedRace} prizes={prizes} />
+=======
+            <RacePreviewCard race={selectedRace} />
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
           </Col>
         </Row>
       )}
@@ -269,6 +354,10 @@ export default function RegisterRacePage() {
               <InfoRow label="Race" value={selectedRace?.name ?? '—'} />
               <InfoRow label="Ngựa" value={selectedHorse?.name ?? '—'} />
               <InfoRow label="Owner" value={user.fullName} />
+<<<<<<< HEAD
+=======
+              {ownerNote && <InfoRow label="Ghi chú" value={ownerNote} />}
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 
               <div style={{
                 marginTop: 20, padding: '12px 14px',
@@ -276,7 +365,11 @@ export default function RegisterRacePage() {
                 borderLeft: '3px solid rgba(212,175,55,0.35)',
                 fontSize: '0.8rem', color: '#6a6250', lineHeight: 1.6,
               }}>
+<<<<<<< HEAD
                 Đăng ký sẽ được ghi nhận ngay.
+=======
+                Đăng ký sẽ được ghi nhận ngay. Sau khi hoàn thành bạn có thể quản lý lời mời jockey từ trang Lời mời Jockey.
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
               </div>
 
               <div className="d-flex gap-3 mt-4">
@@ -301,7 +394,11 @@ export default function RegisterRacePage() {
             </div>
           </Col>
           <Col md={6}>
+<<<<<<< HEAD
             <RacePreviewCard race={selectedRace} prizes={prizes} />
+=======
+            <RacePreviewCard race={selectedRace} />
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
           </Col>
         </Row>
       )}
@@ -321,6 +418,16 @@ export default function RegisterRacePage() {
               Ngựa <strong style={{ color: '#D4AF37' }}>{selectedHorse?.name}</strong> đã được đăng ký thành công.
             </div>
 
+<<<<<<< HEAD
+=======
+            <div style={{
+              background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)',
+              borderRadius: 10, padding: '12px 16px', marginBottom: 28, fontSize: '0.85rem', color: '#6a5a40',
+            }}>
+              💡 Bạn cần thực hiện bước mời Jockey ở trang Lời Mời để hoàn thiện Đăng ký.
+            </div>
+
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
             <div className="d-flex gap-3 justify-content-center flex-wrap">
               <button
                 className="btn-ghost"
@@ -329,6 +436,16 @@ export default function RegisterRacePage() {
               >
                 Xem đăng ký của tôi
               </button>
+<<<<<<< HEAD
+=======
+              <button
+                className="btn-gold btn-gold-sm"
+                style={{ padding: '10px 22px' }}
+                onClick={() => navigate('/owner/invitations')}
+              >
+                Mời Jockey ngay
+              </button>
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
             </div>
           </div>
         </div>

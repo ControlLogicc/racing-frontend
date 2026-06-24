@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { registrationService } from '../../services/registrationService';
 import { invitationService } from '../../services/invitationService';
+<<<<<<< HEAD
 import { raceService } from '../../services/raceService';
 import { resultService } from '../../services/resultService';
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
 import { RACE_REGISTRATION_STATUS, RACE_INVITATION_STATUS, canOwnerInviteJockey } from '../../constants/status';
@@ -54,6 +57,7 @@ export default function OwnerRegistrationsPage() {
   };
 
   const load = () => {
+<<<<<<< HEAD
     Promise.all([
       registrationService.getByOwner(),
       invitationService.getAll(),
@@ -93,6 +97,11 @@ export default function OwnerRegistrationsPage() {
             };
           })
         );
+=======
+    Promise.all([registrationService.getByOwner(), invitationService.getAll()])
+      .then(([regs, invs]) => {
+        setRows(regs.map((r) => ({ ...r, ...pickJockey(invs, r.id) })));
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
       })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được danh sách đăng ký.')))
       .finally(() => setLoading(false));
@@ -109,6 +118,7 @@ export default function OwnerRegistrationsPage() {
       render: (r) => (
         <div>
           <span style={{ fontWeight: 700, color: '#f0e8d0' }}>{r.raceName}</span>
+<<<<<<< HEAD
           <div style={{ fontSize: '0.75rem', color: '#8a8065', marginTop: 2 }}>ID: {r.raceId}</div>
         </div>
       ),
@@ -133,6 +143,10 @@ export default function OwnerRegistrationsPage() {
               </span>
             </div>
           )}
+=======
+          <br />
+          <span style={{ color: '#888', fontSize: '0.8rem' }}>(ID: {r.id})</span>
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
         </div>
       ),
     },
@@ -147,6 +161,7 @@ export default function OwnerRegistrationsPage() {
       render: (r) => <JockeyCell name={r.jockeyName} status={r.jockeyStatus} />,
     },
     {
+<<<<<<< HEAD
       key: 'result',
       label: 'Kết quả',
       render: (r) => {
@@ -168,6 +183,8 @@ export default function OwnerRegistrationsPage() {
       },
     },
     {
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
       key: 'submittedAt',
       label: 'Ngày nộp',
       render: (r) => <span style={{ color: '#6a6250', fontSize: '0.85rem' }}>{formatDate(r.submittedAt)}</span>,

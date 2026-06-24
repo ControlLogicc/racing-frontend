@@ -56,7 +56,10 @@ import JockeyRacesPage from '../pages/jockey/RacesPage';
 
 // Referee
 import RefereeDashboardOverview from '../pages/referee/Dashboard';
+<<<<<<< HEAD
 import RefereeChecksPage from '../pages/referee/ChecksPage';
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 import RefereeResultsPage from '../pages/referee/ResultsPage';
 import RefereeReportsPage from '../pages/referee/ReportsPage';
 
@@ -96,7 +99,11 @@ export default function AppRoutes() {
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><MeetingsPage /></ProtectedRoute>
           } />
           <Route path="admin/races" element={
+<<<<<<< HEAD
             <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}><AdminRacesPage /></ProtectedRoute>
+=======
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminRacesPage /></ProtectedRoute>
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
           } />
           <Route path="admin/race-conditions" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><RaceConditionsPage /></ProtectedRoute>
@@ -169,9 +176,12 @@ export default function AppRoutes() {
           <Route path="referee" element={
             <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeDashboardOverview /></ProtectedRoute>
           } />
+<<<<<<< HEAD
           <Route path="referee/checks" element={
             <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeChecksPage /></ProtectedRoute>
           } />
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
           <Route path="referee/results" element={
             <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeResultsPage /></ProtectedRoute>
           } />

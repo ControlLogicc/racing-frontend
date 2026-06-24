@@ -41,7 +41,11 @@ export default function RefereeReportsPage() {
 
   const load = async () => {
     try {
+<<<<<<< HEAD
       const assignedRaces = await raceService.getAssignedToReferee(user);
+=======
+      const assignedRaces = await raceService.getAssignedToReferee(user?.userId);
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
       setRaces(assignedRaces);
       const reportSets = await Promise.all(
         assignedRaces.map((r) => refereeReportService.getByRace(r.id))
@@ -54,7 +58,10 @@ export default function RefereeReportsPage() {
     }
   };
 
+<<<<<<< HEAD
   // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   useEffect(() => { load(); }, []);
 
   const refetch = () => { setLoading(true); setError(''); load(); };

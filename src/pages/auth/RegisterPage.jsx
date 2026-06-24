@@ -58,6 +58,7 @@ export default function RegisterPage() {
       // Đăng nhập tự động sau khi đăng ký thành công
       setTimeout(() => {
         // Map dữ liệu response để đưa vào context
+<<<<<<< HEAD
         const payloadUser = data.user || data;
         const user = {
           userId: payloadUser.userId ?? payloadUser.user_id,
@@ -68,6 +69,13 @@ export default function RegisterPage() {
           jockeyId: payloadUser.jockeyId,
           staffId: payloadUser.staffId,
           refereeId: payloadUser.refereeId,
+=======
+        const user = {
+          userId: data.userId,
+          fullName: data.fullName,
+          email: data.email,
+          role: data.role.toLowerCase(), // FE đang dùng role chữ thường để map route
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
         };
         
         login(user, data.token); // Lưu token và thông tin user vào Context/LocalStorage
@@ -202,4 +210,8 @@ export default function RegisterPage() {
       </Card>
     </Container>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8

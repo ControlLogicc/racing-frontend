@@ -12,6 +12,36 @@ const SURFACE_TYPES = ['turf', 'dirt', 'synthetic', 'all-weather'];
 
 const EMPTY_FORM = { name: '', location: '', surfaceType: 'turf', capacity: '' };
 
+<<<<<<< HEAD
+=======
+const CourseForm = ({ values, onChange, onSubmit, onCancel, submitLabel }) => (
+  <Form onSubmit={onSubmit} className="d-flex flex-column gap-3">
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Tên đường đua <span style={{ color: '#e55' }}>*</span></Form.Label>
+      <Form.Control value={values.name} onChange={(e) => onChange({ ...values, name: e.target.value })} required />
+    </Form.Group>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Địa điểm</Form.Label>
+      <Form.Control value={values.location} onChange={(e) => onChange({ ...values, location: e.target.value })} placeholder="VD: Thành phố Hồ Chí Minh" />
+    </Form.Group>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Loại mặt đường</Form.Label>
+      <Form.Select value={values.surfaceType} onChange={(e) => onChange({ ...values, surfaceType: e.target.value })}>
+        {SURFACE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+      </Form.Select>
+    </Form.Group>
+    <Form.Group>
+      <Form.Label style={{ color: '#D4AF37' }}>Sức chứa (người)</Form.Label>
+      <Form.Control type="number" value={values.capacity} onChange={(e) => onChange({ ...values, capacity: e.target.value })} min="0" placeholder="VD: 10000" />
+    </Form.Group>
+    <div className="d-flex justify-content-end gap-2 mt-2">
+      <Button variant="secondary" onClick={onCancel}>Huỷ</Button>
+      <Button type="submit" className="btn-gold-sm">{submitLabel}</Button>
+    </div>
+  </Form>
+);
+
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 export default function RacecoursesPage() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -93,6 +123,7 @@ export default function RacecoursesPage() {
     },
   ];
 
+<<<<<<< HEAD
   const CourseForm = ({ values, onChange, onSubmit, onCancel, submitLabel }) => (
     <Form onSubmit={onSubmit} className="d-flex flex-column gap-3">
       <Form.Group>
@@ -120,6 +151,8 @@ export default function RacecoursesPage() {
     </Form>
   );
 
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   if (loading) return <Loading />;
   if (error) return <ErrorState message={error} onRetry={refetch} />;
 

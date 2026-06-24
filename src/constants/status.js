@@ -21,8 +21,11 @@ export const RACE_STATUS = {
   ENTRIES_CLOSED:         'CLOSED_FOR_ENTRY',
   PROVISIONAL_RESULT:     'RESULT_PENDING',
   OFFICIAL_RESULT:        'OFFICIAL',
+<<<<<<< HEAD
   UPCOMING:               'SCHEDULED',
   COMPLETED:              'CLOSED_FOR_ENTRY',
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 };
 
 // Enum khớp chính xác với BE Java enum RegistrationStatus
@@ -67,6 +70,7 @@ export const RACE_INVITATION_STATUS = {
 // → Referee_Review → Valid_Result | Penalized | Disqualified | Did_Not_Finish
 // (hoặc Scratched bất kỳ lúc trước khi Running)
 export const RACE_ENTRY_STATUS = {
+<<<<<<< HEAD
   DECLARED:  'DECLARED',
   PASSED:    'PASSED',
   FAILED:    'FAILED',
@@ -87,6 +91,25 @@ export const RACE_ENTRY_STATUS = {
   CHECKED_IN:     'DECLARED',
   DNF:            'WITHDRAWN',
   REMOVED:        'WITHDRAWN',
+=======
+  DECLARED:       'declared',
+  PRE_RACE_CHECK: 'pre_race_check',
+  READY_TO_RACE:  'ready_to_race',
+  RUNNING:        'running',
+  FINISHED:       'finished',
+  REFEREE_REVIEW: 'referee_review',
+  VALID_RESULT:   'valid_result',
+  PENALIZED:      'penalized',
+  DISQUALIFIED:   'disqualified',
+  DID_NOT_FINISH: 'dnf',
+  SCRATCHED:      'scratched',
+
+  // Aliases backend cũ
+  READY:      'ready_to_race',
+  CHECKED_IN: 'pre_race_check',
+  DNF:        'dnf',
+  REMOVED:    'scratched',
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 };
 
 // ─── RACE RESULT ──────────────────────────────────────────────────────────────
@@ -131,18 +154,28 @@ export const STATUS_LABEL = {
   REJECTED:  'Từ chối',
 
   // Invitation (BE: DRAFT / SENT / PENDING_RESPONSE / ACCEPTED / DECLINED / CANCELLED / EXPIRED / USED)
+<<<<<<< HEAD
+=======
+  DRAFT:            'Bản nháp',
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   SENT:             'Đã gửi',
   PENDING_RESPONSE: 'Chờ phản hồi',
   ACCEPTED:         'Đã chấp nhận',
   DECLINED:         'Đã từ chối',
   USED:             'Đã dùng',
   EXPIRED:          'Hết hạn',
+<<<<<<< HEAD
 
   // Entry (lowercase — backend gửi lowercase)
   DECLARED:       'Chính thức',
   PASSED:         'Đạt kiểm tra',
   FAILED:         'Không đạt',
   WITHDRAWN:      'Rút khỏi race',
+=======
+  CANCELLED:        'Đã huỷ',
+
+  // Entry (lowercase — backend gửi lowercase)
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   declared:       'Chính thức',
   pre_race_check: 'Kiểm tra trước đua',
   checked_in:     'Kiểm tra trước đua',
@@ -152,9 +185,12 @@ export const STATUS_LABEL = {
   finished:       'Hoàn thành',
   referee_review: 'Referee review',
   valid_result:   'Kết quả hợp lệ',
+<<<<<<< HEAD
   passed:         'Đạt kiểm tra',
   failed:         'Không đạt',
   withdrawn:      'Rút khỏi race',
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   penalized:      'Bị phạt',
   disqualified:   'Truất quyền',
   dnf:            'Không hoàn thành',
@@ -167,6 +203,10 @@ export const STATUS_LABEL = {
 
   // Payout
   PROCESSED: 'Đã xử lý',
+<<<<<<< HEAD
+=======
+  FAILED:    'Thất bại',
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 };
 
 // ─── BADGE VARIANT (Bootstrap color) ─────────────────────────────────────────
@@ -195,18 +235,28 @@ export const STATUS_BADGE_VARIANT = {
   REJECTED: 'danger',
 
   // Invitation (BE: DRAFT / SENT / PENDING_RESPONSE / ACCEPTED / DECLINED / CANCELLED / EXPIRED / USED)
+<<<<<<< HEAD
+=======
+  DRAFT:            'secondary',
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   SENT:             'warning',
   PENDING_RESPONSE: 'warning',
   ACCEPTED:         'success',
   DECLINED:         'danger',
   USED:             'secondary',
   EXPIRED:          'dark',
+<<<<<<< HEAD
 
   // Entry (lowercase)
   DECLARED:       'success',
   PASSED:         'success',
   FAILED:         'danger',
   WITHDRAWN:      'secondary',
+=======
+  CANCELLED:        'dark',
+
+  // Entry (lowercase)
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   declared:       'success',
   pre_race_check: 'info',
   checked_in:     'info',
@@ -216,9 +266,12 @@ export const STATUS_BADGE_VARIANT = {
   finished:       'success',
   referee_review: 'warning',
   valid_result:   'success',
+<<<<<<< HEAD
   passed:         'success',
   failed:         'danger',
   withdrawn:      'secondary',
+=======
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   penalized:      'warning',
   disqualified:   'danger',
   dnf:            'dark',
@@ -231,12 +284,20 @@ export const STATUS_BADGE_VARIANT = {
 
   // Payout
   PROCESSED: 'success',
+<<<<<<< HEAD
+=======
+  FAILED:    'danger',
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 export const isRaceOpen = (s) => s === RACE_STATUS.OPEN_FOR_ENTRY || s === 'OPEN_FOR_ENTRY';
 
+<<<<<<< HEAD
 export const canEnterResult = (s) => s === RACE_STATUS.RESULT_PENDING || s === 'RESULT_PENDING';
+=======
+export const canEnterResult = (s) => s === RACE_STATUS.CLOSED_FOR_ENTRY || s === 'CLOSED_FOR_ENTRY';
+>>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 
 export const canPublishResult = (s) =>
   s === RACE_RESULT_STATUS.FINAL_EDITED_BY_STAFF || s === RACE_RESULT_STATUS.REVIEWED_BY_REFEREE;
