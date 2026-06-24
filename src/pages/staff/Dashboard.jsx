@@ -1,0 +1,177 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { raceService } from '../../services/raceService';
+import { entryService } from '../../services/entryService';
+import { RACE_STATUS, RACE_ENTRY_STATUS } from '../../constants/status';
+import { formatDate } from '../../utils/formatDate';
+import { StatCardGrid, QuickActions } from '../../components/common/DashboardWidgets';
+import StatusBadge from '../../components/common/StatusBadge';
+import Loading from '../../components/common/Loading';
+import ErrorState from '../../components/common/ErrorState';
+
+const GOLD = '#D4AF37';
+
+const QUICK_ACTIONS = [
+  { id: 'qa1', label: 'Lời mời Jockey', to: '/staff/invitations', icon: '✉️' },
+  { id: 'qa2', label: 'Quản lý Entry', to: '/staff/entries', icon: '✅' },
+  { id: 'qa3', label: 'Xem đăng ký', to: '/staff/registrations', icon: '📋' },
+  { id: 'qa4', label: 'Kết quả & Payout', to: '/staff/results', icon: '🏆' },
+];
+
+export default function StaffDashboard() {
+  const { user } = useAuth();
+  const [races, setRaces] = useState([]);
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const load = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      // Dùng allSettled để một cái fail không crash cả dashboard
+      const [racesResult, entriesResult] = await Promise.allSettled([
+        raceService.getAssignedToStaff(),
+        entryService.getAll(),
+      ]);
+      setRaces(racesResult.status === 'fulfilled' ? racesResult.value : []);
+      setEntries(entriesResult.status === 'fulfilled' ? entriesResult.value : []);
+    } catch {
+      setError('Không tải được dữ liệu dashboard.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  if (loading) return <Loading />;
+  if (error) return <ErrorState message={error} onRetry={load} />;
+
+  const upcomingRaces = races.filter((r) =>
+    r.status === RACE_STATUS.SCHEDULED || r.status === RACE_STATUS.OPEN_FOR_ENTRY
+  );
+  const activeEntries = entries.filter((e) => e.status !== RACE_ENTRY_STATUS.REMOVED && e.status !== RACE_ENTRY_STATUS.SCRATCHED);
+
+  const stats = [
+    {
+      id: 's1',
+      label: 'Race được gán',
+      value: races.length,
+      hint: `${upcomingRaces.length} sắp tới`,
+      accent: 'primary',
+    },
+    {
+      id: 's2',
+      label: 'Entry trong race',
+      value: activeEntries.length,
+      hint: 'Tự động tạo khi jockey accept',
+      accent: 'primary',
+    },
+    {
+      id: 's3',
+      label: 'Race đang chạy',
+      value: races.filter((r) => r.status === RACE_STATUS.RUNNING).length,
+      hint: 'Trạng thái RUNNING',
+      accent: 'danger',
+    },
+  ];
+
+  return (
+    <div>
+      <h2 className="mb-1" style={{ color: GOLD }}>
+        Xin chào, {user?.fullName || 'Staff'} 🏟️
+      </h2>
+      <p className="text-muted mb-4">
+        Vận hành race — theo dõi entry, xác nhận, công bố kết quả.
+      </p>
+
+      <StatCardGrid items={stats} />
+
+      <div className="row g-4">
+        <div className="col-12 col-lg-8">
+
+          {/* Races sắp tới */}
+          <div className="card shadow-sm mb-4" style={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
+            <div className="card-header bg-transparent d-flex justify-content-between align-items-center" style={{ borderBottom: `1px solid ${GOLD}` }}>
+              <h5 className="mb-0" style={{ color: GOLD }}>Race được gán</h5>
+              <span style={{ color: '#888', fontSize: 13 }}>{races.length} race</span>
+            </div>
+            <div className="card-body p-0">
+              {races.length === 0 ? (
+                <p className="text-muted p-3 mb-0">Chưa có race nào được gán.</p>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table table-sm mb-0" style={{ color: '#e9e9e9' }}>
+                    <thead>
+                      <tr style={{ color: '#a0a0a0', borderColor: '#2a2a2a' }}>
+                        <th>Tên cuộc đua</th>
+                        <th>Thời gian</th>
+                        <th>Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {races.slice(0, 5).map((r) => (
+                        <tr key={r.id} style={{ borderColor: '#2a2a2a' }}>
+                          <td>{r.name}</td>
+                          <td style={{ whiteSpace: 'nowrap' }}>{formatDate(r.raceTime)}</td>
+                          <td><StatusBadge status={r.status} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Entry trong race */}
+          <div className="card shadow-sm" style={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
+            <div className="card-header bg-transparent d-flex justify-content-between align-items-center" style={{ borderBottom: `1px solid ${GOLD}` }}>
+              <h5 className="mb-0" style={{ color: GOLD }}>
+                Entry trong race
+                <span className="badge ms-2" style={{ backgroundColor: '#D4AF37', color: '#111', fontSize: '0.75rem' }}>
+                  {activeEntries.length}
+                </span>
+              </h5>
+              <Link to="/staff/entries" style={{ color: GOLD, fontSize: '0.875rem' }}>Quản lý →</Link>
+            </div>
+            <div className="card-body p-0">
+              {activeEntries.length === 0 ? (
+                <p className="text-muted p-3 mb-0">Chưa có entry nào trong race.</p>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table table-sm mb-0" style={{ color: '#e9e9e9' }}>
+                    <thead>
+                      <tr style={{ color: '#a0a0a0', borderColor: '#2a2a2a' }}>
+                        <th>Cuộc đua</th>
+                        <th>Ngựa</th>
+                        <th>Jockey</th>
+                        <th>Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {activeEntries.slice(0, 5).map((e) => (
+                        <tr key={e.id} style={{ borderColor: '#2a2a2a' }}>
+                          <td>{e.raceName}</td>
+                          <td>{e.horseName}</td>
+                          <td>{e.jockeyName}</td>
+                          <td><StatusBadge status={e.status} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="col-12 col-lg-4">
+          <QuickActions title="Thao tác nhanh" actions={QUICK_ACTIONS} />
+        </div>
+      </div>
+    </div>
+  );
+}
