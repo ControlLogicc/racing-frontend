@@ -1,0 +1,103 @@
+/* Theme vàng-đen luxury cho trang Auth (Login/Register) — FPT Horse Racing.
+   Dùng chung cho cả LoginPage & RegisterPage (cùng nằm trong pages/auth/). */
+
+.lux-auth {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background:
+    radial-gradient(1100px 520px at 50% -8%, rgba(212, 175, 55, 0.14), transparent 60%),
+    #070707;
+}
+
+.lux-card {
+  width: 100%;
+  background: linear-gradient(180deg, #171717 0%, #0e0e0e 100%);
+  border: 1px solid rgba(212, 175, 55, 0.55);
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.08),
+    0 20px 60px rgba(0, 0, 0, 0.75),
+    0 0 40px rgba(212, 175, 55, 0.08);
+  color: #e9e4d6;
+}
+.lux-card .card-body { padding: 2rem; }
+
+/* Tiêu đề có gạch trang trí 2 bên (giống "— ADD JOCKEY PROFILE —") */
+.lux-title { text-align: center; margin-bottom: 1.5rem; }
+.lux-title h3 {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  color: #f4d03f;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.lux-title h3::before,
+.lux-title h3::after {
+  content: '';
+  width: 38px;
+  height: 1px;
+}
+.lux-title h3::before { background: linear-gradient(90deg, transparent, #d4af37); }
+.lux-title h3::after  { background: linear-gradient(90deg, #d4af37, transparent); }
+.lux-subtitle { margin-top: 0.4rem; color: #9a8f73; font-size: 0.85rem; }
+
+/* Label */
+.lux-card .form-label {
+  color: #d4af37;
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* Input + Select trên nền đen */
+.lux-card .form-control,
+.lux-card .form-select {
+  background-color: #0c0c0c !important;
+  border: 1px solid rgba(212, 175, 55, 0.35) !important;
+  color: #f3efe3 !important;
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+}
+.lux-card .form-control::placeholder { color: #6f6650; }
+.lux-card .form-control:focus,
+.lux-card .form-select:focus {
+  border-color: #f4d03f !important;
+  box-shadow: 0 0 0 0.18rem rgba(212, 175, 55, 0.25) !important;
+  color: #fff !important;
+}
+.lux-card .form-select option { background: #121212; color: #f3efe3; }
+
+/* Trạng thái invalid: vẫn dùng feedback của Bootstrap nhưng rõ trên nền đen */
+.lux-card .form-control.is-invalid,
+.lux-card .form-select.is-invalid { border-color: #e06666 !important; }
+.lux-card .invalid-feedback { color: #ff8a8a; }
+
+/* Nút vàng gradient (primary) */
+.lux-btn-gold {
+  background: linear-gradient(180deg, #f7df8b 0%, #d4af37 55%, #b8901f 100%) !important;
+  border: none !important;
+  color: #1a1400 !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 10px;
+  padding: 0.7rem;
+  transition: filter 0.15s ease, transform 0.05s ease;
+}
+.lux-btn-gold:hover:not(:disabled) { filter: brightness(1.08); }
+.lux-btn-gold:active:not(:disabled) { transform: translateY(1px); }
+.lux-btn-gold:disabled { opacity: 0.6; }
+
+/* Link phụ */
+.lux-link { color: #f4d03f; text-decoration: none; font-weight: 600; }
+.lux-link:hover { color: #ffe27a; text-decoration: underline; }
+
+/* Alert hợp tông tối hơn (tuỳ chọn, vẫn là Alert của react-bootstrap) */
+.lux-card .alert { border-radius: 10px; }
