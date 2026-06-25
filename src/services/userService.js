@@ -9,7 +9,6 @@ let _nextId = Math.max(..._users.map((u) => u.id)) + 1;
 const mockService = {
   getAll: () => Promise.resolve([..._users]),
   getJockeys: () => Promise.resolve(_users.filter((u) => u.role === 'jockey')),
-<<<<<<< HEAD
   getStaff: () => Promise.resolve(
     _users
       .filter((u) => u.role === 'staff')
@@ -20,8 +19,6 @@ const mockService = {
       .filter((u) => u.role === 'referee')
       .map((u) => ({ ...u, id: u.refereeId ?? u.id, refereeId: u.refereeId ?? u.id })),
   ),
-=======
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   create: (payload) => {
     const created = { id: _nextId++, locked: false, ...payload };
     _users = [..._users, created];
@@ -61,7 +58,6 @@ const mapStaff = (s) => ({
   userId: s.userId,
   fullName: s.fullName || s.name || `Staff #${s.staffId}`,
   email: s.email,
-<<<<<<< HEAD
   staffCode: s.staffCode,
   department: s.department,
   status: s.status,
@@ -71,10 +67,6 @@ const mapStaffList = (data) => {
   if (data && typeof data === 'object') return [mapStaff(data)].filter((s) => s.staffId);
   return [];
 };
-=======
-});
-const mapStaffList = (list) => (Array.isArray(list) ? list.map(mapStaff) : []);
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 
 // RefereeResponse: { refereeId, userId, fullName, email, ... }
 const mapReferee = (r) => ({
@@ -88,18 +80,12 @@ const mapReferees = (list) => (Array.isArray(list) ? list.map(mapReferee) : []);
 
 const realService = {
   // BACKEND PENDING: GET /admin/users chưa có trong spec (chỉ có POST).
-<<<<<<< HEAD
   // Return [] để UsersPage không crash — admin vẫn dùng được form tạo user.
   getAll: () => api.get('/admin/users').then((r) => (Array.isArray(r.data) ? r.data : [])).catch(() => []),
-=======
-  // Chuyển sang reject để UI hiện lỗi thay vì mảng rỗng khó hiểu.
-  getAll: () => Promise.reject(new Error('Chức năng xem danh sách Users chưa được backend hỗ trợ.')),
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 
   // GET /jockeys — danh sách jockey (authenticated, dùng cho Owner mời jockey)
   getJockeys: () => api.get('/jockeys').then((r) => mapJockeys(r.data)),
 
-<<<<<<< HEAD
   // Staff profiles are required here because RaceRequest.staffId expects Staff.staffId, not User.userId.
   getStaff: async () => {
     try {
@@ -117,15 +103,10 @@ const realService = {
       return [];
     }
   },
-=======
-  // GET /staff — danh sách staff (dùng để admin assign staff vào race)
-  getStaff: () => api.get('/staff').then((r) => mapStaffList(r.data)).catch(() => []),
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 
   // GET /referees — danh sách referee (dùng để admin assign referee vào race)
   getReferees: () => api.get('/referees').then((r) => mapReferees(r.data)).catch(() => []),
 
-<<<<<<< HEAD
   create: ({ fullName, email, password, role, phone, staffCode, department, licenseNo, weight, experienceYears }) => {
     const normalizedRole = role ? role.toUpperCase() : 'SPECTATOR';
     const payload = {
@@ -149,26 +130,10 @@ const realService = {
 
     return api.post('/admin/users', payload).then((r) => r.data);
   },
-=======
-  // POST /admin/users — tạo tài khoản nội bộ (ADMIN)
-  // Backend cần role UPPERCASE (STAFF, REFEREE...) và fullName
-  create: ({ fullName, email, password, role, phone }) =>
-    api.post('/admin/users', {
-      fullName,
-      email,
-      password,
-      role: role ? role.toUpperCase() : 'SPECTATOR',
-      phone: phone || '',
-    }).then((r) => r.data),
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 
   // Backend chưa có endpoints cho change role/lock
   setRole: () => Promise.reject(new Error('Chức năng đổi role chưa được backend hỗ trợ.')),
   setLocked: () => Promise.reject(new Error('Chức năng khoá tài khoản chưa được backend hỗ trợ.')),
 };
 
-<<<<<<< HEAD
 export const userService = USE_MOCK ? mockService : realService;
-=======
-export const userService = realService;
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8

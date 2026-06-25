@@ -9,7 +9,6 @@ let nextId = mockStore.length + 1;
 
 const mockService = {
   getAll: () => Promise.resolve([...mockStore]),
-<<<<<<< HEAD
   getByOwner: (ownerId) => {
     let uid = ownerId;
     if (!uid) {
@@ -20,9 +19,6 @@ const mockService = {
     }
     return Promise.resolve(mockStore.filter((r) => Number(r.ownerId) === Number(uid)));
   },
-=======
-  getByOwner: (ownerId) => Promise.resolve(mockStore.filter((r) => r.ownerId === ownerId)),
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   create: (payload) => {
     const created = {
       id: nextId++,
@@ -54,46 +50,44 @@ const mapReg = (r) => ({
   horseName: r.horseName,
   ownerId: r.ownerId,
   ownerName: r.ownerName,
-  status: r.status,
+  status: r.registrationStatus ?? r.status,
   submittedAt: r.submittedAt,
   reviewedAt: r.reviewedAt,
+  registrationCloseAt: r.registrationCloseAt,
+  scheduledTime: r.scheduledTime,
+  invitationId: r.invitationId,
+  invitationStatus: r.invitationStatus,
+  entryId: r.entryId,
+  canInviteJockey: r.canInviteJockey,
 });
 const mapRegs = (list) => (Array.isArray(list) ? list.map(mapReg) : []);
 
 // ─── Real API (VITE_USE_MOCK=false) ───────────────────────────────────────────
 const realService = {
-  // Owner xem đăng ký của mình.
-<<<<<<< HEAD
-  getByOwner: () => api.get('/registrations').then((r) => mapRegs(r.data)),
-=======
-  // BE Server cũ KHÔNG CÓ GET /registrations/my -> Bị lỗi 400.
-  // Giải pháp tạm thời: Lấy danh sách registrations dựa vào danh sách invitations.
-  // Nhược điểm: Đăng ký nào chưa từng có invitation (chưa mời Jockey) sẽ KHÔNG hiện lên màn hình.
-  getByOwner: () => api.get('/registrations/my').then((r) => mapRegs(r.data)).catch(() => []),
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
+  // Owner xem đăng ký của mình (đã APPROVED để mời jockey)
+  getByOwner: () => 
+    api.get('/owner/registrations/approved')
+       .then((r) => mapRegs(r.data))
+       .catch(() => []),
 
   // Staff xem registrations cho race được gán — BE trả thêm canApprove/canReject
   getAll: (params) => api.get('/staff/registrations', { params }).then((r) => mapRegs(r.data)),
   // Admin/Staff xem theo race cụ thể
-<<<<<<< HEAD
   getByRace: (raceId) => api.get(`/registrations/${raceId}`).then((r) => mapRegs(r.data)),
-=======
-  getByRace: (raceId) => api.get(`/registrations/race/${raceId}`).then((r) => mapRegs(r.data)),
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 
   // Owner tạo đăng ký: { raceId, horseId }
-  create: (payload) => api.post('/registrations', payload).then((r) => mapReg(r.data)),
+  create: (payload) => 
+    api.post('/registrations', {
+      raceId: Number(payload.raceId),
+      horseId: Number(payload.horseId),
+    }).then((r) => mapReg(r.data)),
 
   // Staff/Admin duyệt / từ chối
   approve: (id) => api.put(`/registrations/${id}/approve`).then((r) => mapReg(r.data)),
   reject: (id) => api.put(`/registrations/${id}/reject`).then((r) => mapReg(r.data)),
 
   // Owner huỷ đăng ký
-<<<<<<< HEAD
   cancel: (id) => api.patch(`/registrations/${id}/cancel`).then((r) => mapReg(r.data)),
-=======
-  cancel: () => Promise.reject(new Error('Chức năng huỷ đăng ký chưa được backend hỗ trợ.')),
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 };
 
 export const registrationService = USE_MOCK ? mockService : realService;

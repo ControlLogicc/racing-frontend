@@ -3,14 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { registrationService } from '../../services/registrationService';
 import { invitationService } from '../../services/invitationService';
-<<<<<<< HEAD
-import { raceService } from '../../services/raceService';
-import { resultService } from '../../services/resultService';
-=======
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
-import { RACE_REGISTRATION_STATUS, RACE_INVITATION_STATUS, canOwnerInviteJockey } from '../../constants/status';
+import { RACE_INVITATION_STATUS } from '../../constants/status';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
@@ -39,7 +34,6 @@ function JockeyCell({ name, status }) {
 }
 
 export default function OwnerRegistrationsPage() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,61 +41,28 @@ export default function OwnerRegistrationsPage() {
   const [toast, setToast] = useState(null);
 
   const pickJockey = (invitations, registrationId) => {
-    const inv = invitations.filter((i) => i.registrationId === registrationId);
-    const accepted = inv.find((i) => i.status === RACE_INVITATION_STATUS.ACCEPTED);
-    if (accepted) return { jockeyName: accepted.jockeyName, jockeyStatus: accepted.status };
-    const sent = inv.find((i) => i.status === RACE_INVITATION_STATUS.SENT);
-    if (sent) return { jockeyName: sent.jockeyName, jockeyStatus: sent.status };
-    if (inv.length) return { jockeyName: inv[0].jockeyName, jockeyStatus: inv[0].status };
-    return { jockeyName: null, jockeyStatus: null };
+    const regInvs = invitations.filter((i) => i.registrationId === registrationId);
+    const accepted = regInvs.find((i) => i.status === 'ACCEPTED');
+    if (accepted) return { jockeyName: accepted.jockeyName, invStatus: 'ACCEPTED' };
+    const sent = regInvs.find((i) => i.status === 'SENT');
+    if (sent) return { jockeyName: sent.jockeyName, invStatus: 'SENT' };
+    const declined = regInvs.filter((i) => i.status === 'DECLINED');
+    if (declined.length) return { jockeyName: declined[0].jockeyName, invStatus: 'DECLINED' };
+    return { jockeyName: null, invStatus: null };
   };
 
   const load = () => {
-<<<<<<< HEAD
     Promise.all([
       registrationService.getByOwner(),
-      invitationService.getAll(),
-      raceService.getPublic(),
+      invitationService.getAll()
     ])
-      .then(async ([regs, invs, races]) => {
-        const uniqueHorseIds = Array.from(new Set(regs.map((r) => r.horseId).filter(Boolean)));
-        const resultsMap = {};
-
-        // Fetch results for each horse in parallel, ignore errors
-        await Promise.all(
-          uniqueHorseIds.map((horseId) =>
-            resultService
-              .getByHorse(horseId)
-              .then((resList) => {
-                if (Array.isArray(resList)) {
-                  resList.forEach((res) => {
-                    resultsMap[`${res.horseId}_${res.raceId}`] = res;
-                  });
-                }
-              })
-              .catch(() => {})
-          )
-        );
-
-        setRows(
-          regs.map((r) => {
-            const race = races.find((rc) => rc.id === r.raceId);
-            const res = resultsMap[`${r.horseId}_${r.raceId}`];
-            return {
-              ...r,
-              ...pickJockey(invs, r.id),
-              raceTime: race ? race.raceTime : null,
-              raceStatus: race ? race.status : null,
-              position: res ? res.position : null,
-              finishTime: res ? res.finishTime : null,
-            };
-          })
-        );
-=======
-    Promise.all([registrationService.getByOwner(), invitationService.getAll()])
       .then(([regs, invs]) => {
-        setRows(regs.map((r) => ({ ...r, ...pickJockey(invs, r.id) })));
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
+        setRows(
+          regs.map((r) => ({
+            ...r,
+            ...pickJockey(invs, r.id)
+          }))
+        );
       })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được danh sách đăng ký.')))
       .finally(() => setLoading(false));
@@ -118,95 +79,80 @@ export default function OwnerRegistrationsPage() {
       render: (r) => (
         <div>
           <span style={{ fontWeight: 700, color: '#f0e8d0' }}>{r.raceName}</span>
-<<<<<<< HEAD
-          <div style={{ fontSize: '0.75rem', color: '#8a8065', marginTop: 2 }}>ID: {r.raceId}</div>
-        </div>
-      ),
-    },
-    {
-      key: 'raceTime',
-      label: 'Thời gian đua',
-      render: (r) => (
-        <div>
-          <span style={{ color: '#c8bea0', fontSize: '0.85rem', fontWeight: 600 }}>{formatDate(r.raceTime)}</span>
-          {r.raceStatus && (
-            <div style={{ fontSize: '0.73rem', marginTop: 2 }}>
-              <span style={{
-                color: r.raceStatus === 'UPCOMING' ? '#e2ad3c' :
-                       r.raceStatus === 'RUNNING' ? '#2ecc71' :
-                       r.raceStatus === 'RESULT_PENDING' ? '#3498db' :
-                       r.raceStatus === 'OFFICIAL' ? '#9b59b6' : '#95a5a6',
-                fontWeight: 600,
-                textTransform: 'uppercase'
-              }}>
-                {r.raceStatus}
-              </span>
-            </div>
-          )}
-=======
-          <br />
-          <span style={{ color: '#888', fontSize: '0.8rem' }}>(ID: {r.id})</span>
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
+          <div style={{ fontSize: '0.75rem', color: '#8a8065', marginTop: 2 }}>
+            {r.scheduledTime ? formatDate(r.scheduledTime) : 'Chưa có lịch'}
+          </div>
         </div>
       ),
     },
     {
       key: 'horseName',
       label: 'Ngựa',
-      render: (r) => <span style={{ color: '#D4AF37', fontWeight: 600 }}>🐎 {r.horseName}</span>,
+      render: (r) => (
+        <div>
+          <span style={{ color: '#D4AF37', fontWeight: 600 }}>🐎 {r.horseName}</span>
+        </div>
+      ),
     },
     {
       key: 'jockeyName',
       label: 'Jockey',
-      render: (r) => <JockeyCell name={r.jockeyName} status={r.jockeyStatus} />,
+      render: (r) => <JockeyCell name={r.jockeyName} status={r.invStatus} />,
     },
-    {
-<<<<<<< HEAD
-      key: 'result',
-      label: 'Kết quả',
-      render: (r) => {
-        if (r.position !== null && r.position !== undefined) {
-          const medal = r.position === 1 ? '🥇 ' : r.position === 2 ? '🥈 ' : r.position === 3 ? '🥉 ' : '';
-          return (
-            <div>
-              <span style={{ color: r.position <= 3 ? '#D4AF37' : '#fff', fontWeight: 700 }}>
-                {medal}Hạng {r.position}
-              </span>
-              {r.finishTime && <div style={{ fontSize: '0.73rem', color: '#888', marginTop: 2 }}>{r.finishTime}</div>}
-            </div>
-          );
-        }
-        if (r.raceStatus === 'OFFICIAL' || r.raceStatus === 'RESULT_PENDING') {
-          return <span style={{ color: '#666', fontStyle: 'italic', fontSize: '0.8rem' }}>Không có hạng</span>;
-        }
-        return <span style={{ color: '#444', fontStyle: 'italic', fontSize: '0.8rem' }}>Chưa diễn ra</span>;
-      },
+    { 
+      key: 'status', 
+      label: 'Trạng thái', 
+      render: (r) => (
+        <div>
+          <StatusBadge status={r.status} />
+          {r.status === 'PENDING_REVIEW' && <div style={{ fontSize: '0.7rem', color: '#888', marginTop: 4 }}>Đang chờ Staff duyệt</div>}
+          {r.status === 'APPROVED' && <div style={{ fontSize: '0.7rem', color: '#4caf7d', marginTop: 4 }}>Đã duyệt — có thể mời Jockey</div>}
+          {r.status === 'REJECTED' && <div style={{ fontSize: '0.7rem', color: '#e57373', marginTop: 4 }}>Bị từ chối</div>}
+        </div>
+      ) 
     },
-    {
-=======
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
-      key: 'submittedAt',
-      label: 'Ngày nộp',
-      render: (r) => <span style={{ color: '#6a6250', fontSize: '0.85rem' }}>{formatDate(r.submittedAt)}</span>,
-    },
-    { key: 'status', label: 'Trạng thái', render: (r) => <StatusBadge status={r.status} /> },
     {
       key: 'action',
       label: '',
-      render: (r) =>
-        canOwnerInviteJockey(r.status) && !r.jockeyName ? (
-          <button
-            className="btn-outline-gold-sm"
-            onClick={() => navigate('/owner/invitations')}
-          >
-            Mời Jockey
-          </button>
-        ) : null,
+      render: (r) => {
+        if (r.entryId) {
+          return (
+            <button
+              className="btn-outline-gold-sm"
+              onClick={() => navigate(`/race-results/${r.raceId}`)}
+            >
+              Xem kết quả
+            </button>
+          );
+        }
+        if (r.canInviteJockey && !r.jockeyName) {
+          return (
+            <button
+              className="btn-gold-sm"
+              onClick={() => navigate(`/owner/invitations?regId=${r.id}`)}
+            >
+              Mời Jockey
+            </button>
+          );
+        }
+        if (r.invStatus === 'DECLINED') {
+          return (
+            <button
+              className="btn-outline-gold-sm"
+              style={{ color: '#e57373', borderColor: '#e57373' }}
+              onClick={() => navigate(`/owner/invitations?regId=${r.id}`)}
+            >
+              Mời lại
+            </button>
+          );
+        }
+        return null;
+      },
     },
   ];
 
-  const active = rows.filter((r) => r.status === RACE_REGISTRATION_STATUS.APPROVED || r.status === 'APPROVED').length;
-  const submitted = rows.filter((r) => r.status === RACE_REGISTRATION_STATUS.PENDING_REVIEW || r.status === RACE_REGISTRATION_STATUS.SUBMITTED || r.status === 'PENDING_REVIEW' || r.status === 'SUBMITTED').length;
+  const active = rows.filter((r) => r.status === 'APPROVED').length;
+  const submitted = rows.filter((r) => r.status === 'PENDING_REVIEW' || r.status === 'SUBMITTED').length;
 
   if (loading) return <Loading />;
   if (error) return <ErrorState message={error} onRetry={refetch} />;
@@ -233,7 +179,7 @@ export default function OwnerRegistrationsPage() {
         <div className="d-flex gap-3 mb-4 flex-wrap">
           {[
             { label: 'Tổng đăng ký', value: rows.length, color: '#D4AF37' },
-            { label: 'Đang hoạt động', value: active, color: '#4caf7d' },
+            { label: 'Đã duyệt', value: active, color: '#4caf7d' },
             { label: 'Chờ xét duyệt', value: submitted, color: '#f1c40f' },
           ].map((s) => (
             <div

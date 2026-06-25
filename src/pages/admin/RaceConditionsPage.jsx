@@ -161,19 +161,11 @@ export default function RaceConditionsPage() {
             <div className="d-flex gap-3">
               <Form.Group style={{ flex: 1 }}>
                 <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối thiểu</Form.Label>
-<<<<<<< HEAD
                 <Form.Control type="number" value={form.minEntries} onChange={(e) => setForm({ ...form, minEntries: e.target.value })} min="8" max="14" />
               </Form.Group>
               <Form.Group style={{ flex: 1 }}>
                 <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối đa</Form.Label>
                 <Form.Control type="number" value={form.maxEntries} onChange={(e) => setForm({ ...form, maxEntries: e.target.value })} min="8" max="14" />
-=======
-                <Form.Control type="number" value={form.minEntries} onChange={(e) => setForm({ ...form, minEntries: e.target.value })} min="1" />
-              </Form.Group>
-              <Form.Group style={{ flex: 1 }}>
-                <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối đa</Form.Label>
-                <Form.Control type="number" value={form.maxEntries} onChange={(e) => setForm({ ...form, maxEntries: e.target.value })} min="1" />
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
               </Form.Group>
             </div>
             <Form.Group>
@@ -212,19 +204,11 @@ export default function RaceConditionsPage() {
             <div className="d-flex gap-3">
               <Form.Group style={{ flex: 1 }}>
                 <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối thiểu</Form.Label>
-<<<<<<< HEAD
                 <Form.Control type="number" value={editForm.minEntries} onChange={(e) => setEditForm({ ...editForm, minEntries: e.target.value })} min="8" max="14" />
               </Form.Group>
               <Form.Group style={{ flex: 1 }}>
                 <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối đa</Form.Label>
                 <Form.Control type="number" value={editForm.maxEntries} onChange={(e) => setEditForm({ ...editForm, maxEntries: e.target.value })} min="8" max="14" />
-=======
-                <Form.Control type="number" value={editForm.minEntries} onChange={(e) => setEditForm({ ...editForm, minEntries: e.target.value })} />
-              </Form.Group>
-              <Form.Group style={{ flex: 1 }}>
-                <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối đa</Form.Label>
-                <Form.Control type="number" value={editForm.maxEntries} onChange={(e) => setEditForm({ ...editForm, maxEntries: e.target.value })} />
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
               </Form.Group>
             </div>
             <Form.Group>
