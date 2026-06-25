@@ -29,6 +29,8 @@ import StaffInvitationsPage from '../pages/staff/InvitationsPage';
 import StaffRegistrationsPage from '../pages/staff/RegistrationsPage';
 import StaffEntriesPage from '../pages/staff/EntriesPage';
 import StaffResultsPage from '../pages/staff/ResultsPage';
+import StaffRacesPage from '../pages/staff/RacesPage';
+import StaffRaceDetailPage from '../pages/staff/RaceDetailPage';
 
 // Admin — cấu hình hệ thống (D11: Admin tạo Season/Meeting/Race, không phải Staff)
 import SeasonsPage from '../pages/admin/SeasonsPage';
@@ -56,10 +58,7 @@ import JockeyRacesPage from '../pages/jockey/RacesPage';
 
 // Referee
 import RefereeDashboardOverview from '../pages/referee/Dashboard';
-<<<<<<< HEAD
 import RefereeChecksPage from '../pages/referee/ChecksPage';
-=======
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 import RefereeResultsPage from '../pages/referee/ResultsPage';
 import RefereeReportsPage from '../pages/referee/ReportsPage';
 
@@ -99,11 +98,7 @@ export default function AppRoutes() {
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><MeetingsPage /></ProtectedRoute>
           } />
           <Route path="admin/races" element={
-<<<<<<< HEAD
             <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}><AdminRacesPage /></ProtectedRoute>
-=======
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminRacesPage /></ProtectedRoute>
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
           } />
           <Route path="admin/race-conditions" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><RaceConditionsPage /></ProtectedRoute>
@@ -124,6 +119,12 @@ export default function AppRoutes() {
           {/* Staff: vận hành race — theo dõi invitation, remove entry nếu cần (D11) */}
           <Route path="staff" element={
             <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffDashboardOverview /></ProtectedRoute>
+          } />
+          <Route path="staff/races" element={
+            <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffRacesPage /></ProtectedRoute>
+          } />
+          <Route path="staff/races/:id" element={
+            <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffRaceDetailPage /></ProtectedRoute>
           } />
           <Route path="staff/invitations" element={
             <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffInvitationsPage /></ProtectedRoute>
@@ -176,12 +177,9 @@ export default function AppRoutes() {
           <Route path="referee" element={
             <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeDashboardOverview /></ProtectedRoute>
           } />
-<<<<<<< HEAD
           <Route path="referee/checks" element={
             <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeChecksPage /></ProtectedRoute>
           } />
-=======
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
           <Route path="referee/results" element={
             <ProtectedRoute allowedRoles={[ROLES.REFEREE]}><RefereeResultsPage /></ProtectedRoute>
           } />

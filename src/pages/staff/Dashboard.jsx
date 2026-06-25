@@ -12,11 +12,14 @@ import ErrorState from '../../components/common/ErrorState';
 
 const GOLD = '#D4AF37';
 
+import { FlagFill, EnvelopePaperFill, CheckCircleFill, PencilSquare, TrophyFill } from 'react-bootstrap-icons';
+
 const QUICK_ACTIONS = [
-  { id: 'qa1', label: 'Lời mời Jockey', to: '/staff/invitations', icon: '✉️' },
-  { id: 'qa2', label: 'Quản lý Entry', to: '/staff/entries', icon: '✅' },
-  { id: 'qa3', label: 'Xem đăng ký', to: '/staff/registrations', icon: '📋' },
-  { id: 'qa4', label: 'Kết quả & Payout', to: '/staff/results', icon: '🏆' },
+  { id: 'qa0', label: 'Races của tôi', to: '/staff/races', icon: <FlagFill className="me-2" /> },
+  { id: 'qa1', label: 'Lời mời Jockey', to: '/staff/invitations', icon: <EnvelopePaperFill className="me-2" /> },
+  { id: 'qa2', label: 'Quản lý Entry', to: '/staff/entries', icon: <CheckCircleFill className="me-2" /> },
+  { id: 'qa3', label: 'Xem đăng ký', to: '/staff/registrations', icon: <PencilSquare className="me-2" /> },
+  { id: 'qa4', label: 'Kết quả & Payout', to: '/staff/results', icon: <TrophyFill className="me-2" /> },
 ];
 
 export default function StaffDashboard() {
@@ -81,7 +84,7 @@ export default function StaffDashboard() {
   return (
     <div>
       <h2 className="mb-1" style={{ color: GOLD }}>
-        Xin chào, {user?.fullName || 'Staff'} 🏟️
+        Xin chào, {user?.fullName || 'Staff'}
       </h2>
       <p className="text-muted mb-4">
         Vận hành race — theo dõi entry, xác nhận, công bố kết quả.

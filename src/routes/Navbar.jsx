@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Dropdown } from 'react-bootstrap';
-import { PersonCircle, BoxArrowRight, Speedometer2 } from 'react-bootstrap-icons';
+import { PersonCircle, BoxArrowRight, Speedometer2, LightningChargeFill } from 'react-bootstrap-icons';
 import { useAuth } from '../hooks/useAuth';
 import { HOME_ROUTE_BY_ROLE } from '../constants/roles';
 import './layout.css';
@@ -29,7 +29,7 @@ export default function Navbar() {
       {/* LOGO — luôn về trang chủ công khai */}
       <div className="logo">
         <Link to="/" className="logo-link">
-          <span className="logo-icon">🐎</span>
+          <LightningChargeFill className="logo-icon" color="#d4af37" />
           <span className="logo-text">FPT<span>Racing</span></span>
         </Link>
       </div>

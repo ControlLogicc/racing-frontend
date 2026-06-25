@@ -6,14 +6,11 @@ import { formatDate } from '../../utils/formatDate';
 export default function EntryTable({ rows }) {
   const columns = [
     { key: 'raceName', label: 'Cuộc đua' },
-<<<<<<< HEAD
     {
       key: 'scheduledTime',
       label: 'Ngày giờ đua',
       render: (r) => formatDate(r.scheduledTime),
     },
-=======
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
     { key: 'horseName', label: 'Ngựa' },
     { key: 'jockeyName', label: 'Jockey' },
     {

@@ -25,10 +25,7 @@ function groupByRace(results) {
 
 export default function StaffResultsPage() {
   const [results, setResults] = useState([]);
-<<<<<<< HEAD
   const [assignedRaces, setAssignedRaces] = useState([]);
-=======
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
@@ -36,7 +33,6 @@ export default function StaffResultsPage() {
   const load = () => {
     setLoading(true);
     setError('');
-<<<<<<< HEAD
     Promise.all([
       resultService.getAll(),
       raceService.getAssignedToStaff(),
@@ -46,11 +42,6 @@ export default function StaffResultsPage() {
         setAssignedRaces(staffRaces);
         setResults(allResults.filter((result) => assignedIds.has(Number(result.raceId))));
       })
-=======
-    resultService
-      .getAll()
-      .then(setResults)
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được kết quả.')))
       .finally(() => setLoading(false));
   };
@@ -98,12 +89,8 @@ export default function StaffResultsPage() {
       ) : (
         groups.map((group) => {
           const resultStatus = group.rows[0]?.resultStatus;
-<<<<<<< HEAD
           const race = assignedRaces.find((item) => Number(item.id) === Number(group.raceId));
           const isPublished = race?.status === RACE_STATUS.OFFICIAL;
-=======
-          const isPublished = resultStatus === 'PUBLISHED' || resultStatus === 'OFFICIAL';
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 
           return (
             <div key={group.raceId} className="card shadow-sm mb-4" style={CARD_STYLE}>
@@ -117,18 +104,11 @@ export default function StaffResultsPage() {
                   )}
                 </div>
                 <div className="d-flex gap-2">
-<<<<<<< HEAD
                   {isPublished ? (
                     <Button size="sm" variant="outline-warning" onClick={() => handleRecalculate(group.raceId)}>
                       Tính lại giải thưởng
                     </Button>
                   ) : (
-=======
-                  <Button size="sm" variant="outline-warning" onClick={() => handleRecalculate(group.raceId)}>
-                    Tính lại giải thưởng
-                  </Button>
-                  {!isPublished && (
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
                     <Button size="sm" variant="success" onClick={() => handlePublish(group.raceId)}>
                       Công bố chính thức
                     </Button>

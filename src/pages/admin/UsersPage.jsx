@@ -26,7 +26,6 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
 
-<<<<<<< HEAD
   const { register, handleSubmit, formState: { errors }, reset, watch } = useForm({
     defaultValues: { fullName: '', email: '', password: '', phone: '', role: ROLES.SPECTATOR },
     shouldUnregister: true,
@@ -34,12 +33,6 @@ export default function AdminUsersPage() {
 
   const selectedRole = watch('role');
 
-=======
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
-    defaultValues: { fullName: '', email: '', password: '', phone: '', role: ROLES.SPECTATOR },
-  });
-
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   const load = () => {
     userService
       .getAll()
@@ -154,7 +147,6 @@ export default function AdminUsersPage() {
                 {Object.values(ROLES).map((r) => <option key={r} value={r}>{r}</option>)}
               </Form.Select>
             </Form.Group>
-<<<<<<< HEAD
 
             {/* Profile fields for STAFF */}
             {selectedRole === ROLES.STAFF && (
@@ -226,8 +218,6 @@ export default function AdminUsersPage() {
                 </Form.Group>
               </>
             )}
-=======
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
             <div className="d-flex justify-content-end gap-2 mt-2">
               <Button variant="secondary" onClick={handleClose}>Huỷ</Button>
               <Button type="submit" className="btn-gold-sm">Tạo</Button>

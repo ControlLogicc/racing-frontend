@@ -20,7 +20,7 @@ export default function OwnerHorsesPage() {
   const [isAdding, setIsAdding] = useState(false);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
-    defaultValues: { name: '', age: '', breed: '' },
+    defaultValues: { name: '', age: '', breed: '', gender: 'M', healthNote: '' },
   });
 
   const load = () => {
@@ -38,10 +38,11 @@ export default function OwnerHorsesPage() {
   const onSubmit = async (data) => {
     try {
       await horseService.create({
-        ...data,
+        horseName: data.name.trim(),
+        color: data.breed.trim(),
         age: Number(data.age),
-        ownerId: user.userId,
-        ownerName: user.fullName,
+        gender: data.gender || 'M',
+        healthNote: data.healthNote?.trim() || '',
       });
       setToast({ message: `"${data.name}" đã được thêm vào chuồng ngựa.`, variant: 'success' });
       reset();
@@ -71,8 +72,8 @@ export default function OwnerHorsesPage() {
         <div className="lux-form-panel mb-4">
           <div className="owner-section-label mb-3"><h5>Đăng ký ngựa mới</h5></div>
           <Form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <Row className="g-3 align-items-end">
-              <Col md={4}>
+            <Row className="g-3">
+              <Col md={3}>
                 <Form.Group>
                   <Form.Label>Tên ngựa <span style={{ color: '#e55' }}>*</span></Form.Label>
                   <Form.Control
@@ -85,31 +86,52 @@ export default function OwnerHorsesPage() {
               </Col>
               <Col md={3}>
                 <Form.Group>
-                  <Form.Label>Tuổi <span style={{ color: '#e55' }}>*</span></Form.Label>
-                  <Form.Control
-                    type="number"
-                    placeholder="4"
-                    {...register('age', {
-                      required: 'Tuổi là bắt buộc',
-                      min: { value: 1, message: 'Tuổi phải lớn hơn 0' },
-                    })}
-                    isInvalid={!!errors.age}
-                  />
-                  <Form.Control.Feedback type="invalid">{errors.age?.message}</Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-              <Col md={3}>
-                <Form.Group>
-                  <Form.Label>Giống <span style={{ color: '#e55' }}>*</span></Form.Label>
+                  <Form.Label>Màu/Giống <span style={{ color: '#e55' }}>*</span></Form.Label>
                   <Form.Control
                     placeholder="Thoroughbred..."
-                    {...register('breed', { required: 'Giống ngựa là bắt buộc' })}
+                    {...register('breed', { required: 'Màu/giống ngựa là bắt buộc' })}
                     isInvalid={!!errors.breed}
                   />
                   <Form.Control.Feedback type="invalid">{errors.breed?.message}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
               <Col md={2}>
+                <Form.Group>
+                  <Form.Label>Tuổi <span style={{ color: '#e55' }}>*</span></Form.Label>
+                  <Form.Control
+                    type="number"
+                    placeholder="4"
+                    {...register('age', {
+                      required: 'Tuổi là bắt buộc',
+                      min: { value: 1, message: 'Tuổi từ 1-30' },
+                      max: { value: 30, message: 'Tuổi tối đa 30' },
+                    })}
+                    isInvalid={!!errors.age}
+                  />
+                  <Form.Control.Feedback type="invalid">{errors.age?.message}</Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+              <Col md={2}>
+                <Form.Group>
+                  <Form.Label>Giới tính <span style={{ color: '#e55' }}>*</span></Form.Label>
+                  <Form.Select {...register('gender', { required: 'Giới tính là bắt buộc' })} isInvalid={!!errors.gender}>
+                    <option value="M">Đực (M)</option>
+                    <option value="F">Cái (F)</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={12}>
+                <Form.Group>
+                  <Form.Label>Ghi chú sức khoẻ (tuỳ chọn)</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    placeholder="Nhập ghi chú sức khoẻ..."
+                    {...register('healthNote')}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={2} className="mt-3">
                 <Button type="submit" className="btn-gold-sm w-100" style={{ padding: '9px' }}>
                   Thêm ngựa
                 </Button>

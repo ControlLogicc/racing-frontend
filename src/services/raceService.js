@@ -36,17 +36,10 @@ const mockService = {
 // RaceResponse: { raceId, raceName, scheduledTime, distanceMeters, meetingName, status, ... }
 // Frontend JSX dùng: { id, name, raceTime, distance, meetingName, status }
 const mapRace = (r) => ({
-<<<<<<< HEAD
   id: r.raceId ?? r.id,
   name: r.raceName ?? r.name,
   raceTime: r.scheduledTime ?? r.raceTime,
   distance: r.distanceMeters ?? r.distance,
-=======
-  id: r.raceId,
-  name: r.raceName,
-  raceTime: r.scheduledTime,
-  distance: r.distanceMeters,
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   meetingId: r.meetingId,
   meetingName: r.meetingName,
   conditionId: r.conditionId,
@@ -59,7 +52,6 @@ const mapRace = (r) => ({
   registrationCloseAt: r.registrationCloseAt,
   status: r.status,
   resultStatus: r.resultStatus,
-<<<<<<< HEAD
   assignedRefereeIds: r.assignedRefereeIds,
 });
 const mapRaces = (list) => (Array.isArray(list) ? list.map(mapRace) : []);
@@ -129,11 +121,6 @@ const isAssignedToReferee = (race, identity) => {
     || (identity.email && race.refereeEmail === identity.email);
 };
 
-=======
-});
-const mapRaces = (list) => (Array.isArray(list) ? list.map(mapRace) : []);
-
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
 // RaceRequest: { meetingId, conditionId, raceName, raceNo, scheduledTime, ... }
 // JSX form sends: { meetingId, name, raceTime, distance, ... }
 const toRacePayload = ({
@@ -164,7 +151,6 @@ const realService = {
   update: (id, payload) => api.put(`/admin/races/${id}`, toRacePayload(payload)).then((r) => mapRace(r.data)),
   remove: (id) => api.delete(`/admin/races/${id}`).then((r) => r.data),
 
-<<<<<<< HEAD
   // Race đang mở đăng ký — thử /races/open, fallback /races filtered by status
   getOpen: async () => {
     try {
@@ -208,10 +194,10 @@ const realService = {
   // Referee: ưu tiên endpoint theo JWT; fallback resolve userId -> refereeId rồi lọc admin races.
   getAssignedToReferee: async (refereeInput) => {
     try {
-      const ownRaces = await api.get('/referees/races').then((r) => mapRaces(r.data));
+      const ownRaces = await api.get('/referee/races').then((r) => mapRaces(r.data));
       if (ownRaces.length) return ownRaces;
     } catch {
-      // Fallback below handles projects where /referees/races is not implemented yet.
+      // Fallback below handles projects where /referee/races is not implemented yet.
     }
 
     try {
@@ -227,27 +213,8 @@ const realService = {
 
   // Đổi trạng thái race (dành cho Staff).
   // Admin nên dùng hàm `update` (PUT) với full payload.
-=======
-  // Race đang mở đăng ký (chỉ gọi API chuẩn, không fallback)
-  getOpen: () => api.get('/races/open').then((r) => mapRaces(r.data)),
-
-  // Spectator / jockey xem races open
-  getPublic: () => api.get('/races/open').then((r) => mapRaces(r.data)),
-
-  // Staff races được gán (chỉ gọi API chuẩn, không fallback)
-  getAssignedToStaff: () => api.get('/staff/races').then((r) => mapRaces(r.data)),
-  
-  // Referee: Backend chưa có API lấy danh sách giải đấu của Trọng tài.
-  getAssignedToReferee: () => Promise.reject(new Error('Backend chưa có API lấy danh sách giải đấu của Trọng tài.')),
-
-  // Đổi trạng thái race (dành cho Staff).
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
   setStatus: (id, status) =>
     api.patch(`/race-management/races/${id}/status`, { status }).then((r) => mapRace(r.data)),
 };
 
-<<<<<<< HEAD
 export const raceService = USE_MOCK ? mockService : realService;
-=======
-export const raceService = realService;
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8

@@ -11,6 +11,10 @@ const mockService = {
   getAll: () => Promise.resolve([...mockStore]),
   getByRegistration: (registrationId) =>
     Promise.resolve(mockStore.filter((i) => i.registrationId === registrationId)),
+  getEligibleJockeys: (registrationId) => Promise.resolve([
+    { jockeyRaceRegistrationId: 1, jockeyId: 101, jockeyName: 'John Doe', weight: 55, experienceYears: 5, canInvite: true },
+    { jockeyRaceRegistrationId: 2, jockeyId: 102, jockeyName: 'Jane Smith', weight: 52, experienceYears: 3, canInvite: false, reason: 'Already accepted another race' }
+  ]),
   getByJockey: (jockeyId) =>
     Promise.resolve(mockStore.filter((i) => i.jockeyId === jockeyId)),
   send: (payload) => {
@@ -78,16 +82,12 @@ const mapInvs = (list) => (Array.isArray(list) ? list.map(mapInv) : []);
 const realService = {
   // Owner/Jockey: GET /invitations — backend filter theo JWT + role
   getAll: () => api.get('/invitations').then((r) => mapInvs(r.data)),
-<<<<<<< HEAD
   getByRegistration: (registrationId) =>
     api.get('/invitations', { params: { raceRegistrationId: registrationId } }).then((r) => mapInvs(r.data)),
-=======
-  getByRegistration: async (registrationId) => {
-    // Backend chưa hỗ trợ lọc theo raceRegistrationId, tải toàn bộ và tự lọc bằng JS
-    const data = await api.get('/invitations').then((r) => mapInvs(r.data));
-    return data.filter((i) => i.registrationId === Number(registrationId));
-  },
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
+
+  getEligibleJockeys: (registrationId) =>
+    api.get(`/owner/registrations/${registrationId}/eligible-jockeys`)
+       .then((r) => Array.isArray(r.data) ? r.data : []),
 
   // Jockey: cùng endpoint /invitations — backend tự biết qua JWT
   getByJockey: () => api.get('/invitations').then((r) => mapInvs(r.data)),
@@ -110,8 +110,4 @@ const realService = {
   removeExpired: () => Promise.reject(new Error('Chức năng loại hết hạn chưa được backend hỗ trợ.')),
 };
 
-<<<<<<< HEAD
 export const invitationService = USE_MOCK ? mockService : realService;
-=======
-export const invitationService = realService;
->>>>>>> ef81019384e86003e17c9af4d49e16c3df82e2d8
