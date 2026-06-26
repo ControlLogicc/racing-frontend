@@ -8,8 +8,8 @@ import { RACE_STATUS } from '../../constants/status';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
-import DataTable from '../../components/common/DataTable';
 import StatusBadge from '../../components/common/StatusBadge';
+import './spectator-theme.css'; // Import VIP Theme
 
 export default function SpectatorSchedulePage() {
   const [races, setRaces] = useState([]);
@@ -28,32 +28,53 @@ export default function SpectatorSchedulePage() {
 
   const refetch = () => { setLoading(true); setError(''); load(); };
 
-  const columns = [
-    { key: 'name', label: 'Race' },
-    { key: 'meetingId', label: 'Meeting', render: (r) => meetings.find((m) => m.id === r.meetingId)?.name || '—' },
-    { key: 'raceTime', label: 'Giờ đua', render: (r) => formatDate(r.raceTime) },
-    { key: 'status', label: 'Trạng thái', render: (r) => <StatusBadge status={r.status} /> },
-    {
-      key: 'result',
-      label: 'Kết quả',
-      render: (r) =>
-        r.status === RACE_STATUS.OFFICIAL ? (
-          <Link to={`/race-results/${r.id}`} className="btn btn-sm btn-outline-warning">
-            Xem kết quả
-          </Link>
-        ) : '—',
-    },
-  ];
-
   return (
-    <div className="pub-page">
-      <section className="container pt-5">
-        <div className="pub-section-title-wrap"><h2 className="pub-section-title">Lịch đua</h2></div>
+    <div className="spectator-context">
+      <div className="spec-hero">
+        <h2>LỊCH TRÌNH VIP</h2>
+        <p>THEO DÕI NHỮNG TRẬN ĐUA ĐỈNH CAO SẮP DIỄN RA TRÊN HỆ THỐNG</p>
+      </div>
+
+      <div className="vip-panel">
         {loading && <Loading />}
         {!loading && error && <ErrorState message={error} onRetry={refetch} />}
-        {!loading && !error && races.length === 0 && <EmptyState message="Chưa có race nào." />}
-        {!loading && !error && races.length > 0 && <DataTable columns={columns} rows={races} />}
-      </section>
+        {!loading && !error && races.length === 0 && <EmptyState message="Chưa có trận đua nào được lên lịch." />}
+        
+        {!loading && !error && races.length > 0 && (
+          <div className="vip-table-wrapper">
+            <table className="vip-table">
+              <thead>
+                <tr>
+                  <th>Race</th>
+                  <th>Meeting</th>
+                  <th>Giờ đua</th>
+                  <th>Trạng thái</th>
+                  <th className="text-end">Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {races.map((r) => (
+                  <tr key={r.id}>
+                    <td><strong>{r.name}</strong></td>
+                    <td>{meetings.find((m) => m.id === r.meetingId)?.name || '—'}</td>
+                    <td>{formatDate(r.raceTime)}</td>
+                    <td><StatusBadge status={r.status} /></td>
+                    <td className="text-end">
+                      {r.status === RACE_STATUS.OFFICIAL ? (
+                        <Link to={`/race-results/${r.id}`} className="btn-vip">
+                          Kết Quả
+                        </Link>
+                      ) : (
+                        <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Chưa có</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

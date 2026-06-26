@@ -52,10 +52,9 @@ export default function OwnerOpenRacesPage() {
       render: (r) => (
         <button
           className="btn-gold btn-gold-sm"
-          style={{ padding: '5px 16px', whiteSpace: 'nowrap' }}
           onClick={() => navigate(`/owner/register?raceId=${r.id}`)}
         >
-          + Đăng ký
+          Tham gia đua
         </button>
       ),
     },

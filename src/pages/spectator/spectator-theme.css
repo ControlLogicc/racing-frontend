@@ -1,0 +1,188 @@
+/* ============================================================
+   SPECTATOR THEME: VIP LOUNGE
+   Colors: Emerald Green (#064e3b), Royal Gold (#fbbf24)
+   Vibe: Casino / Elite Betting Lounge, Glassmorphism
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600&display=swap');
+
+/* Apply context */
+body:has(.spectator-context) {
+  background-color: #020617; /* Very dark slate */
+  background-image: 
+    radial-gradient(circle at top right, rgba(6, 78, 59, 0.15), transparent 600px),
+    radial-gradient(circle at bottom left, rgba(251, 191, 36, 0.05), transparent 400px);
+  color: #e2e8f0;
+  font-family: 'Outfit', sans-serif;
+}
+
+.spectator-context {
+  min-height: 100vh;
+}
+
+/* ── Hero ────────────────────────────────────────────────── */
+.spec-hero {
+  position: relative;
+  background: rgba(2, 6, 23, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(6, 78, 59, 0.3);
+  border-radius: 20px;
+  padding: 3.5rem 3rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(6, 78, 59, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.spec-hero::before {
+  content: '';
+  position: absolute;
+  top: -50px; right: -50px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, transparent 70%);
+  filter: blur(30px);
+}
+.spec-hero h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  color: #fbbf24;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 4px 15px rgba(251, 191, 36, 0.2);
+}
+.spec-hero p {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+
+/* ── VIP Panel (Cards) ───────────────────────────────────── */
+.vip-panel {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.7) 0%, rgba(2, 6, 23, 0.9) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-top-color: rgba(6, 78, 59, 0.4);
+  border-radius: 16px;
+  padding: 1.8rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+.vip-panel:hover {
+  transform: translateY(-5px);
+  border-color: rgba(251, 191, 36, 0.2);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(6, 78, 59, 0.2);
+}
+.vip-panel-header {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: #e2e8f0;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.vip-panel-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(6, 78, 59, 0.5), transparent);
+}
+
+/* ── Stat Block (Dashboard) ──────────────────────────────── */
+.vip-stat {
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s;
+}
+.vip-stat:hover {
+  background: rgba(6, 78, 59, 0.15);
+  border-color: rgba(6, 78, 59, 0.4);
+}
+.vip-stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  color: #fbbf24;
+  margin-bottom: 0.5rem;
+}
+.vip-stat-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* ── Table (Rankings/Schedule) ───────────────────────────── */
+.vip-table-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.vip-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.vip-table th {
+  background: rgba(2, 6, 23, 0.8);
+  color: #fbbf24;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 2px solid rgba(6, 78, 59, 0.4);
+}
+.vip-table td {
+  padding: 1.2rem 1.5rem;
+  background: rgba(15, 23, 42, 0.4);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  color: #cbd5e1;
+  transition: background 0.2s;
+}
+.vip-table tr:hover td {
+  background: rgba(6, 78, 59, 0.1);
+}
+
+/* ── Badges & Accents ────────────────────────────────────── */
+.vip-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.vip-badge-emerald {
+  background: rgba(6, 78, 59, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(6, 78, 59, 0.5);
+}
+.vip-badge-gold {
+  background: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn-vip {
+  background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-vip:hover {
+  background: linear-gradient(135deg, #065f46 0%, #064e3b 100%);
+  border-color: #fbbf24;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+  color: #fff;
+  transform: translateY(-2px);
+}

@@ -53,6 +53,7 @@ import HorseDetailPage from '../pages/owner/HorseDetailPage';
 
 // Jockey
 import JockeyDashboardOverview from '../pages/jockey/Dashboard';
+import JockeyProfilePage from '../pages/jockey/ProfilePage';
 import JockeyInvitationsPage from '../pages/jockey/InvitationsPage';
 import JockeyRacesPage from '../pages/jockey/RacesPage';
 
@@ -165,6 +166,9 @@ export default function AppRoutes() {
           {/* Jockey: xem & phản hồi lời mời, lịch đua của mình */}
           <Route path="jockey" element={
             <ProtectedRoute allowedRoles={[ROLES.JOCKEY]}><JockeyDashboardOverview /></ProtectedRoute>
+          } />
+          <Route path="jockey/profile" element={
+            <ProtectedRoute allowedRoles={[ROLES.JOCKEY]}><JockeyProfilePage /></ProtectedRoute>
           } />
           <Route path="jockey/invitations" element={
             <ProtectedRoute allowedRoles={[ROLES.JOCKEY]}><JockeyInvitationsPage /></ProtectedRoute>

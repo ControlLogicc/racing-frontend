@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://investigate-jefferson-russell-handhelds.trycloudflare.com',
+        target: 'https://beast-brokers-accomplish-hidden.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

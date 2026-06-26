@@ -2,12 +2,12 @@
 // Khi BE xong: đặt VITE_USE_MOCK=false trong .env là xong, không cần sửa code nào khác
 
 export const MOCK_USERS = [
-  { userId: 1, fullName: 'Admin User',     email: 'admin@test.com',     password: '123456', role: 'ADMIN' },
-  { userId: 2, fullName: 'Staff User',     email: 'staff@test.com',     password: '123456', role: 'STAFF' },
-  { userId: 3, fullName: 'Referee User',   email: 'referee@test.com',   password: '123456', role: 'REFEREE' },
-  { userId: 4, fullName: 'Owner User',     email: 'owner@test.com',     password: '123456', role: 'OWNER' },
-  { userId: 5, fullName: 'Jockey User',    email: 'jockey@test.com',    password: '123456', role: 'JOCKEY' },
-  { userId: 6, fullName: 'Spectator User', email: 'spectator@test.com', password: '123456', role: 'SPECTATOR' },
+  { userId: 1, fullName: 'Admin User',     email: 'admin@racing.com',     password: '123456', role: 'ADMIN' },
+  { userId: 2, fullName: 'Staff User',     email: 'staff@racing.com',     password: '123456', role: 'STAFF' },
+  { userId: 3, fullName: 'Referee User',   email: 'referee@racing.com',   password: '123456', role: 'REFEREE' },
+  { userId: 4, fullName: 'Owner User',     email: 'owner@racing.com',     password: '123456', role: 'OWNER' },
+  { userId: 5, fullName: 'Jockey User',    email: 'jockey@racing.com',    password: '123456', role: 'JOCKEY' },
+  { userId: 6, fullName: 'Spectator User', email: 'spectator@racing.com', password: '123456', role: 'SPECTATOR' },
 ];
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));

@@ -614,3 +614,82 @@
   .pub-section { padding: 3.5rem 0; }
   .pub-step-connector { display: none; }
 }
+
+/* ── VIP Effects ────────────────────────────────────────── */
+.vip-particles {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  background: radial-gradient(circle, #D4AF37 0%, transparent 70%);
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: floatUp 15s infinite linear;
+}
+.p1 { width: 40px; height: 40px; left: 10%; top: 110%; animation-duration: 20s; }
+.p2 { width: 80px; height: 80px; left: 30%; top: 120%; animation-duration: 25s; animation-delay: 2s; }
+.p3 { width: 30px; height: 30px; left: 70%; top: 110%; animation-duration: 18s; animation-delay: 5s; }
+.p4 { width: 60px; height: 60px; left: 85%; top: 130%; animation-duration: 22s; animation-delay: 1s; }
+.p5 { width: 50px; height: 50px; left: 50%; top: 115%; animation-duration: 24s; animation-delay: 3s; }
+
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1); opacity: 0.8; }
+  100% { transform: translateY(-1000px) scale(1.5); opacity: 0; }
+}
+
+.vip-glow {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+.vip-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 4s linear infinite;
+  background-image: linear-gradient(
+    -45deg,
+    #D4AF37 0%,
+    #f7df8b 30%,
+    #fff8e8 50%,
+    #f7df8b 70%,
+    #D4AF37 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+
+.vip-btn-effect {
+  position: relative;
+  overflow: hidden;
+}
+.vip-btn-effect::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: rotate(45deg) translate(-100%, -100%);
+  transition: all 0.5s ease;
+}
+.vip-btn-effect:hover::after {
+  transform: rotate(45deg) translate(100%, 100%);
+}
+
+.vip-glass {
+  background: rgba(25, 20, 15, 0.6) !important;
+  backdrop-filter: blur(25px) !important;
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 15px rgba(212,175,55,0.1) !important;
+}
+
+.vip-hover:hover {
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.3) !important;
+  border-color: rgba(212, 175, 55, 0.6) !important;
+}
