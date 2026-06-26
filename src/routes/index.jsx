@@ -25,6 +25,7 @@ import AdminUsersPage from '../pages/admin/UsersPage';
 
 // Staff
 import StaffDashboardOverview from '../pages/staff/Dashboard';
+import StaffHorsesPage from '../pages/staff/HorsesPage';
 import StaffInvitationsPage from '../pages/staff/InvitationsPage';
 import StaffRegistrationsPage from '../pages/staff/RegistrationsPage';
 import StaffEntriesPage from '../pages/staff/EntriesPage';
@@ -120,6 +121,9 @@ export default function AppRoutes() {
           {/* Staff: vận hành race — theo dõi invitation, remove entry nếu cần (D11) */}
           <Route path="staff" element={
             <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffDashboardOverview /></ProtectedRoute>
+          } />
+          <Route path="staff/horses" element={
+            <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffHorsesPage /></ProtectedRoute>
           } />
           <Route path="staff/races" element={
             <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffRacesPage /></ProtectedRoute>

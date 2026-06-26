@@ -14,6 +14,7 @@ const mockService = {
   getById: (id) => Promise.resolve(_races.find((r) => r.id === id) ?? null),
   getAssignedToReferee: (refereeId) =>
     Promise.resolve(_races.filter((r) => r.assignedRefereeIds?.includes(refereeId))),
+  getAssignedToStaff: () => Promise.resolve([..._races]),
   create: (payload) => {
     const created = { id: _nextId++, status: RACE_STATUS.UPCOMING, assignedRefereeIds: [], ...payload };
     _races = [..._races, created];

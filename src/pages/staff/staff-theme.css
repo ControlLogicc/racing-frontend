@@ -1,0 +1,272 @@
+/* ==========================================================================
+   STAFF THEME - "EXECUTIVE COMMAND CENTER"
+   Deep Black & Gold Palette with Glassmorphism and Micro-animations
+   ========================================================================== */
+
+.staff-theme-wrapper {
+  background: radial-gradient(circle at 50% -20%, #1a1500, #0a0a0a);
+  min-height: 100vh;
+  color: #e0e0e0;
+  padding-bottom: 2rem;
+  font-family: 'Inter', sans-serif;
+}
+
+/* =========================================
+   Glassmorphic Cards & Panels
+   ========================================= */
+.staff-card {
+  background: rgba(20, 20, 20, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.staff-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(212, 175, 55, 0.1);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.staff-card-header {
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #D4AF37;
+  text-transform: uppercase;
+}
+
+/* =========================================
+   Headers & Typography
+   ========================================= */
+.staff-header-title {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #D4AF37, #FFDF73, #D4AF37);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 6s linear infinite;
+  background-size: 200% auto;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.staff-subtitle {
+  color: #a0a0a0;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+/* =========================================
+   Custom Tabs (Race Detail)
+   ========================================= */
+.staff-custom-tabs {
+  border-bottom: 2px solid rgba(212, 175, 55, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.staff-custom-tabs .nav-link {
+  color: #888;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 1rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background: transparent;
+  margin-bottom: -2px;
+}
+
+.staff-custom-tabs .nav-link:hover {
+  color: #D4AF37;
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.staff-custom-tabs .nav-link.active {
+  color: #D4AF37;
+  border-bottom: 2px solid #D4AF37;
+  background: linear-gradient(to top, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
+}
+
+/* =========================================
+   Action Buttons
+   ========================================= */
+.staff-btn-gold {
+  background: linear-gradient(135deg, #D4AF37 0%, #AA801E 100%);
+  color: #000 !important;
+  border: none;
+  font-weight: 600;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.staff-btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+}
+
+.staff-btn-gold::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: skewX(-20deg);
+  transition: all 0.5s ease;
+}
+
+.staff-btn-gold:hover::after {
+  left: 150%;
+}
+
+.staff-btn-outline {
+  background: transparent;
+  color: #D4AF37;
+  border: 1px solid #D4AF37;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.staff-btn-outline:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: #FFF;
+  border-color: #FFDF73;
+}
+
+.staff-btn-pulse {
+  animation: goldPulse 2s infinite;
+}
+
+@keyframes goldPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+  }
+}
+
+/* =========================================
+   Tables (Custom & DataTable)
+   ========================================= */
+.staff-table,
+.staff-theme-wrapper .table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+  color: #e0e0e0;
+  background-color: transparent !important;
+}
+
+.staff-table th,
+.staff-theme-wrapper .table th {
+  color: #D4AF37;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3) !important;
+  padding: 1rem;
+  background-color: transparent !important;
+}
+
+.staff-table tbody tr,
+.staff-theme-wrapper .table tbody tr {
+  background: rgba(30, 30, 30, 0.4) !important;
+  transition: all 0.3s ease;
+}
+
+.staff-table tbody tr:hover,
+.staff-theme-wrapper .table tbody tr:hover {
+  background: rgba(212, 175, 55, 0.05) !important;
+  transform: scale(1.01);
+  box-shadow: inset 2px 0 0 #D4AF37;
+}
+
+.staff-table td,
+.staff-theme-wrapper .table td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-top: 1px solid rgba(255, 255, 255, 0.02) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02) !important;
+  background-color: transparent !important;
+  color: #e0e0e0 !important;
+}
+
+.staff-table td:first-child,
+.staff-theme-wrapper .table td:first-child {
+  border-left: 1px solid rgba(255, 255, 255, 0.02) !important;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.staff-table td:last-child,
+.staff-theme-wrapper .table td:last-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.02) !important;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* =========================================
+   General Info Grid
+   ========================================= */
+.info-grid-label {
+  color: #888;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.2rem;
+}
+
+.info-grid-value {
+  color: #fff;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+/* =========================================
+   Modal Styling
+   ========================================= */
+.staff-modal .modal-content {
+  background: #111;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  border-radius: 12px;
+}
+
+.staff-modal .modal-header {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
+}
+
+.staff-modal .modal-title {
+  color: #D4AF37;
+  font-weight: 700;
+}
+
+.staff-modal .modal-footer {
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.staff-modal .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}

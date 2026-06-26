@@ -25,6 +25,7 @@ const MENU_CONFIG = {
   ],
   [ROLES.STAFF]: [
     { path: '/staff', label: 'Dashboard', icon: <Speedometer2 /> },
+    { path: '/staff/horses', label: 'Duyệt Ngựa', icon: <CheckCircleFill /> },
     { path: '/staff/races', label: 'Races của tôi', icon: <FlagFill /> },
   ],
   [ROLES.OWNER]: [
