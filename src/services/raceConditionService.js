@@ -8,18 +8,18 @@ let _nextId = Math.max(..._conditions.map((c) => c.id)) + 1;
 
 const mockService = {
   getAll: () => Promise.resolve([..._conditions]),
-  getByRace: (raceId) => Promise.resolve(_conditions.filter((c) => c.raceId === raceId)),
+  getByRace: (raceId) => Promise.resolve(_conditions.filter((c) => Number(c.raceId) === Number(raceId))),
   create: (payload) => {
     const created = { id: _nextId++, ...payload };
     _conditions = [..._conditions, created];
     return Promise.resolve(created);
   },
   update: (id, payload) => {
-    _conditions = _conditions.map((c) => (c.id === id ? { ...c, ...payload } : c));
-    return Promise.resolve(_conditions.find((c) => c.id === id));
+    _conditions = _conditions.map((c) => (Number(c.id) === Number(id) ? { ...c, ...payload } : c));
+    return Promise.resolve(_conditions.find((c) => Number(c.id) === Number(id)));
   },
   remove: (id) => {
-    _conditions = _conditions.filter((c) => c.id !== id);
+    _conditions = _conditions.filter((c) => Number(c.id) !== Number(id));
     return Promise.resolve({ success: true });
   },
 };

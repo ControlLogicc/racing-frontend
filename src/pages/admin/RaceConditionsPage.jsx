@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Form, Button, Modal } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { Form, Button, Modal, Dropdown } from 'react-bootstrap';
 import { raceConditionService } from '../../services/raceConditionService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import Loading from '../../components/common/Loading';
@@ -7,25 +8,18 @@ import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import DataTable from '../../components/common/DataTable';
 import Toaster from '../../components/common/Toaster';
+import './season-wizard.css';
 
 const TRACK_TYPES = ['turf', 'dirt', 'synthetic'];
-
-const EMPTY_FORM = {
-  conditionName: '',
-  distance: '',
-  trackType: 'turf',
-  minEntries: '',
-  maxEntries: '',
-  classRequirement: '',
-};
+const CLASS_OPTIONS = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5'];
+const EMPTY_FORM = { conditionName: '', distance: '', trackType: 'turf', minEntries: '', maxEntries: '', classRequirement: '' };
 
 export default function RaceConditionsPage() {
+  const navigate = useNavigate();
   const [conditions, setConditions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
-  const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState(EMPTY_FORM);
   const [editRow, setEditRow] = useState(null);
   const [editForm, setEditForm] = useState(EMPTY_FORM);
 
@@ -41,26 +35,6 @@ export default function RaceConditionsPage() {
 
   const refetch = () => { setLoading(true); setError(''); load(); };
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    try {
-      await raceConditionService.create({
-        conditionName: form.conditionName,
-        distance: Number(form.distance),
-        trackType: form.trackType,
-        minEntries: form.minEntries ? Number(form.minEntries) : null,
-        maxEntries: form.maxEntries ? Number(form.maxEntries) : null,
-        classRequirement: form.classRequirement || null,
-      });
-      setToast({ message: 'Tạo condition thành công.', variant: 'success' });
-      setForm(EMPTY_FORM);
-      setShowCreate(false);
-      refetch();
-    } catch (err) {
-      setToast({ message: getApiErrorMessage(err, 'Tạo condition thất bại.'), variant: 'danger' });
-    }
-  };
-
   const openEdit = (row) => {
     setEditRow(row);
     setEditForm({
@@ -75,9 +49,13 @@ export default function RaceConditionsPage() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    if (!editForm.conditionName.trim() || !editForm.distance) {
+      setToast({ message: 'Vui lòng nhập tên condition và cự ly.', variant: 'warning' });
+      return;
+    }
     try {
       await raceConditionService.update(editRow.id, {
-        conditionName: editForm.conditionName,
+        conditionName: editForm.conditionName.trim(),
         distance: Number(editForm.distance),
         trackType: editForm.trackType,
         minEntries: editForm.minEntries ? Number(editForm.minEntries) : null,
@@ -110,13 +88,13 @@ export default function RaceConditionsPage() {
     { key: 'trackType', label: 'Đường đua' },
     { key: 'minEntries', label: 'Tối thiểu' },
     { key: 'maxEntries', label: 'Tối đa' },
-    { key: 'classRequirement', label: 'Hạng yêu cầu', render: (r) => r.classRequirement ?? '—' },
+    { key: 'classRequirement', label: 'Hạng yêu cầu', render: (r) => r.classRequirement ?? '-' },
     {
       key: 'actions',
       label: 'Hành động',
       render: (row) => (
         <div className="d-flex gap-2">
-          <button className="btn-gold-sm" onClick={() => openEdit(row)}>Sửa</button>
+          <button className="btn-gold-sm" onClick={() => navigate(`/admin/race-conditions/${row.id}/edit`)}>Sửa</button>
           <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(row.id)}>Xoá</button>
         </div>
       ),
@@ -127,60 +105,20 @@ export default function RaceConditionsPage() {
   if (error) return <ErrorState message={error} onRetry={refetch} />;
 
   return (
-    <div>
-      <div className="page-header d-flex justify-content-between align-items-center">
-        <h2>Quản lý Race Condition</h2>
-        <Button className="btn-gold-sm" onClick={() => setShowCreate(true)}>+ Tạo Condition</Button>
-      </div>
+    <div className="season-admin-page">
+      <section className="season-list-section">
+        <div className="page-header">
+          <h2>Danh sách Race Condition</h2>
+          <Button className="season-create-toggle" onClick={() => navigate('/admin/race-conditions/create')}>
+            + Tạo Condition
+          </Button>
+        </div>
 
-      {conditions.length === 0
-        ? <EmptyState message="Chưa có condition nào. Condition được dùng khi tạo Race." />
-        : <DataTable columns={columns} rows={conditions} />}
+        {conditions.length === 0
+          ? <EmptyState message="Chưa có condition nào. Condition được dùng khi tạo Race." />
+          : <DataTable columns={columns} rows={conditions} />}
+      </section>
 
-      {/* Create Modal */}
-      <Modal show={showCreate} onHide={() => { setShowCreate(false); setForm(EMPTY_FORM); }} centered>
-        <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>
-          <Modal.Title style={{ color: '#D4AF37' }}>Tạo Race Condition</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ background: '#1a1a2e' }}>
-          <Form onSubmit={handleCreate} className="d-flex flex-column gap-3">
-            <Form.Group>
-              <Form.Label style={{ color: '#D4AF37' }}>Tên condition <span style={{ color: '#e55' }}>*</span></Form.Label>
-              <Form.Control value={form.conditionName} onChange={(e) => setForm({ ...form, conditionName: e.target.value })} placeholder="VD: 1800m Turf Class 1" required />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label style={{ color: '#D4AF37' }}>Cự ly (m) <span style={{ color: '#e55' }}>*</span></Form.Label>
-              <Form.Control type="number" value={form.distance} onChange={(e) => setForm({ ...form, distance: e.target.value })} required min="100" />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label style={{ color: '#D4AF37' }}>Loại đường đua</Form.Label>
-              <Form.Select value={form.trackType} onChange={(e) => setForm({ ...form, trackType: e.target.value })}>
-                {TRACK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-              </Form.Select>
-            </Form.Group>
-            <div className="d-flex gap-3">
-              <Form.Group style={{ flex: 1 }}>
-                <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối thiểu</Form.Label>
-                <Form.Control type="number" value={form.minEntries} onChange={(e) => setForm({ ...form, minEntries: e.target.value })} min="8" max="14" />
-              </Form.Group>
-              <Form.Group style={{ flex: 1 }}>
-                <Form.Label style={{ color: '#D4AF37' }}>Số ngựa tối đa</Form.Label>
-                <Form.Control type="number" value={form.maxEntries} onChange={(e) => setForm({ ...form, maxEntries: e.target.value })} min="8" max="14" />
-              </Form.Group>
-            </div>
-            <Form.Group>
-              <Form.Label style={{ color: '#D4AF37' }}>Hạng yêu cầu</Form.Label>
-              <Form.Control value={form.classRequirement} onChange={(e) => setForm({ ...form, classRequirement: e.target.value })} placeholder="VD: Class 1-2" />
-            </Form.Group>
-            <div className="d-flex justify-content-end gap-2 mt-2">
-              <Button variant="secondary" onClick={() => { setShowCreate(false); setForm(EMPTY_FORM); }}>Huỷ</Button>
-              <Button type="submit" className="btn-gold-sm">Tạo</Button>
-            </div>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
-      {/* Edit Modal */}
       <Modal show={!!editRow} onHide={() => setEditRow(null)} centered>
         <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>
           <Modal.Title style={{ color: '#D4AF37' }}>Sửa Condition</Modal.Title>
@@ -213,7 +151,18 @@ export default function RaceConditionsPage() {
             </div>
             <Form.Group>
               <Form.Label style={{ color: '#D4AF37' }}>Hạng yêu cầu</Form.Label>
-              <Form.Control value={editForm.classRequirement} onChange={(e) => setEditForm({ ...editForm, classRequirement: e.target.value })} />
+              <Dropdown className="condition-class-dropdown" drop="down">
+                <Dropdown.Toggle type="button" className="condition-class-toggle">
+                  {editForm.classRequirement || '-- Chọn class --'}
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="condition-class-menu" popperConfig={{ modifiers: [{ name: 'flip', enabled: false }] }}>
+                  {CLASS_OPTIONS.map((option) => (
+                    <Dropdown.Item key={option} active={editForm.classRequirement === option} onClick={() => setEditForm({ ...editForm, classRequirement: option })}>
+                      {option}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
             </Form.Group>
             <div className="d-flex justify-content-end gap-2 mt-2">
               <Button variant="secondary" onClick={() => setEditRow(null)}>Huỷ</Button>

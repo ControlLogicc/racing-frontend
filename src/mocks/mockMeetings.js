@@ -1,5 +1,5 @@
 export const MOCK_MEETINGS = [
-  { id: 1, seasonId: 1, name: 'Saigon Cup', racecourse: 'Saigon Racecourse', date: '2026-06-20T08:00:00' },
-  { id: 2, seasonId: 1, name: 'Spring Classic', racecourse: 'Phu Tho Racecourse', date: '2026-06-25T08:00:00' },
-  { id: 3, seasonId: 2, name: 'Summer Derby', racecourse: 'Saigon Racecourse', date: '2026-07-10T08:00:00' },
+  { id: 1, meetingId: 1, seasonId: 1, seasonName: '2025/2026 Racing Season', name: 'Saigon Cup Meeting', racecourseId: 1, racecourseName: 'Saigon Racing Track', date: '2026-06-27' },
+  { id: 2, meetingId: 2, seasonId: 1, seasonName: '2025/2026 Racing Season', name: 'Hanoi Classic Meeting', racecourseId: 2, racecourseName: 'Hanoi Dirt Arena', date: '2026-06-28' },
+  { id: 3, meetingId: 3, seasonId: 2, seasonName: '2026 Autumn Trial Season', name: 'Da Nang Trial Meeting', racecourseId: 3, racecourseName: 'Da Nang Synthetic Park', date: '2026-09-12' },
 ];

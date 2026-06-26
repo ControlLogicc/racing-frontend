@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Form, Button, Modal } from 'react-bootstrap';
 import {
   CashCoin,
@@ -271,6 +272,7 @@ function PrizeForm({
 }
 
 export default function PrizesPage() {
+  const navigate = useNavigate();
   const [prizes, setPrizes] = useState([]);
   const [races, setRaces] = useState([]);
   const [filterRaceId, setFilterRaceId] = useState('');
@@ -289,8 +291,10 @@ export default function PrizesPage() {
     [races]
   );
 
+  const hasRaceFilter = Boolean(filterRaceId);
+
   const displayedPrizes = useMemo(() => {
-    if (!filterRaceId) return normalizedPrizes;
+    if (!filterRaceId) return [];
     return normalizedPrizes.filter((prize) => prize.raceId === Number(filterRaceId));
   }, [filterRaceId, normalizedPrizes]);
 
@@ -315,11 +319,23 @@ export default function PrizesPage() {
       });
   }, [displayedPrizes, filterRaceId, raceMap]);
 
+  const allPrizeGroups = useMemo(() => {
+    const grouped = new Map();
+
+    normalizedPrizes.forEach((prize) => {
+      if (!grouped.has(prize.raceId)) grouped.set(prize.raceId, []);
+      grouped.get(prize.raceId).push(prize);
+    });
+
+    return [...grouped.entries()].map(([raceId, rows]) => buildPrizeGroup(raceMap.get(raceId), raceId, rows));
+  }, [normalizedPrizes, raceMap]);
+
   const selectedRace = filterRaceId ? raceMap.get(Number(filterRaceId)) : null;
+  const summaryPrizes = filterRaceId ? displayedPrizes : normalizedPrizes;
   const configuredRaceCount = new Set(normalizedPrizes.map((prize) => prize.raceId)).size;
-  const totalPool = displayedPrizes.reduce((sum, prize) => sum + prize.amount, 0);
-  const topPrize = displayedPrizes.reduce((max, prize) => Math.max(max, prize.amount), 0);
-  const warningCount = prizeGroups.filter((group) => group.statusType !== 'complete').length;
+  const totalPool = summaryPrizes.reduce((sum, prize) => sum + prize.amount, 0);
+  const topPrize = summaryPrizes.reduce((max, prize) => Math.max(max, prize.amount), 0);
+  const warningCount = (hasRaceFilter ? prizeGroups : allPrizeGroups).filter((group) => group.statusType !== 'complete').length;
 
   const load = () => {
     Promise.all([prizeService.getAll(), raceService.getAll()])
@@ -393,6 +409,10 @@ export default function PrizesPage() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    if (!editForm.position || !editForm.amount) {
+      setToast({ message: 'Vui lòng nhập hạng và tiền thưởng.', variant: 'warning' });
+      return;
+    }
     if (editHasDuplicate) {
       setToast({ message: 'Race này đã có giải cho hạng đã chọn.', variant: 'warning' });
       return;
@@ -431,11 +451,10 @@ export default function PrizesPage() {
     <div className="prize-page">
       <div className="prize-hero">
         <div>
-          <span className="prize-eyebrow">Quỹ thưởng</span>
           <h2>Cơ cấu giải thưởng</h2>
-          <p>{selectedRace ? getRaceName(selectedRace, selectedRace.id) : 'Tất cả race'}</p>
+          <p>{selectedRace ? getRaceName(selectedRace, selectedRace.id) : ''}</p>
         </div>
-        <Button className="btn-gold-sm prize-primary-action" onClick={() => openCreate()}>
+        <Button className="btn-gold-sm prize-primary-action" onClick={() => navigate('/admin/prizes/create')}>
           <PlusCircle size={16} />
           Thêm giải thưởng
         </Button>
@@ -443,7 +462,7 @@ export default function PrizesPage() {
 
       <div className="prize-summary-grid">
         <SummaryTile icon={<CashCoin size={18} />} label="Quỹ đang xem" value={formatCurrency(totalPool)} />
-        <SummaryTile icon={<TrophyFill size={18} />} label="Hạng thưởng" value={formatNumber(displayedPrizes.length)} />
+        <SummaryTile icon={<TrophyFill size={18} />} label="Hạng thưởng" value={formatNumber(summaryPrizes.length)} />
         <SummaryTile icon={<CheckCircleFill size={18} />} label="Race đã cấu hình" value={`${configuredRaceCount}/${races.length}`} />
         <SummaryTile icon={<ExclamationTriangleFill size={18} />} label="Cần kiểm tra" value={formatNumber(warningCount)} />
       </div>
@@ -452,7 +471,7 @@ export default function PrizesPage() {
         <Form.Group className="prize-filter">
           <Form.Label>Race</Form.Label>
           <Form.Select value={filterRaceId} onChange={(e) => setFilterRaceId(e.target.value)}>
-            <option value="">Tất cả race</option>
+            <option value="">-- Chọn race --</option>
             {races.map((race) => (
               <option key={race.id} value={race.id}>{getRaceName(race, race.id)}</option>
             ))}
@@ -465,7 +484,7 @@ export default function PrizesPage() {
         </div>
       </div>
 
-      {prizeGroups.length === 0 ? (
+      {!hasRaceFilter ? null : prizeGroups.length === 0 ? (
         <EmptyState message="Chưa có giải thưởng nào." />
       ) : (
         <div className="prize-group-stack">
@@ -476,7 +495,7 @@ export default function PrizesPage() {
                   <span>Chưa có cơ cấu thưởng</span>
                   <strong>{group.raceName}</strong>
                 </div>
-                <Button className="btn-gold-sm" onClick={() => openCreate(group.raceId)}>
+                <Button className="btn-gold-sm" onClick={() => navigate(`/admin/prizes/create?raceId=${group.raceId}`)}>
                   <PlusCircle size={15} />
                   Thêm hạng đầu tiên
                 </Button>
@@ -485,8 +504,8 @@ export default function PrizesPage() {
               <PrizeRaceCard
                 key={group.raceId}
                 group={group}
-                onAdd={openCreate}
-                onEdit={openEdit}
+                onAdd={(raceId) => navigate(`/admin/prizes/create?raceId=${raceId}`)}
+                onEdit={(row) => navigate(`/admin/prizes/${row.id}/edit`)}
                 onDelete={handleDelete}
               />
             )

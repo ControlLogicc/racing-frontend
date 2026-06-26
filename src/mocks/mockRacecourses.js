@@ -1,0 +1,32 @@
+export const MOCK_RACECOURSES = [
+  {
+    id: 1,
+    racecourseId: 1,
+    name: 'Saigon Racing Track',
+    racecourseName: 'Saigon Racing Track',
+    location: 'Ho Chi Minh City',
+    surfaceType: 'turf',
+    capacity: 12000,
+    createdAt: '2025-07-01T08:00:00',
+  },
+  {
+    id: 2,
+    racecourseId: 2,
+    name: 'Hanoi Dirt Arena',
+    racecourseName: 'Hanoi Dirt Arena',
+    location: 'Hanoi',
+    surfaceType: 'dirt',
+    capacity: 9000,
+    createdAt: '2025-07-02T08:00:00',
+  },
+  {
+    id: 3,
+    racecourseId: 3,
+    name: 'Da Nang Synthetic Park',
+    racecourseName: 'Da Nang Synthetic Park',
+    location: 'Da Nang',
+    surfaceType: 'synthetic',
+    capacity: 7000,
+    createdAt: '2025-07-03T08:00:00',
+  },
+];

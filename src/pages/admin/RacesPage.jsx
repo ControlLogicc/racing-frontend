@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { raceService } from '../../services/raceService';
 import { meetingService } from '../../services/meetingService';
@@ -16,19 +17,25 @@ import DataTable from '../../components/common/DataTable';
 import StatusBadge from '../../components/common/StatusBadge';
 import Pagination from '../../components/common/Pagination';
 import Toaster from '../../components/common/Toaster';
+import './season-wizard.css';
 
 const PAGE_SIZE = 10;
-const EMPTY_FORM = {
-  meetingId: '',
-  conditionId: '',
-  name: '',
-  raceNo: '',
-  raceTime: '',
-  registrationOpenAt: '',
-  registrationCloseAt: '',
+const RACE_STATUS_FLOW = [
+  RACE_STATUS.DRAFT,
+  RACE_STATUS.SCHEDULED,
+  RACE_STATUS.OPEN_FOR_ENTRY,
+  RACE_STATUS.CLOSED_FOR_ENTRY,
+  RACE_STATUS.RUNNING,
+  RACE_STATUS.RESULT_PENDING,
+  RACE_STATUS.OFFICIAL,
+  RACE_STATUS.CANCELLED,
+];
+
+const statusStep = (status) => {
+  const index = RACE_STATUS_FLOW.indexOf(status);
+  return index >= 0 ? index : 0;
 };
 
-// Shared form fields (used in both create inline form and edit modal)
 function RaceFormFields({ reg, errs, meetings: mtgs, conditions: conds, staff: slist, referees: rlist, loading }) {
   return (
     <>
@@ -39,42 +46,32 @@ function RaceFormFields({ reg, errs, meetings: mtgs, conditions: conds, staff: s
           {mtgs.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
         </Form.Select>
         <Form.Control.Feedback type="invalid">{errs.meetingId?.message}</Form.Control.Feedback>
-        {mtgs.length === 0 && !loading && (
-          <Form.Text style={{ color: '#888' }}>
-            Chưa có meeting nào. Vui lòng tạo meeting trước.
-          </Form.Text>
-        )}
+        {mtgs.length === 0 && !loading && <Form.Text style={{ color: '#888' }}>Chưa có meeting nào.</Form.Text>}
       </Form.Group>
       <Form.Group>
         <Form.Label style={{ color: '#D4AF37' }}>Condition</Form.Label>
         <Form.Select {...reg('conditionId')}>
-          <option value="">-- Chọn condition (tuỳ chọn) --</option>
+          <option value="">-- Chọn condition --</option>
           {conds.map((c) => <option key={c.id} value={c.id}>{c.conditionName} ({c.distance}m)</option>)}
         </Form.Select>
       </Form.Group>
       <Form.Group>
         <Form.Label style={{ color: '#D4AF37' }}>Staff phụ trách</Form.Label>
         <Form.Select {...reg('staffId')}>
-          <option value="">-- Chọn staff (tuỳ chọn) --</option>
+          <option value="">-- Chọn staff --</option>
           {slist.map((s) => <option key={s.staffId} value={s.staffId}>{s.fullName}</option>)}
         </Form.Select>
-        {slist.length === 0 && (
-          <Form.Text style={{ color: '#888' }}>
-            Chưa có staff profile. Tạo tài khoản Staff mới trong trang Người dùng trước khi assign race.
-          </Form.Text>
-        )}
       </Form.Group>
       <Form.Group>
         <Form.Label style={{ color: '#D4AF37' }}>Referee phụ trách</Form.Label>
         <Form.Select {...reg('refereeId')}>
-          <option value="">-- Chọn referee (tuỳ chọn) --</option>
+          <option value="">-- Chọn referee --</option>
           {rlist.map((r) => <option key={r.refereeId} value={r.refereeId}>{r.fullName}</option>)}
         </Form.Select>
-        {rlist.length === 0 && <Form.Text style={{ color: '#888' }}>Không tải được danh sách referee.</Form.Text>}
       </Form.Group>
       <Form.Group>
-        <Form.Label style={{ color: '#D4AF37' }}>Số thứ tự (Race No)</Form.Label>
-        <Form.Control type="number" {...reg('raceNo')} placeholder="VD: 1" min="1" />
+        <Form.Label style={{ color: '#D4AF37' }}>Số thứ tự</Form.Label>
+        <Form.Control type="number" {...reg('raceNo')} min="1" />
       </Form.Group>
       <Form.Group>
         <Form.Label style={{ color: '#D4AF37' }}>Tên race <span style={{ color: '#e55' }}>*</span></Form.Label>
@@ -87,12 +84,9 @@ function RaceFormFields({ reg, errs, meetings: mtgs, conditions: conds, staff: s
         <Form.Control.Feedback type="invalid">{errs.raceTime?.message}</Form.Control.Feedback>
       </Form.Group>
       <Form.Group>
-        <Form.Label style={{ color: '#D4AF37' }}>Mở đăng ký <span style={{ color: '#f6a', fontSize: '0.78rem' }}>(bắt buộc để owner thấy race)</span></Form.Label>
+        <Form.Label style={{ color: '#D4AF37' }}>Mở đăng ký <span style={{ color: '#e55' }}>*</span></Form.Label>
         <Form.Control type="datetime-local" {...reg('registrationOpenAt', { required: 'Ngày mở đăng ký là bắt buộc' })} isInvalid={!!errs.registrationOpenAt} />
         <Form.Control.Feedback type="invalid">{errs.registrationOpenAt?.message}</Form.Control.Feedback>
-        <Form.Text style={{ color: '#888', fontSize: 11 }}>
-          Phải ≤ ngày hiện tại để owner thấy race ngay. Backend lọc theo khoảng [mở ĐK, đóng ĐK].
-        </Form.Text>
       </Form.Group>
       <Form.Group>
         <Form.Label style={{ color: '#D4AF37' }}>Đóng đăng ký <span style={{ color: '#e55' }}>*</span></Form.Label>
@@ -104,6 +98,7 @@ function RaceFormFields({ reg, errs, meetings: mtgs, conditions: conds, staff: s
 }
 
 export default function RacesPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [races, setRaces] = useState([]);
   const [meetings, setMeetings] = useState([]);
@@ -115,13 +110,6 @@ export default function RacesPage() {
   const [toast, setToast] = useState(null);
   const [page, setPage] = useState(1);
   const [editRow, setEditRow] = useState(null);
-
-  const {
-    register: regCreate,
-    handleSubmit: submitCreate,
-    formState: { errors: createErrors },
-    reset: resetCreate,
-  } = useForm({ defaultValues: EMPTY_FORM });
 
   const {
     register: regEdit,
@@ -166,22 +154,6 @@ export default function RacesPage() {
 
   const refetch = () => { setLoading(true); setError(''); load(); };
 
-  const onCreate = async (data) => {
-    try {
-      await raceService.create({
-        ...data,
-        meetingId: Number(data.meetingId),
-        conditionId: data.conditionId ? Number(data.conditionId) : undefined,
-        raceNo: data.raceNo ? Number(data.raceNo) : undefined,
-      });
-      setToast({ message: 'Tạo race thành công.', variant: 'success' });
-      resetCreate(EMPTY_FORM);
-      refetch();
-    } catch (err) {
-      setToast({ message: getApiErrorMessage(err, 'Tạo race thất bại.'), variant: 'danger' });
-    }
-  };
-
   const onUpdate = async (data) => {
     try {
       await raceService.update(editRow.id, {
@@ -189,6 +161,7 @@ export default function RacesPage() {
         meetingId: Number(data.meetingId),
         conditionId: data.conditionId ? Number(data.conditionId) : undefined,
         raceNo: data.raceNo ? Number(data.raceNo) : undefined,
+        status: editRow.status,
       });
       setToast({ message: 'Cập nhật race thành công.', variant: 'success' });
       setEditRow(null);
@@ -213,14 +186,14 @@ export default function RacesPage() {
     try {
       const raceToUpdate = races.find((r) => r.id === id);
       if (!raceToUpdate) throw new Error('Race not found in local state.');
+      if (statusStep(status) < statusStep(raceToUpdate.status)) {
+        setToast({ message: 'Không thể quay lại trạng thái trước đó.', variant: 'warning' });
+        return;
+      }
       let payload = { ...raceToUpdate, status };
-
-      // Khi mở đăng ký: nếu registrationOpenAt chưa có → tự set về now
-      // Backend lọc /races/open theo: registrationOpenAt <= now <= registrationCloseAt
       if (status === RACE_STATUS.OPEN_FOR_ENTRY && !payload.registrationOpenAt) {
         payload = { ...payload, registrationOpenAt: new Date().toISOString() };
       }
-
       await raceService.update(id, payload);
       setToast({ message: 'Cập nhật trạng thái race thành công.', variant: 'success' });
       refetch();
@@ -230,24 +203,24 @@ export default function RacesPage() {
   };
 
   const meetingName = (id) => meetings.find((m) => m.id === id)?.name ?? id;
-  const conditionName = (id) => conditions.find((c) => c.id === id)?.conditionName ?? '—';
+  const conditionName = (id) => conditions.find((c) => c.id === id)?.conditionName ?? '-';
 
   const columns = [
-    { key: 'raceNo', label: '#', render: (r) => r.raceNo ?? '—' },
+    { key: 'raceNo', label: '#', render: (r) => r.raceNo ?? '-' },
     { key: 'name', label: 'Tên race' },
     { key: 'meetingId', label: 'Meeting', render: (r) => meetingName(r.meetingId) },
     { key: 'conditionId', label: 'Condition', render: (r) => conditionName(r.conditionId) },
     { key: 'raceTime', label: 'Giờ đua', render: (r) => formatDate(r.raceTime) },
-    { key: 'registrationOpenAt', label: 'Mở ĐK', render: (r) => r.registrationOpenAt ? formatDate(r.registrationOpenAt) : '—' },
-    { key: 'registrationCloseAt', label: 'Đóng ĐK', render: (r) => r.registrationCloseAt ? formatDate(r.registrationCloseAt) : '—' },
+    { key: 'registrationOpenAt', label: 'Mở ĐK', render: (r) => r.registrationOpenAt ? formatDate(r.registrationOpenAt) : '-' },
+    { key: 'registrationCloseAt', label: 'Đóng ĐK', render: (r) => r.registrationCloseAt ? formatDate(r.registrationCloseAt) : '-' },
     { key: 'status', label: 'Trạng thái', render: (r) => <StatusBadge status={r.status} /> },
     {
       key: 'statusAction',
       label: 'Đổi trạng thái',
       render: (r) => (
         <Form.Select size="sm" value={r.status} style={{ maxWidth: 160 }} onChange={(e) => handleStatusChange(r.id, e.target.value)}>
-          {[...new Set(Object.values(RACE_STATUS))].map((s) => (
-            <option key={s} value={s}>{s}</option>
+          {RACE_STATUS_FLOW.map((s) => (
+            <option key={s} value={s} disabled={statusStep(s) < statusStep(r.status)}>{s}</option>
           ))}
         </Form.Select>
       ),
@@ -259,25 +232,7 @@ export default function RacesPage() {
         const isStaff = user?.role?.toLowerCase() === 'staff';
         return (
           <div className="d-flex gap-2 flex-wrap">
-            {(row.status === RACE_STATUS.DRAFT || row.status === RACE_STATUS.SCHEDULED) && (
-              <button
-                className="btn btn-sm btn-success"
-                title="Open registration for Owner"
-                onClick={() => handleStatusChange(row.id, RACE_STATUS.OPEN_FOR_ENTRY)}
-              >
-                Mo DK
-              </button>
-            )}
-            {false && (
-              <button
-                className="btn btn-sm btn-success"
-                title="Mở đăng ký cho Owner"
-                onClick={() => handleStatusChange(row.id, nextStatus)}
-              >
-                🔓 Mở ĐK
-              </button>
-            )}
-            {!isStaff && <button className="btn-gold-sm" onClick={() => setEditRow(row)}>Sửa</button>}
+            {!isStaff && <button className="btn-gold-sm" onClick={() => navigate(`/admin/races/${row.id}/edit`)}>Sửa</button>}
             {!isStaff && <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(row.id)}>Xoá</button>}
           </div>
         );
@@ -287,30 +242,28 @@ export default function RacesPage() {
   const pageRows = races.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <div>
-      <div className="page-header"><h2>Quản lý Race</h2></div>
+    <div className="season-admin-page">
+      <section className="season-list-section">
+        <div className="page-header">
+          <h2>Danh sách Race</h2>
+          {user?.role?.toLowerCase() !== 'staff' && (
+            <Button className="season-create-toggle" onClick={() => navigate('/admin/races/create')}>
+              + Tạo Race
+            </Button>
+          )}
+        </div>
 
-      {/* Create inline form */}
-      {user?.role?.toLowerCase() !== 'staff' && (
-        <Form onSubmit={submitCreate(onCreate)} className="dash-card d-flex flex-wrap gap-3 align-items-start mb-4" noValidate>
-          <RaceFormFields reg={regCreate} errs={createErrors} meetings={meetings} conditions={conditions} staff={staffList} referees={refereeList} loading={loading} />
-          <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px', marginTop: '32px' }} disabled={meetings.length === 0}>
-            Tạo Race
-          </Button>
-        </Form>
-      )}
+        {loading && <Loading />}
+        {!loading && error && <ErrorState message={error} onRetry={refetch} />}
+        {!loading && !error && races.length === 0 && <EmptyState message="Chưa có race nào." />}
+        {!loading && !error && races.length > 0 && (
+          <>
+            <DataTable columns={columns} rows={pageRows} />
+            <Pagination page={page} pageSize={PAGE_SIZE} total={races.length} onPageChange={setPage} />
+          </>
+        )}
+      </section>
 
-      {loading && <Loading />}
-      {!loading && error && <ErrorState message={error} onRetry={refetch} />}
-      {!loading && !error && races.length === 0 && <EmptyState message="Chưa có race nào." />}
-      {!loading && !error && races.length > 0 && (
-        <>
-          <DataTable columns={columns} rows={pageRows} />
-          <Pagination page={page} pageSize={PAGE_SIZE} total={races.length} onPageChange={setPage} />
-        </>
-      )}
-
-      {/* Edit Modal */}
       <Modal show={!!editRow} onHide={() => setEditRow(null)} centered size="lg">
         <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>
           <Modal.Title style={{ color: '#D4AF37' }}>Sửa Race</Modal.Title>

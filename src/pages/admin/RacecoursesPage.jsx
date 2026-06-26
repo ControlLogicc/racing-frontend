@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { racecourseService } from '../../services/racecourseService';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -13,12 +14,11 @@ const SURFACE_TYPES = ['turf', 'dirt', 'synthetic', 'all-weather'];
 const EMPTY_FORM = { name: '', location: '', surfaceType: 'turf', capacity: '' };
 
 export default function RacecoursesPage() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
-  const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState(EMPTY_FORM);
   const [editRow, setEditRow] = useState(null);
   const [editForm, setEditForm] = useState(EMPTY_FORM);
 
@@ -33,19 +33,6 @@ export default function RacecoursesPage() {
   useEffect(() => { load(); }, []);
 
   const refetch = () => { setLoading(true); setError(''); load(); };
-
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    try {
-      await racecourseService.create(form);
-      setToast({ message: 'Tạo đường đua thành công.', variant: 'success' });
-      setForm(EMPTY_FORM);
-      setShowCreate(false);
-      refetch();
-    } catch (err) {
-      setToast({ message: getApiErrorMessage(err, 'Tạo thất bại.'), variant: 'danger' });
-    }
-  };
 
   const openEdit = (row) => {
     setEditRow(row);
@@ -86,7 +73,7 @@ export default function RacecoursesPage() {
       label: 'Hành động',
       render: (row) => (
         <div className="d-flex gap-2">
-          <button className="btn-gold-sm" onClick={() => openEdit(row)}>Sửa</button>
+          <button className="btn-gold-sm" onClick={() => navigate(`/admin/racecourses/${row.id}/edit`)}>Sửa</button>
           <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(row.id)}>Xoá</button>
         </div>
       ),
@@ -127,21 +114,12 @@ export default function RacecoursesPage() {
     <div>
       <div className="page-header d-flex justify-content-between align-items-center">
         <h2>Quản lý Đường đua (Racecourse)</h2>
-        <Button className="btn-gold-sm" onClick={() => setShowCreate(true)}>+ Thêm đường đua</Button>
+        <Button className="btn-gold-sm" onClick={() => navigate('/admin/racecourses/create')}>+ Thêm đường đua</Button>
       </div>
 
       {courses.length === 0
         ? <EmptyState message="Chưa có đường đua nào. Cần tạo đường đua trước khi tạo Meeting." />
         : <DataTable columns={columns} rows={courses} />}
-
-      <Modal show={showCreate} onHide={() => { setShowCreate(false); setForm(EMPTY_FORM); }} centered>
-        <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>
-          <Modal.Title style={{ color: '#D4AF37' }}>Thêm đường đua</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ background: '#1a1a2e' }}>
-          <CourseForm values={form} onChange={setForm} onSubmit={handleCreate} onCancel={() => { setShowCreate(false); setForm(EMPTY_FORM); }} submitLabel="Tạo" />
-        </Modal.Body>
-      </Modal>
 
       <Modal show={!!editRow} onHide={() => setEditRow(null)} centered>
         <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>

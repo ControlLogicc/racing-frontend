@@ -8,17 +8,18 @@ let _nextId = Math.max(..._seasons.map((s) => s.id)) + 1;
 
 const mockService = {
   getAll: () => Promise.resolve([..._seasons]),
+  getById: (id) => Promise.resolve(_seasons.find((s) => Number(s.id) === Number(id)) ?? null),
   create: (payload) => {
     const created = { id: _nextId++, ...payload };
     _seasons = [..._seasons, created];
     return Promise.resolve(created);
   },
   update: (id, payload) => {
-    _seasons = _seasons.map((s) => (s.id === id ? { ...s, ...payload } : s));
-    return Promise.resolve(_seasons.find((s) => s.id === id));
+    _seasons = _seasons.map((s) => (Number(s.id) === Number(id) ? { ...s, ...payload } : s));
+    return Promise.resolve(_seasons.find((s) => Number(s.id) === Number(id)));
   },
   remove: (id) => {
-    _seasons = _seasons.filter((s) => s.id !== id);
+    _seasons = _seasons.filter((s) => Number(s.id) !== Number(id));
     return Promise.resolve({ success: true });
   },
 };

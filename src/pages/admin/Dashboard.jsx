@@ -10,8 +10,14 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h2 className="mb-1" style={{ color: GOLD }}>Welcome back, {name} 👋</h2>
-      <p className="text-muted mb-4">System overview — users, accounts and race calendar.</p>
+      <section className="admin-dashboard-hero mb-4" aria-label="Admin overview">
+        <div className="admin-dashboard-hero-track" aria-hidden="true" />
+        <div className="admin-dashboard-hero-content">
+          <span className="admin-dashboard-kicker">Control center</span>
+          <h2 className="mb-1" style={{ color: GOLD }}>Welcome back, {name}</h2>
+          <p className="admin-dashboard-subtitle mb-0">System overview - users, accounts and race calendar.</p>
+        </div>
+      </section>
 
       <StatCardGrid items={ADMIN_STATS} />
 

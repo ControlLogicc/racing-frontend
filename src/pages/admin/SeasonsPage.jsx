@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { seasonService } from '../../services/seasonService';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -8,22 +9,15 @@ import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import DataTable from '../../components/common/DataTable';
 import Toaster from '../../components/common/Toaster';
-
-const EMPTY_FORM = { name: '', startDate: '', endDate: '' };
+import './season-wizard.css';
 
 export default function SeasonsPage() {
+  const navigate = useNavigate();
   const [seasons, setSeasons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
   const [editRow, setEditRow] = useState(null);
-
-  const {
-    register: regCreate,
-    handleSubmit: submitCreate,
-    formState: { errors: createErrors },
-    reset: resetCreate,
-  } = useForm({ defaultValues: EMPTY_FORM });
 
   const {
     register: regEdit,
@@ -48,23 +42,12 @@ export default function SeasonsPage() {
         name: editRow.name,
         startDate: editRow.startDate ? editRow.startDate.slice(0, 10) : '',
         endDate: editRow.endDate ? editRow.endDate.slice(0, 10) : '',
-        status: editRow.status ?? 'active',
+        status: String(editRow.status ?? 'active').toLowerCase(),
       });
     }
   }, [editRow, resetEdit]);
 
   const refetch = () => { setLoading(true); setError(''); load(); };
-
-  const onCreate = async (data) => {
-    try {
-      await seasonService.create(data);
-      setToast({ message: 'Tạo season thành công.', variant: 'success' });
-      resetCreate(EMPTY_FORM);
-      refetch();
-    } catch (err) {
-      setToast({ message: getApiErrorMessage(err, 'Tạo season thất bại.'), variant: 'danger' });
-    }
-  };
 
   const onUpdate = async (data) => {
     try {
@@ -98,7 +81,7 @@ export default function SeasonsPage() {
       label: 'Hành động',
       render: (row) => (
         <div className="d-flex gap-2">
-          <button className="btn-gold-sm" onClick={() => setEditRow(row)}>Sửa</button>
+          <button className="btn-gold-sm" onClick={() => navigate(`/admin/seasons/${row.id}/edit`)}>Sửa</button>
           <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(row.id)}>Xoá</button>
         </div>
       ),
@@ -106,45 +89,23 @@ export default function SeasonsPage() {
   ];
 
   return (
-    <div>
-      <div className="page-header"><h2>Quản lý Season</h2></div>
-
-      <Form onSubmit={submitCreate(onCreate)} className="dash-card d-flex flex-wrap gap-3 align-items-start mb-4" noValidate>
-        <Form.Group>
-          <Form.Label style={{ color: '#D4AF37' }}>Tên mùa giải</Form.Label>
-          <Form.Control
-            {...regCreate('name', { required: 'Tên mùa giải là bắt buộc' })}
-            isInvalid={!!createErrors.name}
-          />
-          <Form.Control.Feedback type="invalid">{createErrors.name?.message}</Form.Control.Feedback>
-        </Form.Group>
-        <Form.Group>
-          <Form.Label style={{ color: '#D4AF37' }}>Bắt đầu</Form.Label>
-          <Form.Control
-            type="date"
-            {...regCreate('startDate', { required: 'Ngày bắt đầu là bắt buộc' })}
-            isInvalid={!!createErrors.startDate}
-          />
-          <Form.Control.Feedback type="invalid">{createErrors.startDate?.message}</Form.Control.Feedback>
-        </Form.Group>
-        <Form.Group>
-          <Form.Label style={{ color: '#D4AF37' }}>Kết thúc</Form.Label>
-          <Form.Control
-            type="date"
-            {...regCreate('endDate', { required: 'Ngày kết thúc là bắt buộc' })}
-            isInvalid={!!createErrors.endDate}
-          />
-          <Form.Control.Feedback type="invalid">{createErrors.endDate?.message}</Form.Control.Feedback>
-        </Form.Group>
-        <Button type="submit" className="btn-gold-sm" style={{ padding: '8px 20px', marginTop: '32px' }}>
-          Tạo Season
-        </Button>
-      </Form>
-
-      {loading && <Loading />}
-      {!loading && error && <ErrorState message={error} onRetry={refetch} />}
-      {!loading && !error && seasons.length === 0 && <EmptyState message="Chưa có season nào." />}
-      {!loading && !error && seasons.length > 0 && <DataTable columns={columns} rows={seasons} />}
+    <div className="season-admin-page">
+      <section className="season-list-section">
+        <div className="page-header">
+          <h2>Danh sách Season</h2>
+          <Button
+            type="button"
+            className="season-create-toggle"
+            onClick={() => navigate('/admin/seasons/create')}
+          >
+            + Tạo Season
+          </Button>
+        </div>
+        {loading && <Loading />}
+        {!loading && error && <ErrorState message={error} onRetry={refetch} />}
+        {!loading && !error && seasons.length === 0 && <EmptyState message="Chưa có season nào." />}
+        {!loading && !error && seasons.length > 0 && <DataTable columns={columns} rows={seasons} />}
+      </section>
 
       <Modal show={!!editRow} onHide={() => setEditRow(null)} centered>
         <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>

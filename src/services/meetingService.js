@@ -9,17 +9,18 @@ let _nextId = Math.max(..._meetings.map((m) => m.id)) + 1;
 const mockService = {
   getAll: () => Promise.resolve([..._meetings]),
   getPublic: () => Promise.resolve([..._meetings]),
+  getById: (id) => Promise.resolve(_meetings.find((m) => Number(m.id) === Number(id)) ?? null),
   create: (payload) => {
     const created = { id: _nextId++, ...payload };
     _meetings = [..._meetings, created];
     return Promise.resolve(created);
   },
   update: (id, payload) => {
-    _meetings = _meetings.map((m) => (m.id === id ? { ...m, ...payload } : m));
-    return Promise.resolve(_meetings.find((m) => m.id === id));
+    _meetings = _meetings.map((m) => (Number(m.id) === Number(id) ? { ...m, ...payload } : m));
+    return Promise.resolve(_meetings.find((m) => Number(m.id) === Number(id)));
   },
   remove: (id) => {
-    _meetings = _meetings.filter((m) => m.id !== id);
+    _meetings = _meetings.filter((m) => Number(m.id) !== Number(id));
     return Promise.resolve({ success: true });
   },
 };

@@ -3,10 +3,10 @@
 
 export const MOCK_USERS = [
   { userId: 1, fullName: 'Admin User',     email: 'admin@test.com',     password: '123456', role: 'ADMIN' },
-  { userId: 2, fullName: 'Staff User',     email: 'staff@test.com',     password: '123456', role: 'STAFF' },
-  { userId: 3, fullName: 'Referee User',   email: 'referee@test.com',   password: '123456', role: 'REFEREE' },
+  { userId: 2, staffId: 1, fullName: 'Staff User', email: 'staff@test.com', password: '123456', role: 'STAFF' },
+  { userId: 3, refereeId: 1, fullName: 'Referee User', email: 'referee@test.com', password: '123456', role: 'REFEREE' },
   { userId: 4, fullName: 'Owner User',     email: 'owner@test.com',     password: '123456', role: 'OWNER' },
-  { userId: 5, fullName: 'Jockey User',    email: 'jockey@test.com',    password: '123456', role: 'JOCKEY' },
+  { userId: 5, jockeyId: 1, fullName: 'Jockey User', email: 'jockey@test.com', password: '123456', role: 'JOCKEY' },
   { userId: 6, fullName: 'Spectator User', email: 'spectator@test.com', password: '123456', role: 'SPECTATOR' },
 ];
 

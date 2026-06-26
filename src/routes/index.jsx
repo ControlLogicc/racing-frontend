@@ -22,6 +22,7 @@ import RaceResultPage from '../pages/spectator/RaceResultPage';
 // Admin
 import AdminDashboardOverview from '../pages/admin/Dashboard';
 import AdminUsersPage from '../pages/admin/UsersPage';
+import CreateUserPage from '../pages/admin/CreateUserPage';
 
 // Staff
 import StaffDashboardOverview from '../pages/staff/Dashboard';
@@ -34,11 +35,23 @@ import StaffRaceDetailPage from '../pages/staff/RaceDetailPage';
 
 // Admin — cấu hình hệ thống (D11: Admin tạo Season/Meeting/Race, không phải Staff)
 import SeasonsPage from '../pages/admin/SeasonsPage';
+import CreateSeasonPage from '../pages/admin/CreateSeasonPage';
+import EditSeasonPage from '../pages/admin/EditSeasonPage';
 import MeetingsPage from '../pages/admin/MeetingsPage';
+import CreateMeetingPage from '../pages/admin/CreateMeetingPage';
+import EditMeetingPage from '../pages/admin/EditMeetingPage';
 import AdminRacesPage from '../pages/admin/RacesPage';
+import CreateRacePage from '../pages/admin/CreateRacePage';
+import EditRacePage from '../pages/admin/EditRacePage';
 import RaceConditionsPage from '../pages/admin/RaceConditionsPage';
+import CreateRaceConditionPage from '../pages/admin/CreateRaceConditionPage';
+import EditRaceConditionPage from '../pages/admin/EditRaceConditionPage';
 import RacecoursesPage from '../pages/admin/RacecoursesPage';
+import CreateRacecoursePage from '../pages/admin/CreateRacecoursePage';
+import EditRacecoursePage from '../pages/admin/EditRacecoursePage';
 import PrizesPage from '../pages/admin/PrizesPage';
+import CreatePrizePage from '../pages/admin/CreatePrizePage';
+import EditPrizePage from '../pages/admin/EditPrizePage';
 import AdminRefereeReportsPage from '../pages/admin/RefereeReportsPage';
 import AdminResultsPage from '../pages/admin/ResultsPage';
 
@@ -91,23 +104,62 @@ export default function AppRoutes() {
           <Route path="admin/users" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminUsersPage /></ProtectedRoute>
           } />
+          <Route path="admin/users/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreateUserPage /></ProtectedRoute>
+          } />
           <Route path="admin/seasons" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><SeasonsPage /></ProtectedRoute>
+          } />
+          <Route path="admin/seasons/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreateSeasonPage /></ProtectedRoute>
+          } />
+          <Route path="admin/seasons/:id/edit" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><EditSeasonPage /></ProtectedRoute>
           } />
           <Route path="admin/meetings" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><MeetingsPage /></ProtectedRoute>
           } />
+          <Route path="admin/meetings/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreateMeetingPage /></ProtectedRoute>
+          } />
+          <Route path="admin/meetings/:id/edit" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><EditMeetingPage /></ProtectedRoute>
+          } />
           <Route path="admin/races" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}><AdminRacesPage /></ProtectedRoute>
+          } />
+          <Route path="admin/races/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreateRacePage /></ProtectedRoute>
+          } />
+          <Route path="admin/races/:id/edit" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><EditRacePage /></ProtectedRoute>
           } />
           <Route path="admin/race-conditions" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><RaceConditionsPage /></ProtectedRoute>
           } />
+          <Route path="admin/race-conditions/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreateRaceConditionPage /></ProtectedRoute>
+          } />
+          <Route path="admin/race-conditions/:id/edit" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><EditRaceConditionPage /></ProtectedRoute>
+          } />
           <Route path="admin/racecourses" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><RacecoursesPage /></ProtectedRoute>
           } />
+          <Route path="admin/racecourses/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreateRacecoursePage /></ProtectedRoute>
+          } />
+          <Route path="admin/racecourses/:id/edit" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><EditRacecoursePage /></ProtectedRoute>
+          } />
           <Route path="admin/prizes" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><PrizesPage /></ProtectedRoute>
+          } />
+          <Route path="admin/prizes/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreatePrizePage /></ProtectedRoute>
+          } />
+          <Route path="admin/prizes/:id/edit" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><EditPrizePage /></ProtectedRoute>
           } />
           <Route path="admin/reports" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminRefereeReportsPage /></ProtectedRoute>

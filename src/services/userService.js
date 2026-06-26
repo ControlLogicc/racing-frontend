@@ -52,19 +52,24 @@ const mapJockey = (j) => ({
 const mapJockeys = (list) => (Array.isArray(list) ? list.map(mapJockey) : []);
 
 // StaffResponse: { staffId, userId, fullName, email, ... }
+// InternalAccountResponse: { userId, profileId, role, fullName, email, status }
 const mapStaff = (s) => ({
-  id: s.staffId ?? s.userId,
-  staffId: s.staffId,
+  id: s.staffId ?? s.profileId ?? s.id ?? s.userId,
+  staffId: s.staffId ?? s.profileId ?? s.id,
   userId: s.userId,
-  fullName: s.fullName || s.name || `Staff #${s.staffId}`,
+  fullName: s.fullName || s.name || `Staff #${s.staffId ?? s.profileId ?? s.id ?? s.userId}`,
   email: s.email,
   staffCode: s.staffCode,
   department: s.department,
   status: s.status,
 });
 const mapStaffList = (data) => {
-  if (Array.isArray(data)) return data.map(mapStaff).filter((s) => s.staffId);
-  if (data && typeof data === 'object') return [mapStaff(data)].filter((s) => s.staffId);
+  const isStaffRecord = (item) => {
+    const role = String(item?.role ?? '').toUpperCase();
+    return !role || role === 'STAFF';
+  };
+  if (Array.isArray(data)) return data.filter(isStaffRecord).map(mapStaff).filter((s) => s.staffId);
+  if (data && typeof data === 'object' && isStaffRecord(data)) return [mapStaff(data)].filter((s) => s.staffId);
   return [];
 };
 
@@ -98,6 +103,14 @@ const realService = {
 
     try {
       const data = await api.get('/staff').then((r) => r.data);
+      const staff = mapStaffList(data);
+      if (staff.length) return staff;
+    } catch {
+      // Some backends restrict /staff to the logged-in staff profile only.
+    }
+
+    try {
+      const data = await api.get('/admin/users').then((r) => r.data);
       return mapStaffList(data);
     } catch {
       return [];

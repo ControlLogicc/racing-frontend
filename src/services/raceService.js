@@ -11,25 +11,25 @@ const mockService = {
   getAll: () => Promise.resolve([..._races]),
   getPublic: () => Promise.resolve([..._races]),
   getOpen: () => Promise.resolve(_races.filter((r) => r.status === RACE_STATUS.UPCOMING)),
-  getById: (id) => Promise.resolve(_races.find((r) => r.id === id) ?? null),
+  getById: (id) => Promise.resolve(_races.find((r) => Number(r.id) === Number(id)) ?? null),
   getAssignedToReferee: (refereeId) =>
     Promise.resolve(_races.filter((r) => r.assignedRefereeIds?.includes(refereeId))),
   create: (payload) => {
-    const created = { id: _nextId++, status: RACE_STATUS.UPCOMING, assignedRefereeIds: [], ...payload };
+    const created = { id: _nextId++, status: RACE_STATUS.DRAFT, assignedRefereeIds: [], ...payload };
     _races = [..._races, created];
     return Promise.resolve(created);
   },
   update: (id, payload) => {
-    _races = _races.map((r) => (r.id === id ? { ...r, ...payload } : r));
-    return Promise.resolve(_races.find((r) => r.id === id));
+    _races = _races.map((r) => (Number(r.id) === Number(id) ? { ...r, ...payload } : r));
+    return Promise.resolve(_races.find((r) => Number(r.id) === Number(id)));
   },
   remove: (id) => {
-    _races = _races.filter((r) => r.id !== id);
+    _races = _races.filter((r) => Number(r.id) !== Number(id));
     return Promise.resolve({ success: true });
   },
   setStatus: (id, status) => {
-    _races = _races.map((r) => (r.id === id ? { ...r, status } : r));
-    return Promise.resolve(_races.find((r) => r.id === id));
+    _races = _races.map((r) => (Number(r.id) === Number(id) ? { ...r, status } : r));
+    return Promise.resolve(_races.find((r) => Number(r.id) === Number(id)));
   },
 };
 

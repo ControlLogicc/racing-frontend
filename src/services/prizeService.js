@@ -9,18 +9,18 @@ let _nextId = Math.max(..._prizes.map((p) => p.id)) + 1;
 const mockService = {
   getAll: () => Promise.resolve([..._prizes]),
   getPublicAll: () => Promise.resolve([..._prizes]),
-  getByRace: (raceId) => Promise.resolve(_prizes.filter((p) => p.raceId === raceId)),
+  getByRace: (raceId) => Promise.resolve(_prizes.filter((p) => Number(p.raceId) === Number(raceId))),
   create: (payload) => {
     const created = { id: _nextId++, ...payload };
     _prizes = [..._prizes, created];
     return Promise.resolve(created);
   },
   update: (id, payload) => {
-    _prizes = _prizes.map((p) => (p.id === id ? { ...p, ...payload } : p));
-    return Promise.resolve(_prizes.find((p) => p.id === id));
+    _prizes = _prizes.map((p) => (Number(p.id) === Number(id) ? { ...p, ...payload } : p));
+    return Promise.resolve(_prizes.find((p) => Number(p.id) === Number(id)));
   },
   remove: (id) => {
-    _prizes = _prizes.filter((p) => p.id !== id);
+    _prizes = _prizes.filter((p) => Number(p.id) !== Number(id));
     return Promise.resolve({ success: true });
   },
 };
