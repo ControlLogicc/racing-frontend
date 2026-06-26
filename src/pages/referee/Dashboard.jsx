@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Badge, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
 import { raceService } from '../../services/raceService';
 import { entryService } from '../../services/entryService';

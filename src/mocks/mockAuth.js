@@ -20,6 +20,7 @@ export async function mockLogin({ email, password }) {
     err.response = { data: { message: 'Sai email hoặc mật khẩu' } };
     throw err;
   }
+  // eslint-disable-next-line no-unused-vars
   const { password: _pw, ...rest } = user;
   return {
     ...rest,
@@ -27,6 +28,7 @@ export async function mockLogin({ email, password }) {
   };
 }
 
+// eslint-disable-next-line no-unused-vars
 export async function mockRegister({ fullName, email, phone, password, role }) {
   await delay(400);
   const exists = MOCK_USERS.find((u) => u.email === email);

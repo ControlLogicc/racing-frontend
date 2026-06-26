@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form, Button, Spinner, Row, Col } from 'react-bootstrap';
-import { useAuth } from '../../hooks/useAuth';
 import { registrationService } from '../../services/registrationService';
 import { invitationService } from '../../services/invitationService';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -15,7 +14,6 @@ import Toaster from '../../components/common/Toaster';
 import './owner-theme.css';
 
 export default function OwnerInvitationsPage() {
-  const { user } = useAuth();
   const [registrations, setRegistrations] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);

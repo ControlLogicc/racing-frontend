@@ -4,13 +4,11 @@ import { useAuth } from '../../hooks/useAuth';
 import { invitationService } from '../../services/invitationService';
 import { jockeyService } from '../../services/jockeyService';
 import { RACE_INVITATION_STATUS } from '../../constants/status';
-import { StatCardGrid, QuickActions } from '../../components/common/DashboardWidgets';
+import { QuickActions } from '../../components/common/DashboardWidgets';
 import Loading from '../../components/common/Loading';
 import ErrorState from '../../components/common/ErrorState';
 import { Calendar3, EnvelopePaperFill, TrophyFill, CheckCircleFill, PeopleFill } from 'react-bootstrap-icons';
 import '../owner/owner-theme.css';
-
-const GOLD = '#D4AF37';
 
 const QUICK_ACTIONS = [
   { id: 'qa1', label: 'Lời mời đua', to: '/jockey/invitations', icon: <EnvelopePaperFill size={20} className="me-2" /> },
@@ -43,7 +41,10 @@ export default function JockeyDashboard() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line
+    load();
+  }, []);
 
   if (loading) return <Loading />;
   if (error) return <ErrorState message={error} onRetry={load} />;

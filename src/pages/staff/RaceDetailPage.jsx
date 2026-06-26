@@ -35,6 +35,11 @@ export default function StaffRaceDetailPage() {
   const [showResultModal, setShowResultModal] = useState(false);
   const [resultFormData, setResultFormData] = useState({}); // { entryId: { position, finishTime } }
 
+  // Candidates state (for Entry creation)
+  const [candidates, setCandidates] = useState([]);
+  const [candidatesLoading, setCandidatesLoading] = useState(false);
+  const [creatingEntryId, setCreatingEntryId] = useState(null);
+
   const loadRace = () => {
     setLoading(true);
     setError('');
@@ -45,12 +50,14 @@ export default function StaffRaceDetailPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line
     loadRace();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   useEffect(() => {
     if (!race) return;
+    // eslint-disable-next-line
     setTabLoading(true);
     setTabError('');
 
@@ -62,8 +69,11 @@ export default function StaffRaceDetailPage() {
         .catch((err) => setTabError(getApiErrorMessage(err, 'Không tải được danh sách đăng ký.')))
         .finally(() => setTabLoading(false));
     } else if (activeTab === 'entries') {
-      entryService.getByRace(numericId)
-        .then(setEntries)
+      Promise.all([
+        entryService.getByRace(numericId),
+        entryService.getCandidates(numericId).catch(() => []),
+      ])
+        .then(([e, c]) => { setEntries(e); setCandidates(c); })
         .catch((err) => setTabError(getApiErrorMessage(err, 'Không tải được danh sách entry.')))
         .finally(() => setTabLoading(false));
     } else if (activeTab === 'results') {
@@ -199,6 +209,55 @@ export default function StaffRaceDetailPage() {
     );
   };
 
+
+  const loadCandidates = () => {
+    setCandidatesLoading(true);
+    entryService.getCandidates(Number(id))
+      .then(setCandidates)
+      .catch(() => setCandidates([]))
+      .finally(() => setCandidatesLoading(false));
+  };
+
+  const handleCreateEntry = async (candidate) => {
+    setCreatingEntryId(candidate.invitationId);
+    try {
+      await entryService.create({
+        registrationId: candidate.registrationId,
+        invitationId: candidate.invitationId,
+        jockeyId: candidate.jockeyId,
+      });
+      setToast({ message: `Tạo Entry thành công cho ${candidate.horseName} + ${candidate.jockeyName}!`, variant: 'success' });
+      // Reload both candidates and entries
+      loadCandidates();
+      entryService.getByRace(Number(id)).then(setEntries).catch(() => {});
+    } catch (err) {
+      setToast({ message: getApiErrorMessage(err, 'Lỗi tạo Entry.'), variant: 'danger' });
+    } finally {
+      setCreatingEntryId(null);
+    }
+  };
+
+  const handleCreateAllEntries = async () => {
+    const eligible = candidates.filter(c => c.canCreateEntry);
+    if (!eligible.length) return;
+    if (!window.confirm(`Tạo Entry cho tất cả ${eligible.length} cặp đủ điều kiện?`)) return;
+
+    for (const candidate of eligible) {
+      try {
+        await entryService.create({
+          registrationId: candidate.registrationId,
+          invitationId: candidate.invitationId,
+          jockeyId: candidate.jockeyId,
+        });
+      } catch {
+        // continue with others
+      }
+    }
+    setToast({ message: `Đã tạo Entry cho ${eligible.length} cặp!`, variant: 'success' });
+    loadCandidates();
+    entryService.getByRace(Number(id)).then(setEntries).catch(() => {});
+  };
+
   // Render Entries
   const renderEntries = () => {
     if (tabLoading) return <Loading />;
@@ -231,23 +290,93 @@ export default function StaffRaceDetailPage() {
       { key: 'status', label: 'Trạng thái', render: (row) => <StatusBadge status={row.status} /> }
     ];
 
+    // Candidate columns
+    const candidateColumns = [
+      { key: 'horseName', label: 'Ngựa', render: (row) => <span style={{ color: '#D4AF37', fontWeight: 600 }}>🐎 {row.horseName}</span> },
+      { key: 'ownerName', label: 'Owner' },
+      { key: 'jockeyName', label: 'Jockey', render: (row) => <span style={{ fontWeight: 600 }}>{row.jockeyName}</span> },
+      { key: 'registrationStatus', label: 'Đăng ký', render: (row) => <StatusBadge status={row.registrationStatus} /> },
+      { key: 'invitationStatus', label: 'Lời mời', render: (row) => <StatusBadge status={row.invitationStatus} /> },
+      {
+        key: 'action', label: '', render: (row) => {
+          if (!row.canCreateEntry) {
+            return <span style={{ fontSize: '0.75rem', color: '#e57373' }}>{row.reason || 'Chưa đủ ĐK'}</span>;
+          }
+          return (
+            <Button
+              size="sm"
+              className="staff-btn-gold"
+              disabled={creatingEntryId === row.invitationId}
+              onClick={() => handleCreateEntry(row)}
+            >
+              {creatingEntryId === row.invitationId ? '...' : '+ Tạo Entry'}
+            </Button>
+          );
+        }
+      },
+    ];
+
+    const eligibleCount = candidates.filter(c => c.canCreateEntry).length;
+
     return (
       <div className="mt-3">
-        <div className="d-flex justify-content-end mb-3">
-          <Button 
-            className={`staff-btn-gold ${(!isClosedOrLater || isGateDrawDone) ? 'opacity-50' : 'staff-btn-pulse'}`}
-            disabled={!isClosedOrLater || isGateDrawDone}
-            title={isOpen ? 'Phải đóng đăng ký trước' : isGateDrawDone ? 'Đã bốc thăm' : ''}
-            onClick={handleRandomGates}
-          >
-            {isGateDrawDone ? '✓ Đã bốc thăm' : 'Bốc thăm cổng ngẫu nhiên'}
-          </Button>
+        {/* === PHẦN 1: Candidates — Tạo Entry từ Registration+Invitation ACCEPTED === */}
+        <div className="staff-card mb-4">
+          <div className="staff-card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h5 className="mb-0 text-warning">📋 Tạo Entry từ danh sách chờ</h5>
+              <small className="text-muted">Chọn các cặp Ngựa + Jockey đã được duyệt & chấp nhận lời mời để tạo Entry</small>
+            </div>
+            <div className="d-flex gap-2">
+              <Button size="sm" variant="outline-light" onClick={loadCandidates} disabled={candidatesLoading}>
+                {candidatesLoading ? '...' : '🔄 Tải danh sách'}
+              </Button>
+              {eligibleCount > 0 && (
+                <Button size="sm" className="staff-btn-gold" onClick={handleCreateAllEntries}>
+                  ⚡ Tạo tất cả ({eligibleCount})
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="card-body">
+            {candidatesLoading ? (
+              <Loading />
+            ) : candidates.length === 0 ? (
+              <EmptyState message="Chưa có cặp Ngựa+Jockey nào sẵn sàng. Cần: Owner đăng ký → Staff duyệt → Owner mời Jockey → Jockey chấp nhận." />
+            ) : (
+              <DataTable columns={candidateColumns} rows={candidates} />
+            )}
+          </div>
         </div>
-        {entries.length === 0 ? (
-          <EmptyState message="Chưa có entry nào. Entry tự tạo khi Jockey chấp nhận lời mời." />
-        ) : (
-          <DataTable columns={entryColumns} rows={entries} />
-        )}
+
+        {/* === PHẦN 2: Entries đã tạo + Bốc thăm === */}
+        <div className="staff-card">
+          <div className="staff-card-header d-flex justify-content-between align-items-center">
+            <h5 className="mb-0 text-warning">🏇 Entries đã tạo ({entries.length})</h5>
+            <div className="d-flex gap-2">
+              {isOpen && entries.length > 0 && (
+                <Button variant="warning" onClick={() => changeRaceStatus('CLOSED_FOR_ENTRY')}>
+                  🔒 Đóng đăng ký
+                </Button>
+              )}
+              <Button 
+                className={`staff-btn-gold ${(!isClosedOrLater || isGateDrawDone) ? 'opacity-50' : 'staff-btn-pulse'}`}
+                disabled={!isClosedOrLater || isGateDrawDone || entries.length === 0}
+                title={isOpen ? 'Phải đóng đăng ký trước' : isGateDrawDone ? 'Đã bốc thăm' : ''}
+                onClick={handleRandomGates}
+              >
+                {isGateDrawDone ? '✓ Đã bốc thăm' : '🎲 Bốc thăm cổng'}
+              </Button>
+            </div>
+          </div>
+          <div className="card-body">
+            {entries.length === 0 ? (
+              <EmptyState message="Chưa có Entry nào. Hãy tạo Entry từ danh sách chờ ở trên." />
+            ) : (
+              <DataTable columns={entryColumns} rows={entries} />
+            )}
+          </div>
+        </div>
       </div>
     );
   };

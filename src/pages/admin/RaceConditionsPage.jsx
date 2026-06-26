@@ -35,6 +35,7 @@ export default function RaceConditionsPage() {
 
   const refetch = () => { setLoading(true); setError(''); load(); };
 
+  // eslint-disable-next-line no-unused-vars
   const openEdit = (row) => {
     setEditRow(row);
     setEditForm({

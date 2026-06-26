@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import { registrationService } from '../../services/registrationService';
 import { invitationService } from '../../services/invitationService';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -105,7 +104,7 @@ export default function OwnerRegistrationsPage() {
       render: (r) => (
         <div>
           <StatusBadge status={r.status} />
-          {r.status === 'PENDING_REVIEW' && <div style={{ fontSize: '0.7rem', color: '#888', marginTop: 4 }}>Đang chờ Staff duyệt</div>}
+          {r.status === 'PENDING' && <div style={{ fontSize: '0.7rem', color: '#888', marginTop: 4 }}>Đang chờ Staff duyệt</div>}
           {r.status === 'APPROVED' && <div style={{ fontSize: '0.7rem', color: '#4caf7d', marginTop: 4 }}>Đã duyệt — có thể mời Jockey</div>}
           {r.status === 'REJECTED' && <div style={{ fontSize: '0.7rem', color: '#e57373', marginTop: 4 }}>Bị từ chối</div>}
         </div>
@@ -152,7 +151,7 @@ export default function OwnerRegistrationsPage() {
   ];
 
   const active = rows.filter((r) => r.status === 'APPROVED').length;
-  const submitted = rows.filter((r) => r.status === 'PENDING_REVIEW' || r.status === 'SUBMITTED').length;
+  const submitted = rows.filter((r) => r.status === 'PENDING' || r.status === 'SUBMITTED').length;
 
   if (loading) return <Loading />;
   if (error) return <ErrorState message={error} onRetry={refetch} />;

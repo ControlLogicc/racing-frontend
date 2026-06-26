@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://beast-brokers-accomplish-hidden.trycloudflare.com',
+        target: 'https://shaw-gives-basename-phentermine.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

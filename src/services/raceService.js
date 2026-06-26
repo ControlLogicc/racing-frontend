@@ -156,20 +156,12 @@ const realService = {
   getOpen: async () => {
     try {
       const data = await api.get('/races/open').then((r) => r.data);
-      // eslint-disable-next-line no-console
-      console.info('[raceService.getOpen] /races/open →', data);
       return mapRaces(data);
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[raceService.getOpen] /races/open failed:', e?.response?.status, e?.message, '— trying /races fallback');
       try {
         const data = await api.get('/races').then((r) => r.data);
-        // eslint-disable-next-line no-console
-        console.info('[raceService.getOpen] /races fallback →', data);
         return mapRaces(data).filter((race) => race.status === RACE_STATUS.OPEN_FOR_ENTRY);
       } catch (e2) {
-        // eslint-disable-next-line no-console
-        console.warn('[raceService.getOpen] /races fallback also failed:', e2?.response?.status, e2?.message);
         return [];
       }
     }

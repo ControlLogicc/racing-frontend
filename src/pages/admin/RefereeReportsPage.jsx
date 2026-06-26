@@ -48,6 +48,7 @@ function exportCSV(rows) {
 
 export default function AdminRefereeReportsPage() {
   const [reports, setReports] = useState([]);
+  // eslint-disable-next-line
   const [races, setRaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

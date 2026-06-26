@@ -1,27 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { raceService } from '../../services/raceService';
 import { entryService } from '../../services/entryService';
 import { RACE_STATUS, RACE_ENTRY_STATUS } from '../../constants/status';
 import { formatDate } from '../../utils/formatDate';
-import { StatCardGrid, QuickActions } from '../../components/common/DashboardWidgets';
+import { StatCardGrid } from '../../components/common/DashboardWidgets';
 import StatusBadge from '../../components/common/StatusBadge';
 import Loading from '../../components/common/Loading';
 import ErrorState from '../../components/common/ErrorState';
 import './staff-theme.css';
-
-const GOLD = '#D4AF37';
-
-import { FlagFill, EnvelopePaperFill, CheckCircleFill, PencilSquare, TrophyFill } from 'react-bootstrap-icons';
-
-const QUICK_ACTIONS = [
-  { id: 'qa0', label: 'Races của tôi', to: '/staff/races', icon: <FlagFill className="me-2" /> },
-  { id: 'qa1', label: 'Lời mời Jockey', to: '/staff/invitations', icon: <EnvelopePaperFill className="me-2" /> },
-  { id: 'qa2', label: 'Quản lý Entry', to: '/staff/entries', icon: <CheckCircleFill className="me-2" /> },
-  { id: 'qa3', label: 'Xem đăng ký', to: '/staff/registrations', icon: <PencilSquare className="me-2" /> },
-  { id: 'qa4', label: 'Kết quả & Payout', to: '/staff/results', icon: <TrophyFill className="me-2" /> },
-];
 
 export default function StaffDashboard() {
   const { user } = useAuth();
@@ -48,7 +35,10 @@ export default function StaffDashboard() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line
+    load();
+  }, []);
 
   if (loading) return <Loading />;
   if (error) return <ErrorState message={error} onRetry={load} />;

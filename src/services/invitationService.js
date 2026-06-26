@@ -11,7 +11,7 @@ const mockService = {
   getAll: () => Promise.resolve([...mockStore]),
   getByRegistration: (registrationId) =>
     Promise.resolve(mockStore.filter((i) => i.registrationId === registrationId)),
-  getEligibleJockeys: (registrationId) => Promise.resolve([
+  getEligibleJockeys: () => Promise.resolve([
     { jockeyRaceRegistrationId: 1, jockeyId: 101, jockeyName: 'John Doe', weight: 55, experienceYears: 5, canInvite: true },
     { jockeyRaceRegistrationId: 2, jockeyId: 102, jockeyName: 'Jane Smith', weight: 52, experienceYears: 3, canInvite: false, reason: 'Already accepted another race' }
   ]),

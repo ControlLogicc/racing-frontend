@@ -41,7 +41,7 @@ export default function OwnerDashboard() {
           pendingInvitations: invs.filter(i => i.status === 'SENT').length,
           acceptedInvitations: invs.filter(i => i.status === 'ACCEPTED').length,
         });
-      } catch (err) {
+      } catch {
         setError('Lỗi khi tải dữ liệu dashboard');
       } finally {
         setLoading(false);

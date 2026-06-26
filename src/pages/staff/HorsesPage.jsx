@@ -15,12 +15,14 @@ export default function StaffHorsesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
+  const [selectedHorse, setSelectedHorse] = useState(null);
 
   // Vì frontend dùng getPublicAll tạm để load danh sách ngựa nếu ko có backend
   const load = () => {
     setLoading(true);
     // Thực tế sẽ gọi api.get('/staff/horses/pending')
-    horseService.adminGetAll ? horseService.adminGetAll() : horseService.getAll()
+    const fetchPromise = horseService.adminGetAll ? horseService.adminGetAll() : horseService.getAll();
+    fetchPromise
       .then((data) => {
         // Chỉ hiện những con cần duyệt (giả sử có trường status pending hoặc ratingVerified = false)
         const pending = data.filter(h => h.status === 'pending' || h.status === 'PENDING' || !h.ratingVerified);
@@ -30,7 +32,10 @@ export default function StaffHorsesPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line
+    load();
+  }, []);
 
   const handleApprove = (horseId) => {
     if (window.confirm('Xác nhận duyệt ngựa này hợp lệ?')) {
@@ -56,9 +61,14 @@ export default function StaffHorsesPage() {
     { key: 'status', label: 'Trạng thái', render: (h) => <StatusBadge status={h.status} /> },
     {
       key: 'actions', label: 'Hành động', render: (h) => (
-        <Button className="staff-btn-gold" size="sm" onClick={() => handleApprove(h.id)}>
-          Duyệt
-        </Button>
+        <div className="d-flex gap-2">
+          <Button variant="outline-light" size="sm" onClick={() => setSelectedHorse(h)}>
+            Chi tiết
+          </Button>
+          <Button className="staff-btn-gold" size="sm" onClick={() => handleApprove(h.id)}>
+            Duyệt
+          </Button>
+        </div>
       )
     }
   ];
@@ -81,6 +91,41 @@ export default function StaffHorsesPage() {
           <DataTable columns={columns} rows={horses} rowClassName={() => 'align-middle'} />
         </div>
       )}
+
+      <Modal show={!!selectedHorse} onHide={() => setSelectedHorse(null)} size="lg" centered>
+        <Modal.Header closeButton className="bg-dark text-white border-bottom-0">
+          <Modal.Title style={{ color: '#D4AF37' }}>Chi tiết ngựa: {selectedHorse?.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="bg-dark text-white pt-0">
+          {selectedHorse && (
+            <div className="row g-3">
+              <div className="col-md-6">
+                <p><strong>Chủ ngựa:</strong> {selectedHorse.ownerName || `ID: ${selectedHorse.ownerId}`}</p>
+                <p><strong>Tuổi:</strong> {selectedHorse.age}</p>
+                <p><strong>Giới tính:</strong> {selectedHorse.gender === 'M' ? 'Đực (Male)' : 'Cái (Female)'}</p>
+                <p><strong>Giống / Màu:</strong> {selectedHorse.breed}</p>
+              </div>
+              <div className="col-md-6">
+                <p><strong>Loại đăng ký:</strong> {selectedHorse.registrationType === 'NEW' ? 'Ngựa mới' : 'Tái đăng ký'}</p>
+                <p><strong>Rating khai báo:</strong> <span className="badge bg-warning text-dark">{selectedHorse.rating}</span></p>
+                <p><strong>Trạng thái hiện tại:</strong> <StatusBadge status={selectedHorse.status} /></p>
+              </div>
+              <div className="col-12 mt-3">
+                <h6 style={{ color: '#D4AF37' }}>Ghi chú sức khoẻ & Bằng chứng:</h6>
+                <div className="p-3 rounded" style={{ backgroundColor: '#2a2a35', whiteSpace: 'pre-wrap', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                  {selectedHorse.healthNote || 'Không có ghi chú.'}
+                </div>
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="bg-dark border-top-0">
+          <Button variant="secondary" onClick={() => setSelectedHorse(null)}>Đóng</Button>
+          <Button className="staff-btn-gold" onClick={() => { handleApprove(selectedHorse.id); setSelectedHorse(null); }}>
+            Duyệt hợp lệ
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <Toaster toast={toast} onClose={() => setToast(null)} />
     </div>

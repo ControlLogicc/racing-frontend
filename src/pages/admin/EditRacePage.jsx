@@ -126,12 +126,25 @@ export default function EditRacePage() {
             <div className="season-form-duo">
               <Form.Group className="season-field">
                 <Form.Label>Registration Open <span>*</span></Form.Label>
-                <Form.Control type="datetime-local" {...register('registrationOpenAt', { required: 'Ngay mo dang ky la bat buoc' })} isInvalid={!!errors.registrationOpenAt} />
+                <Form.Control type="datetime-local" {...register('registrationOpenAt', { 
+                  required: 'Ngay mo dang ky la bat buoc',
+                  validate: (val, formValues) => {
+                    if (formValues.raceTime && new Date(val) >= new Date(formValues.raceTime)) return 'Phải mở trước giờ đua';
+                    return true;
+                  }
+                })} isInvalid={!!errors.registrationOpenAt} />
                 <Form.Control.Feedback type="invalid">{errors.registrationOpenAt?.message}</Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="season-field">
                 <Form.Label>Registration Close <span>*</span></Form.Label>
-                <Form.Control type="datetime-local" {...register('registrationCloseAt', { required: 'Ngay dong dang ky la bat buoc' })} isInvalid={!!errors.registrationCloseAt} />
+                <Form.Control type="datetime-local" {...register('registrationCloseAt', { 
+                  required: 'Ngay dong dang ky la bat buoc',
+                  validate: (val, formValues) => {
+                    if (formValues.raceTime && new Date(val) >= new Date(formValues.raceTime)) return 'Phải đóng trước giờ đua';
+                    if (formValues.registrationOpenAt && new Date(val) <= new Date(formValues.registrationOpenAt)) return 'Phải đóng sau khi mở';
+                    return true;
+                  }
+                })} isInvalid={!!errors.registrationCloseAt} />
                 <Form.Control.Feedback type="invalid">{errors.registrationCloseAt?.message}</Form.Control.Feedback>
               </Form.Group>
             </div>

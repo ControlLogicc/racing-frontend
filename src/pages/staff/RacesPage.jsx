@@ -28,6 +28,7 @@ export default function StaffRacesPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line
     load();
   }, []);
 

@@ -43,7 +43,7 @@ const mapMeetings = (list) => (Array.isArray(list) ? list.map(mapMeeting) : []);
 
 // RaceMeetingRequest: { meetingName, seasonId, racecourseId, meetingDate }
 // racecourse (text) → gửi thêm racecourseId nếu có, nếu không có thì gửi 1 (default seed)
-const toMeetingPayload = ({ name, meetingName, seasonId, racecourseId, racecourse, date, meetingDate }) => ({
+const toMeetingPayload = ({ name, meetingName, seasonId, racecourseId, date, meetingDate }) => ({
   meetingName: meetingName || name,
   seasonId: seasonId ? Number(seasonId) : undefined,
   racecourseId: racecourseId ? Number(racecourseId) : 1,

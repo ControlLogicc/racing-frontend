@@ -157,6 +157,9 @@ const realService = {
   getByRace: (raceId) => api.get(`/entries/race/${raceId}`).then((r) => mapEntries(r.data)),
   getById: (id) => api.get(`/entries/${id}`).then((r) => mapEntry(r.data)),
 
+  // GET /entries/race/{raceId}/candidates — Danh sách Registration+Invitation ACCEPTED chưa tạo Entry
+  getCandidates: (raceId) => api.get(`/entries/race/${raceId}/candidates`).then((r) => Array.isArray(r.data) ? r.data : []),
+
   // Backend không có GET /entries — load từng race của staff rồi fetch entries theo race
   // /staff/races chưa impl → fallback /admin/races
   getAll: async () => {

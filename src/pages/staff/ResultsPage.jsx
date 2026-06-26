@@ -46,7 +46,10 @@ export default function StaffResultsPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line
+    load();
+  }, []);
 
   // Công bố chính thức: set race status → OFFICIAL
   const handlePublish = async (raceId) => {

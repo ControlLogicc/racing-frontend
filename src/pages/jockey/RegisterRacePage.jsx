@@ -1,20 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Form, Row, Col, Spinner } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
-import { raceService } from '../../services/raceService';
-import { horseService } from '../../services/horseService';
-import { registrationService } from '../../services/registrationService';
+import { jockeyService } from '../../services/jockeyService';
 import { prizeService } from '../../services/prizeService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
 import Loading from '../../components/common/Loading';
 import ErrorState from '../../components/common/ErrorState';
 import Toaster from '../../components/common/Toaster';
-import './owner-theme.css';
+import '../owner/owner-theme.css';
 
 const STEPS = [
-  { num: 1, label: 'Chọn thông tin', icon: '🏇' },
+  { num: 1, label: 'Chọn giải đấu', icon: '🏇' },
   { num: 2, label: 'Xác nhận', icon: '📋' },
   { num: 3, label: 'Hoàn thành', icon: '✅' },
 ];
@@ -83,23 +81,23 @@ function RacePreviewCard({ race, prizes = [] }) {
       <div className="lux-panel d-flex flex-column align-items-center justify-content-center text-center"
         style={{ minHeight: 280, color: '#3a3028' }}>
         <div style={{ fontSize: 52, marginBottom: 14, opacity: 0.5 }}>🏁</div>
-        <div style={{ fontSize: '0.85rem' }}>Chọn race để xem thông tin chi tiết</div>
+        <div style={{ fontSize: '0.85rem' }}>Chọn giải đua để xem thông tin chi tiết</div>
       </div>
     );
   }
   return (
     <div className="lux-panel" style={{ height: '100%' }}>
-      <div className="owner-hero-badge mb-3" style={{ fontSize: '0.68rem' }}>🏆 Thông tin race</div>
-      <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f0e8d0', marginBottom: 6 }}>{race.name}</div>
+      <div className="owner-hero-badge mb-3" style={{ fontSize: '0.68rem' }}>🏆 Thông tin giải đấu</div>
+      <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f0e8d0', marginBottom: 6 }}>{race.name || race.raceName}</div>
       <div style={{
         display: 'inline-block', background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)',
         borderRadius: 4, padding: '2px 10px', fontSize: '0.72rem', fontWeight: 700, color: '#D4AF37',
         textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 20,
-      }}>Open for Entry</div>
+      }}>Đang mở đăng ký</div>
 
       {[
-        ['📅 Ngày & giờ', formatDate(race.raceTime)],
-        ['📏 Cự ly', `${race.distance ?? '—'} m`],
+        ['📅 Ngày & giờ', formatDate(race.raceTime || race.scheduledTime)],
+        ['📏 Cự ly', `${race.distance || race.distanceMeters || '—'} m`],
         ['🏟️ Meeting', race.meetingName ?? '—'],
       ].map(([label, val]) => (
         <InfoRow key={label} label={label} value={val} />
@@ -143,33 +141,36 @@ function RacePreviewCard({ race, prizes = [] }) {
   );
 }
 
-export default function RegisterRacePage() {
+export default function JockeyRegisterRacePage() {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-
-  const preRaceId = searchParams.get('raceId') ? Number(searchParams.get('raceId')) : null;
 
   const [step, setStep] = useState(1);
   const [races, setRaces] = useState([]);
-  const [horses, setHorses] = useState([]);
   const [prizes, setPrizes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
 
-  const [raceId, setRaceId] = useState(preRaceId ? String(preRaceId) : '');
-  const [horseId, setHorseId] = useState('');
+  const [raceId, setRaceId] = useState('');
+  const [note, setNote] = useState('');
 
-  // Load races & horses
+  // Load available races for jockey
   useEffect(() => {
-    Promise.all([raceService.getOpen(), horseService.getByOwner()])
-      .then(([r, h]) => {
-        setRaces(r);
-        setHorses(h.filter((horse) => !horse.ownerId || Number(horse.ownerId) === Number(user.userId)));
+    jockeyService.getAvailableRaces()
+      .then((r) => {
+        // Map to consistent shape
+        const mapped = (Array.isArray(r) ? r : []).map(race => ({
+          ...race,
+          id: race.raceId ?? race.id,
+          name: race.raceName ?? race.name,
+          raceTime: race.scheduledTime ?? race.raceTime,
+          distance: race.distanceMeters ?? race.distance,
+        }));
+        setRaces(mapped);
       })
-      .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu.')))
+      .catch((err) => setError(getApiErrorMessage(err, 'Không tải được danh sách giải đua.')))
       .finally(() => setLoading(false));
   }, []);
 
@@ -178,24 +179,22 @@ export default function RegisterRacePage() {
     if (raceId) {
       prizeService.getByRace(Number(raceId)).then(setPrizes).catch(() => setPrizes([]));
     } else {
-      // eslint-disable-next-line
       setPrizes([]);
     }
   }, [raceId]);
 
   const selectedRace = races.find((r) => r.id === Number(raceId));
-  const selectedHorse = horses.find((h) => h.id === Number(horseId));
 
   const handleConfirm = async () => {
     setSubmitting(true);
     try {
-      await registrationService.create({
+      await jockeyService.registerForRace({
         raceId: Number(raceId),
-        horseId: Number(horseId),
+        note: note.trim() || undefined,
       });
       setStep(3);
     } catch (err) {
-      setToast({ message: getApiErrorMessage(err, 'Nộp đăng ký thất bại.'), variant: 'danger' });
+      setToast({ message: getApiErrorMessage(err, 'Đăng ký thất bại.'), variant: 'danger' });
     } finally {
       setSubmitting(false);
     }
@@ -208,8 +207,8 @@ export default function RegisterRacePage() {
     <div>
       <div className="page-header mb-4">
         <div>
-          <h2>Đăng ký đua</h2>
-          <p style={{ margin: 0, marginTop: 4 }}>Nộp đăng ký ngựa tham dự race</p>
+          <h2>Đăng ký ứng tuyển giải đấu</h2>
+          <p style={{ margin: 0, marginTop: 4 }}>Đăng ký vào giải đua để Owner có thể mời bạn cưỡi ngựa thi đấu</p>
         </div>
       </div>
 
@@ -220,51 +219,44 @@ export default function RegisterRacePage() {
         <Row className="g-4">
           <Col md={6}>
             <div className="lux-panel">
-              <div className="owner-section-label mb-4"><h5>Thông tin đăng ký</h5></div>
-              <Form
-                onSubmit={(e) => { e.preventDefault(); setStep(2); }}
-                className="d-flex flex-column gap-4"
-              >
-                {!preRaceId && (
-                  <Form.Group>
-                    <Form.Label>Race <span style={{ color: '#e55' }}>*</span></Form.Label>
-                    <Form.Select value={raceId} onChange={(e) => setRaceId(e.target.value)} required>
-                      <option value="">-- Chọn race --</option>
-                      {races.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-                    </Form.Select>
-                    {races.length === 0 && (
-                      <Form.Text style={{ color: '#e55' }}>Hiện không có race nào đang mở.</Form.Text>
-                    )}
-                  </Form.Group>
-                )}
+              <div className="owner-section-label mb-4"><h5>Chọn giải đấu</h5></div>
+              <Form className="d-flex flex-column gap-4">
+                <Form.Group>
+                  <Form.Label>Giải đua đang mở <span style={{ color: '#e55' }}>*</span></Form.Label>
+                  <Form.Select value={raceId} onChange={(e) => setRaceId(e.target.value)} required>
+                    <option value="">-- Chọn giải đấu --</option>
+                    {races.map((r) => <option key={r.id} value={r.id}>{r.name} — {r.raceTime ? formatDate(r.raceTime) : 'Chưa có lịch'}</option>)}
+                  </Form.Select>
+                  {races.length === 0 && (
+                    <Form.Text style={{ color: '#e55' }}>Hiện không có giải đua nào đang mở đăng ký.</Form.Text>
+                  )}
+                </Form.Group>
 
                 <Form.Group>
-                  <Form.Label>Ngựa <span style={{ color: '#e55' }}>*</span></Form.Label>
-                  <Form.Select value={horseId} onChange={(e) => setHorseId(e.target.value)} required>
-                    <option value="">-- Chọn ngựa --</option>
-                    {horses.map((h) => <option key={h.id} value={h.id}>{h.name}</option>)}
-                  </Form.Select>
-                  {horses.length === 0 && (
-                    <Form.Text style={{ color: '#e55' }}>Bạn chưa có ngựa. Hãy thêm ngựa trước.</Form.Text>
-                  )}
+                  <Form.Label>Ghi chú gửi ban tổ chức <span style={{ color: '#888', fontWeight: 400, fontSize: '0.8rem' }}>(tùy chọn)</span></Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    placeholder="Nhập lời nhắn gửi ban tổ chức (tối đa 500 ký tự)..."
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    maxLength={500}
+                  />
                 </Form.Group>
 
                 <div className="d-flex gap-3 pt-2">
                   <button
                     type="button"
                     className="btn-outline-gold"
-                    onClick={() => {
-                      setStep(1);
-                      setHorseId(null);
-                    }}
+                    onClick={() => navigate('/jockey/races')}
                   >
-                    Quay lại
+                    ← Quay lại
                   </button>
                   <button
                     type="button"
                     className="btn-gold"
                     onClick={() => setStep(2)}
-                    disabled={!selectedHorse}
+                    disabled={!raceId}
                   >
                     Tiếp tục ›
                   </button>
@@ -283,11 +275,13 @@ export default function RegisterRacePage() {
         <Row className="g-4">
           <Col md={6}>
             <div className="lux-panel">
-              <div className="owner-section-label mb-4"><h5>Xác nhận đăng ký</h5></div>
+              <div className="owner-section-label mb-4"><h5>Xác nhận ứng tuyển</h5></div>
 
-              <InfoRow label="Race" value={selectedRace?.name ?? '—'} />
-              <InfoRow label="Ngựa" value={selectedHorse?.name ?? '—'} />
-              <InfoRow label="Owner" value={user.fullName} />
+              <InfoRow label="Giải đấu" value={selectedRace?.name ?? '—'} />
+              <InfoRow label="Ngày đua" value={formatDate(selectedRace?.raceTime)} />
+              <InfoRow label="Cự ly" value={`${selectedRace?.distance ?? '—'} m`} />
+              <InfoRow label="Jockey" value={user.fullName} />
+              {note && <InfoRow label="Ghi chú" value={note} />}
 
               <div style={{
                 marginTop: 20, padding: '12px 14px',
@@ -295,7 +289,7 @@ export default function RegisterRacePage() {
                 borderLeft: '3px solid rgba(212,175,55,0.35)',
                 fontSize: '0.8rem', color: '#6a6250', lineHeight: 1.6,
               }}>
-                Đăng ký sẽ được ghi nhận ngay.
+                Sau khi đăng ký, Owner sẽ thấy bạn trong danh sách Jockey đã ứng tuyển và có thể gửi lời mời cho bạn.
               </div>
 
               <div className="d-flex gap-3 mt-4">
@@ -335,16 +329,28 @@ export default function RegisterRacePage() {
             <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f0e8d0', marginBottom: 8 }}>
               {selectedRace?.name}
             </div>
-            <div style={{ color: '#6a6250', fontSize: '0.88rem', marginBottom: 24 }}>
-              Ngựa <strong style={{ color: '#D4AF37' }}>{selectedHorse?.name}</strong> đã được đăng ký thành công.
+            <div style={{ color: '#6a6250', fontSize: '0.88rem', marginBottom: 8 }}>
+              Bạn đã ứng tuyển thành công vào giải đấu này.
+            </div>
+            <div style={{
+              color: '#8a7a60', fontSize: '0.8rem', marginBottom: 24,
+              background: 'rgba(212,175,55,0.05)', borderRadius: 8, padding: '10px 14px',
+            }}>
+              Owner sẽ xem hồ sơ của bạn và gửi lời mời nếu muốn bạn cưỡi ngựa thi đấu. Hãy theo dõi mục <strong style={{ color: '#D4AF37' }}>Lời mời đua</strong> để nhận lời mời nhé!
             </div>
 
             <div className="d-flex gap-3 justify-content-center flex-wrap">
               <button
-                className="btn-gold"
-                onClick={() => navigate('/owner/registrations')}
+                className="btn-outline-gold"
+                onClick={() => navigate('/jockey/races')}
               >
-                Xem đăng ký của tôi
+                Xem lịch đua của tôi
+              </button>
+              <button
+                className="btn-gold"
+                onClick={() => navigate('/jockey/invitations')}
+              >
+                Xem lời mời đua
               </button>
             </div>
           </div>

@@ -15,7 +15,9 @@ const mockService = {
       try {
         const u = JSON.parse(localStorage.getItem('user'));
         uid = u?.userId || u?.id;
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
     return Promise.resolve(mockStore.filter((r) => Number(r.ownerId) === Number(uid)));
   },
@@ -58,22 +60,23 @@ const mapReg = (r) => ({
   invitationId: r.invitationId,
   invitationStatus: r.invitationStatus,
   entryId: r.entryId,
-  canInviteJockey: r.canInviteJockey,
+  canInviteJockey: r.status === 'APPROVED',
 });
 const mapRegs = (list) => (Array.isArray(list) ? list.map(mapReg) : []);
 
 // ─── Real API (VITE_USE_MOCK=false) ───────────────────────────────────────────
 const realService = {
-  // Owner xem đăng ký của mình (đã APPROVED để mời jockey)
+  // Owner xem đăng ký của mình
   getByOwner: () => 
-    api.get('/owner/registrations/approved')
-       .then((r) => mapRegs(r.data))
+    api.get('/registrations')
+       .then((r) => mapRegs(r.data?.content || r.data))
        .catch(() => []),
 
-  // Staff xem registrations cho race được gán — BE trả thêm canApprove/canReject
-  getAll: (params) => api.get('/staff/registrations', { params }).then((r) => mapRegs(r.data)),
-  // Admin/Staff xem theo race cụ thể
-  getByRace: (raceId) => api.get(`/registrations/${raceId}`).then((r) => mapRegs(r.data)),
+  // Lấy tất cả đăng ký (Admin/Staff)
+  getAll: (params) => api.get('/registrations', { params }).then((r) => mapRegs(r.data?.content || r.data)),
+  
+  // Admin/Staff xem theo race cụ thể (Dùng /registrations/{raceId})
+  getByRace: (raceId) => api.get(`/registrations/${raceId}`).then((r) => mapRegs(r.data?.content || r.data)),
 
   // Owner tạo đăng ký: { raceId, horseId }
   create: (payload) => 

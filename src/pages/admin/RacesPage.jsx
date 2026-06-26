@@ -85,12 +85,25 @@ function RaceFormFields({ reg, errs, meetings: mtgs, conditions: conds, staff: s
       </Form.Group>
       <Form.Group>
         <Form.Label style={{ color: '#D4AF37' }}>Mở đăng ký <span style={{ color: '#e55' }}>*</span></Form.Label>
-        <Form.Control type="datetime-local" {...reg('registrationOpenAt', { required: 'Ngày mở đăng ký là bắt buộc' })} isInvalid={!!errs.registrationOpenAt} />
+        <Form.Control type="datetime-local" {...reg('registrationOpenAt', { 
+          required: 'Ngày mở đăng ký là bắt buộc',
+          validate: (val, formValues) => {
+            if (formValues.raceTime && new Date(val) >= new Date(formValues.raceTime)) return 'Phải mở trước giờ đua';
+            return true;
+          }
+        })} isInvalid={!!errs.registrationOpenAt} />
         <Form.Control.Feedback type="invalid">{errs.registrationOpenAt?.message}</Form.Control.Feedback>
       </Form.Group>
       <Form.Group>
         <Form.Label style={{ color: '#D4AF37' }}>Đóng đăng ký <span style={{ color: '#e55' }}>*</span></Form.Label>
-        <Form.Control type="datetime-local" {...reg('registrationCloseAt', { required: 'Thời hạn đăng ký là bắt buộc' })} isInvalid={!!errs.registrationCloseAt} />
+        <Form.Control type="datetime-local" {...reg('registrationCloseAt', { 
+          required: 'Thời hạn đăng ký là bắt buộc',
+          validate: (val, formValues) => {
+            if (formValues.raceTime && new Date(val) >= new Date(formValues.raceTime)) return 'Phải đóng trước giờ đua';
+            if (formValues.registrationOpenAt && new Date(val) <= new Date(formValues.registrationOpenAt)) return 'Phải đóng sau khi mở';
+            return true;
+          }
+        })} isInvalid={!!errs.registrationCloseAt} />
         <Form.Control.Feedback type="invalid">{errs.registrationCloseAt?.message}</Form.Control.Feedback>
       </Form.Group>
     </>

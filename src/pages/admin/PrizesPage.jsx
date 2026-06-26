@@ -363,6 +363,7 @@ export default function PrizesPage() {
     ? hasDuplicatePosition(editRow.raceId, editForm.position, editRow.id)
     : false;
 
+  // eslint-disable-next-line no-unused-vars
   const openCreate = (raceId = filterRaceId) => {
     setForm({ ...EMPTY_FORM, raceId: raceId ? String(raceId) : '' });
     setShowCreate(true);
@@ -398,6 +399,7 @@ export default function PrizesPage() {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const openEdit = (row) => {
     setEditRow(row);
     setEditForm({
