@@ -12,17 +12,7 @@ import Loading from '../../components/common/Loading';
 import ErrorState from '../../components/common/ErrorState';
 import EmptyState from '../../components/common/EmptyState';
 import StatusBadge from '../../components/common/StatusBadge';
-
-const GOLD = '#D4AF37';
-const CARD_STYLE = {
-  backgroundColor: '#1a1a1a',
-  color: '#f5f5f5',
-  border: '1px solid #333',
-};
-const HEADER_STYLE = {
-  backgroundColor: 'transparent',
-  borderBottom: `1px solid ${GOLD}`,
-};
+import './referee-theme.css'; // Import the new theme
 
 const REPORT_TYPE_LABEL = {
   PRE_RACE: 'Trước đua',
@@ -31,35 +21,24 @@ const REPORT_TYPE_LABEL = {
 };
 const REPORT_TYPE_BADGE = {
   PRE_RACE: 'info',
-  VIOLATION: 'warning',
-  DECISION: 'primary',
+  VIOLATION: 'danger',
+  DECISION: 'warning',
 };
 
 function StatCard({ label, value, hint, accent }) {
-  const border = {
-    primary: '#0d6efd',
-    success: '#198754',
-    warning: '#D4AF37',
-    danger: '#dc3545',
-    info: '#0dcaf0',
-  };
-
   return (
-    <div className="card h-100 shadow-sm" style={{ ...CARD_STYLE, borderLeft: `4px solid ${border[accent] || GOLD}` }}>
-      <div className="card-body">
-        <h6 className="text-uppercase mb-2" style={{ color: '#a0a0a0', fontSize: 12, letterSpacing: 1 }}>
-          {label}
-        </h6>
-        <h2 className="display-6 fw-bold mb-1" style={{ color: GOLD }}>{value}</h2>
-        {hint && <small className="text-muted">{hint}</small>}
-      </div>
+    <div className={`cyber-stat-card accent-${accent}`}>
+      <h6 className="stat-label">{label}</h6>
+      <h2 className="stat-value">{value}</h2>
+      {hint && <small className="stat-hint">{hint}</small>}
     </div>
   );
 }
 
 function ResultBadge({ resultStatus }) {
-  if (!resultStatus) return <Badge bg="secondary">Chưa có</Badge>;
-  return <Badge bg={STATUS_BADGE_VARIANT[resultStatus] || 'secondary'}>{STATUS_LABEL[resultStatus] || resultStatus}</Badge>;
+  if (!resultStatus) return <span className="cyber-badge cyber-badge-secondary">Chưa có</span>;
+  const variant = STATUS_BADGE_VARIANT[resultStatus] || 'secondary';
+  return <span className={`cyber-badge cyber-badge-${variant}`}>{STATUS_LABEL[resultStatus] || resultStatus}</span>;
 }
 
 const normalizeReportType = (report) => {
@@ -130,76 +109,73 @@ export default function RefereeDashboard() {
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return (
-    <div>
-      <div className="page-header">
+    <div className="referee-context">
+      <div className="referee-hero d-flex justify-content-between align-items-center">
         <div>
-          <h2>Xin chào, {name}</h2>
-          <p className="text-muted mb-0" style={{ fontSize: '0.9rem' }}>
-            Tổng quan các race được phân công, entry cần kiểm tra và báo cáo đã nộp.
+          <h2>SYSTEM ONLINE: {name}</h2>
+          <p className="mb-0">
+            &gt; SYSTEM STATUS: MONITORING RACES & ENTRIES...
           </p>
         </div>
         <Link to="/referee/checks">
-          <Button className="btn-gold-sm" style={{ padding: '8px 18px' }}>Mở trang kiểm tra</Button>
+          <Button className="btn-cyber btn-cyber-primary">MỞ TRÌNH KIỂM TRA</Button>
         </Link>
       </div>
 
       <div className="row g-4 mb-4">
         <div className="col-12 col-sm-6 col-xl-3">
-          <StatCard label="Race được phân công" value={races.length} hint="Theo referee hiện tại" accent="primary" />
+          <StatCard label="Race Phân Công" value={races.length} hint="Tổng số race phụ trách" accent="primary" />
         </div>
         <div className="col-12 col-sm-6 col-xl-3">
-          <StatCard label="Entry cần check" value={entriesNeedCheck.length} hint={`${readyEntries.length} entry đã ready`} accent="warning" />
+          <StatCard label="Cần Kiểm Tra" value={entriesNeedCheck.length} hint={`${readyEntries.length} entry đã ĐẠT`} accent="warning" />
         </div>
         <div className="col-12 col-sm-6 col-xl-3">
-          <StatCard label="Cần nhập kết quả" value={pendingResultRaces.length} hint="Race đã đóng entry, chưa có kết quả" accent="danger" />
+          <StatCard label="Chờ Kết Quả" value={pendingResultRaces.length} hint="Race cần nhập kết quả ngay" accent="danger" />
         </div>
         <div className="col-12 col-sm-6 col-xl-3">
-          <StatCard label="Báo cáo đã nộp" value={reports.length} hint={`${runningOrReviewRaces.length} race đang chạy/review`} accent="info" />
+          <StatCard label="Báo Cáo Vi Phạm" value={reports.length} hint={`${runningOrReviewRaces.length} race đang giám sát`} accent="success" />
         </div>
       </div>
 
       <div className="row g-4 mb-4">
         <div className="col-12 col-lg-8">
-          <div className="card shadow-sm" style={CARD_STYLE}>
-            <div className="card-header d-flex justify-content-between align-items-center" style={HEADER_STYLE}>
-              <h5 className="mb-0" style={{ color: GOLD }}>Race được phân công</h5>
+          <div className="cyber-panel">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h5 className="mb-0 text-info fw-bold" style={{ letterSpacing: '1px' }}>RACES ASSIGNED</h5>
               <Link to="/referee/checks">
-                <Button size="sm" style={{ borderColor: GOLD, color: GOLD, backgroundColor: 'transparent' }}>
-                  Kiểm tra entry
-                </Button>
+                <Button className="btn-cyber btn-cyber-sm">Kiểm Tra Entry</Button>
               </Link>
             </div>
 
             {races.length === 0 ? (
-              <div className="card-body"><EmptyState message="Bạn chưa được phân công race nào." /></div>
+              <EmptyState message="Không có race nào được phân công." />
             ) : (
               <div className="table-responsive">
-                <table className="table table-dark table-hover align-middle mb-0">
+                <table className="table-cyber w-100">
                   <thead>
                     <tr>
-                      <th style={{ color: GOLD, borderColor: '#333' }}>Race</th>
-                      <th style={{ color: GOLD, borderColor: '#333' }}>Meeting</th>
-                      <th style={{ color: GOLD, borderColor: '#333' }}>Thời gian</th>
-                      <th style={{ color: GOLD, borderColor: '#333' }}>Trạng thái</th>
-                      <th style={{ color: GOLD, borderColor: '#333' }}>Kết quả</th>
-                      <th style={{ color: GOLD, borderColor: '#333' }}>Hành động</th>
+                      <th>Race</th>
+                      <th>Meeting</th>
+                      <th>Thời gian</th>
+                      <th>Trạng thái</th>
+                      <th>Kết quả</th>
+                      <th>Hành động</th>
                     </tr>
                   </thead>
                   <tbody>
                     {races.map((race) => (
                       <tr key={race.id}>
-                        <td style={{ borderColor: '#2a2a2a' }}>{race.name}</td>
-                        <td style={{ borderColor: '#2a2a2a', color: '#a0a0a0' }}>{race.meetingName || '—'}</td>
-                        <td style={{ borderColor: '#2a2a2a', color: '#a0a0a0' }}>{formatDate(race.raceTime)}</td>
-                        <td style={{ borderColor: '#2a2a2a' }}><StatusBadge status={race.status} /></td>
-                        <td style={{ borderColor: '#2a2a2a' }}><ResultBadge resultStatus={race.resultStatus} /></td>
-                        <td style={{ borderColor: '#2a2a2a' }}>
+                        <td><strong className="text-white">{race.name}</strong></td>
+                        <td>{race.meetingName || '—'}</td>
+                        <td>{formatDate(race.raceTime)}</td>
+                        <td><StatusBadge status={race.status} /></td>
+                        <td><ResultBadge resultStatus={race.resultStatus} /></td>
+                        <td>
                           <div className="d-flex gap-2 flex-wrap">
-                            <Link to="/referee/checks"><Button size="sm" variant="outline-info">Check</Button></Link>
+                            <Link to="/referee/checks"><Button className="btn-cyber btn-cyber-sm">Check</Button></Link>
                             {canEnterResult(race.status) && !race.resultStatus && (
-                              <Link to="/referee/results"><Button size="sm" variant="warning">Nhập kết quả</Button></Link>
+                              <Link to="/referee/results"><Button className="btn-cyber btn-cyber-danger btn-cyber-sm">Nhập KQ</Button></Link>
                             )}
-                            <Link to="/referee/reports"><Button size="sm" variant="outline-warning">Báo cáo</Button></Link>
                           </div>
                         </td>
                       </tr>
@@ -212,48 +188,44 @@ export default function RefereeDashboard() {
         </div>
 
         <div className="col-12 col-lg-4">
-          <div className="card shadow-sm h-100" style={CARD_STYLE}>
-            <div className="card-header" style={HEADER_STYLE}>
-              <h5 className="mb-0" style={{ color: GOLD }}>Tình trạng báo cáo</h5>
-            </div>
-            <div className="card-body">
+          <div className="cyber-panel h-100">
+            <h5 className="mb-4 text-info fw-bold" style={{ letterSpacing: '1px' }}>REPORT STATUS</h5>
+            <div className="mb-4">
               {Object.entries(REPORT_TYPE_LABEL).map(([type, label]) => (
                 <div key={type} className="d-flex justify-content-between align-items-center mb-3">
-                  <Badge bg={REPORT_TYPE_BADGE[type]}>{label}</Badge>
-                  <span className="fw-bold" style={{ color: GOLD }}>{reportsByType[type] || 0}</span>
+                  <span className={`cyber-badge cyber-badge-${REPORT_TYPE_BADGE[type]}`}>{label}</span>
+                  <span className="fs-5 fw-bold text-white">{reportsByType[type] || 0}</span>
                 </div>
               ))}
-              <hr style={{ borderColor: '#333' }} />
-              <div className="d-grid gap-2">
-                <Link to="/referee/reports" className="btn btn-outline-warning btn-sm">Nộp báo cáo mới</Link>
-                <Link to="/referee/results" className="btn btn-outline-info btn-sm">Nhập kết quả đua</Link>
-              </div>
+            </div>
+            <hr style={{ borderColor: 'rgba(0, 229, 255, 0.2)' }} />
+            <div className="d-grid gap-3 mt-4">
+              <Link to="/referee/reports" className="btn-cyber btn-cyber-danger text-center text-decoration-none">NỘP BÁO CÁO MỚI</Link>
+              <Link to="/referee/results" className="btn-cyber text-center text-decoration-none">NHẬP KẾT QUẢ ĐUA</Link>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="card shadow-sm" style={CARD_STYLE}>
-        <div className="card-header d-flex justify-content-between align-items-center" style={HEADER_STYLE}>
-          <h5 className="mb-0" style={{ color: GOLD }}>Báo cáo gần đây</h5>
+      <div className="cyber-panel">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h5 className="mb-0 text-info fw-bold" style={{ letterSpacing: '1px' }}>RECENT REPORTS</h5>
           <Link to="/referee/reports">
-            <Button size="sm" style={{ borderColor: GOLD, color: GOLD, backgroundColor: 'transparent' }}>
-              Xem tất cả
-            </Button>
+            <Button className="btn-cyber btn-cyber-sm">Xem tất cả</Button>
           </Link>
         </div>
 
         {recentReports.length === 0 ? (
-          <div className="card-body"><EmptyState message="Bạn chưa nộp báo cáo nào." /></div>
+          <EmptyState message="Hệ thống chưa ghi nhận báo cáo nào." />
         ) : (
           <div className="table-responsive">
-            <table className="table table-dark table-hover align-middle mb-0">
+            <table className="table-cyber w-100">
               <thead>
                 <tr>
-                  <th style={{ color: GOLD, borderColor: '#333' }}>Race</th>
-                  <th style={{ color: GOLD, borderColor: '#333' }}>Loại</th>
-                  <th style={{ color: GOLD, borderColor: '#333' }}>Nội dung</th>
-                  <th style={{ color: GOLD, borderColor: '#333' }}>Ngày nộp</th>
+                  <th>Race</th>
+                  <th>Loại</th>
+                  <th>Nội dung</th>
+                  <th>Ngày nộp</th>
                 </tr>
               </thead>
               <tbody>
@@ -261,14 +233,16 @@ export default function RefereeDashboard() {
                   const type = normalizeReportType(report);
                   return (
                     <tr key={report.id}>
-                      <td style={{ borderColor: '#2a2a2a' }}>{report.raceName || `Race #${report.raceId}`}</td>
-                      <td style={{ borderColor: '#2a2a2a' }}>
-                        <Badge bg={REPORT_TYPE_BADGE[type] || 'secondary'}>{REPORT_TYPE_LABEL[type] || type}</Badge>
+                      <td><strong className="text-white">{report.raceName || `Race #${report.raceId}`}</strong></td>
+                      <td>
+                        <span className={`cyber-badge cyber-badge-${REPORT_TYPE_BADGE[type] || 'secondary'}`}>
+                          {REPORT_TYPE_LABEL[type] || type}
+                        </span>
                       </td>
-                      <td style={{ borderColor: '#2a2a2a', color: '#c0c0c0', maxWidth: 420 }}>
+                      <td style={{ maxWidth: 420 }}>
                         <span className="text-truncate d-block" title={report.content}>{report.content}</span>
                       </td>
-                      <td style={{ borderColor: '#2a2a2a', color: '#a0a0a0', whiteSpace: 'nowrap' }}>
+                      <td className="text-nowrap">
                         {formatDate(report.createdAt)}
                       </td>
                     </tr>

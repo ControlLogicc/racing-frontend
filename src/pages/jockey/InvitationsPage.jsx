@@ -37,7 +37,7 @@ function InvitationCard({ inv, race, prizes, onAccept, onDecline }) {
   const isPending = inv.status === RACE_INVITATION_STATUS.SENT || inv.status === RACE_INVITATION_STATUS.PENDING_RESPONSE;
 
   return (
-    <div className="dash-card" style={{ borderLeft: isPending ? '3px solid #D4AF37' : '3px solid #333' }}>
+    <div className="dash-card smooth-hover" style={{ borderLeft: isPending ? '3px solid #D4AF37' : '3px solid #333' }}>
       {/* Header */}
       <div className="d-flex justify-content-between align-items-start mb-3">
         <div>
@@ -159,7 +159,7 @@ export default function JockeyInvitationsPage() {
 
   return (
     <div>
-      <div className="page-header">
+      <div className="page-header smooth-hover">
         <h2>
           Lời mời đua
           {pendingCount > 0 && (
@@ -184,7 +184,9 @@ export default function JockeyInvitationsPage() {
               background: filter === tab.key ? '#D4AF37' : '#1e1e30',
               color: filter === tab.key ? '#000' : '#888',
               fontWeight: filter === tab.key ? 700 : 400,
+              transition: 'all 0.2s ease',
             }}
+            className="smooth-hover-btn"
           >
             {tab.label}
           </button>

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Form } from 'react-bootstrap';
+import { Form, Modal, Button, Row, Col } from 'react-bootstrap';
+import { useForm } from 'react-hook-form';
 import { horseService } from '../../services/horseService';
 import { resultService } from '../../services/resultService';
 import { seasonService } from '../../services/seasonService';
@@ -12,6 +13,7 @@ import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import DataTable from '../../components/common/DataTable';
 import Pagination from '../../components/common/Pagination';
+import Toaster from '../../components/common/Toaster';
 import './owner-theme.css';
 
 const PAGE_SIZE = 10;
@@ -44,8 +46,13 @@ export default function HorseDetailPage() {
   const [seasons, setSeasons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState(null);
   const [seasonFilter, setSeasonFilter] = useState('');
   const [page, setPage] = useState(1);
+  const [showEdit, setShowEdit] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+
+  const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
   useEffect(() => {
     Promise.all([
@@ -113,6 +120,39 @@ export default function HorseDetailPage() {
   if (error) return <ErrorState message={error} />;
   if (!horse) return <ErrorState message="Không tìm thấy ngựa." />;
 
+  const handleEditOpen = () => {
+    reset({
+      name: horse.name,
+      breed: horse.breed,
+      age: horse.age,
+      gender: horse.gender,
+      healthNote: horse.healthNote,
+      status: horse.status,
+    });
+    setShowEdit(true);
+  };
+
+  const handleEditSubmit = async (data) => {
+    try {
+      const updated = await horseService.update(horse.id, data);
+      setHorse(updated);
+      setToast({ message: 'Cập nhật thông tin ngựa thành công', variant: 'success' });
+      setShowEdit(false);
+    } catch (err) {
+      setToast({ message: getApiErrorMessage(err, 'Cập nhật thất bại'), variant: 'danger' });
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await horseService.remove(horse.id);
+      navigate('/owner/horses');
+    } catch (err) {
+      setToast({ message: getApiErrorMessage(err, 'Xoá ngựa thất bại'), variant: 'danger' });
+      setShowDelete(false);
+    }
+  };
+
   const cls = horse.rating != null ? getClassInfo(horse.rating) : null;
   const ratingPct = Math.min(100, horse.rating ?? 0);
 
@@ -120,16 +160,26 @@ export default function HorseDetailPage() {
     <div>
       {/* ── Back + Hero ──────────────────────────────────────── */}
       <div className="owner-hero mb-4">
-        <button
-          onClick={() => navigate('/owner/horses')}
-          style={{
-            background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)',
-            color: '#D4AF37', borderRadius: 8, padding: '6px 14px', fontSize: 13,
-            cursor: 'pointer', marginBottom: 20, fontWeight: 600,
-          }}
-        >
-          ← Chuồng ngựa
-        </button>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <button
+            onClick={() => navigate('/owner/horses')}
+            style={{
+              background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)',
+              color: '#D4AF37', borderRadius: 8, padding: '6px 14px', fontSize: 13,
+              cursor: 'pointer', fontWeight: 600,
+            }}
+          >
+            ← Chuồng ngựa
+          </button>
+          <div className="d-flex gap-2">
+            <button className="btn-outline-gold-sm" onClick={handleEditOpen}>
+              Sửa thông tin
+            </button>
+            <button className="btn-outline-gold-sm" style={{ color: '#e55', borderColor: '#e55' }} onClick={() => setShowDelete(true)}>
+              Xoá ngựa
+            </button>
+          </div>
+        </div>
 
         <div className="d-flex align-items-center gap-4 flex-wrap">
           {/* Avatar */}
@@ -149,6 +199,11 @@ export default function HorseDetailPage() {
                 {horse.name}
               </div>
               {cls && <span className={`horse-class-badge ${cls.css}`}>{cls.label}</span>}
+              {horse.ratingVerified === false && horse.registrationType === 'PREVIOUSLY_REGISTERED' && (
+                <span style={{ fontSize: '0.75rem', background: 'rgba(238,85,85,0.15)', color: '#ff6b6b', padding: '4px 8px', borderRadius: 6, fontWeight: 'bold' }}>
+                  Đang chờ duyệt điểm
+                </span>
+              )}
             </div>
             <div style={{ color: '#6a6250', fontSize: '0.88rem', marginBottom: 14 }}>
               {horse.breed} &nbsp;·&nbsp; {horse.age} tuổi
@@ -222,6 +277,100 @@ export default function HorseDetailPage() {
           </>
         )}
       </div>
+
+      {/* Edit Modal */}
+      <Modal show={showEdit} onHide={() => setShowEdit(false)} centered>
+        <Modal.Header closeButton style={{ background: '#1c1812', borderBottom: '1px solid #332b1f' }}>
+          <Modal.Title style={{ color: '#D4AF37' }}>Cập nhật thông tin ngựa</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleSubmit(handleEditSubmit)}>
+          <Modal.Body style={{ background: '#1c1812' }}>
+            <Row className="g-3">
+              <Col md={12}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Tên ngựa <span style={{ color: '#e55' }}>*</span></Form.Label>
+                  <Form.Control
+                    {...register('name', { required: 'Tên ngựa là bắt buộc' })}
+                    isInvalid={!!errors.name}
+                    style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Tuổi <span style={{ color: '#e55' }}>*</span></Form.Label>
+                  <Form.Control
+                    type="number"
+                    {...register('age', { required: 'Bắt buộc' })}
+                    isInvalid={!!errors.age}
+                    style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Giới tính</Form.Label>
+                  <Form.Select {...register('gender')} style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}>
+                    <option value="M">Đực</option>
+                    <option value="F">Cái</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Màu/Giống <span style={{ color: '#e55' }}>*</span></Form.Label>
+                  <Form.Control
+                    {...register('breed', { required: 'Bắt buộc' })}
+                    isInvalid={!!errors.breed}
+                    style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Trạng thái</Form.Label>
+                  <Form.Select {...register('status')} style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}>
+                    <option value="ACTIVE">Hoạt động (ACTIVE)</option>
+                    <option value="INJURED">Chấn thương (INJURED)</option>
+                    <option value="RETIRED">Nghỉ hưu (RETIRED)</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={12}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Ghi chú sức khoẻ</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    {...register('healthNote')}
+                    style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <Button variant="link" className="text-muted" style={{ textDecoration: 'none' }} onClick={() => setShowEdit(false)}>Hủy</Button>
+          <Button type="submit" className="btn-gold">Lưu thay đổi</Button>
+        </Modal.Footer>
+        </Form>
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal show={showDelete} onHide={() => setShowDelete(false)} centered>
+        <Modal.Header closeButton style={{ background: '#1c1812', borderBottom: '1px solid #332b1f' }}>
+          <Modal.Title style={{ color: '#e55' }}>Xác nhận xoá ngựa</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: '#1c1812', color: '#c8bea0' }}>
+          Bạn có chắc chắn muốn xoá ngựa <strong>{horse.name}</strong> không? Hành động này không thể hoàn tác và sẽ xoá các lịch sử liên quan.
+        </Modal.Body>
+        <Modal.Footer style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <Button variant="link" className="text-muted" style={{ textDecoration: 'none' }} onClick={() => setShowDelete(false)}>Hủy</Button>
+          <Button variant="danger" className="btn-danger-lux" onClick={handleDelete}>Vâng, Xoá</Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Toaster toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }

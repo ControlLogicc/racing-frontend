@@ -25,6 +25,7 @@ const MENU_CONFIG = {
   ],
   [ROLES.STAFF]: [
     { path: '/staff', label: 'Dashboard', icon: <Speedometer2 /> },
+    { path: '/staff/horses', label: 'Duyệt Ngựa', icon: <CheckCircleFill /> },
     { path: '/staff/races', label: 'Races của tôi', icon: <FlagFill /> },
   ],
   [ROLES.OWNER]: [
@@ -36,6 +37,7 @@ const MENU_CONFIG = {
   ],
   [ROLES.JOCKEY]: [
     { path: '/jockey', label: 'Dashboard', icon: <Speedometer2 /> },
+    { path: '/jockey/profile', label: 'Hồ sơ cá nhân', icon: <PeopleFill /> },
     { path: '/jockey/invitations', label: 'Lời mời đua', icon: <EnvelopePaperFill /> },
     { path: '/jockey/races', label: 'Lịch đua của tôi', icon: <Calendar3 /> },
   ],

@@ -1,0 +1,399 @@
+/* 
+=====================================================
+   JOCKEY THEME: ADRENALINE RUSH
+   Theme for Jockey role with high-speed, fiery vibes
+=====================================================
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&display=swap');
+
+/* Apply the dark aggressive theme to the entire body when in Jockey context */
+body:has(.jockey-context) {
+  background-color: #0b0e14;
+  background-image: 
+    radial-gradient(circle at top right, rgba(255, 87, 34, 0.05), transparent 400px),
+    radial-gradient(circle at bottom left, rgba(255, 235, 59, 0.03), transparent 300px);
+  color: #f1f5f9;
+}
+
+.jockey-context {
+  min-height: 100vh;
+  /* Use Teko or similar tight uppercase font for headers inside jockey context */
+}
+
+/* =====================================================
+   HERO BANNER
+===================================================== */
+.jockey-hero {
+  position: relative;
+  background: linear-gradient(110deg, #0f111a 0%, #1a1525 100%);
+  border-bottom: 4px solid #ff5722;
+  padding: 3.5rem 2.5rem;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  margin-bottom: 2rem;
+  /* Slant the whole banner slightly if desired, or just inner elements */
+  border-radius: 8px;
+  transform: skewX(-2deg);
+}
+
+.jockey-hero-content {
+  transform: skewX(2deg); /* Un-skew the content */
+  position: relative;
+  z-index: 2;
+}
+
+/* Speed lines animation in background */
+.jockey-hero::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0,
+    transparent 40px,
+    rgba(255, 87, 34, 0.03) 40px,
+    rgba(255, 87, 34, 0.03) 42px
+  );
+  transform: skewX(-25deg);
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.jockey-hero h2 {
+  font-family: 'Teko', sans-serif;
+  font-weight: 700;
+  font-size: 3.5rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0px #ff5722, -1px -1px 15px rgba(255, 87, 34, 0.5);
+  margin-bottom: 0.2rem;
+  line-height: 1;
+}
+
+.jockey-hero p {
+  color: #ffeb3b;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+/* =====================================================
+   ADRENALINE CARDS (SKEWED)
+===================================================== */
+.adrenaline-card {
+  background: rgba(20, 24, 36, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transform: skewX(-3deg);
+  border-radius: 4px;
+}
+
+.adrenaline-card > * {
+  transform: skewX(3deg); /* unskew contents */
+}
+
+.adrenaline-card:hover {
+  transform: skewX(-3deg) translateY(-5px);
+  box-shadow: 0 15px 40px rgba(255, 87, 34, 0.2);
+  border-color: rgba(255, 87, 34, 0.3);
+}
+
+/* Top accent line */
+.adrenaline-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 3px;
+  background: linear-gradient(90deg, #ff5722, #ffeb3b);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.adrenaline-card:hover::before {
+  transform: scaleX(1);
+}
+
+.card-header-adrenaline {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.card-header-adrenaline h5 {
+  font-family: 'Teko', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.card-body-adrenaline {
+  padding: 1.5rem;
+}
+
+/* =====================================================
+   STAT BLOCKS
+===================================================== */
+.stat-block {
+  padding: 1.5rem;
+  background: linear-gradient(145deg, #161b26 0%, #0d1017 100%);
+  border-left: 4px solid #ff5722;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-block .stat-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.stat-block .stat-value {
+  font-family: 'Teko', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 15px rgba(255, 87, 34, 0.4);
+}
+
+.stat-block.accent-yellow { border-left-color: #ffeb3b; }
+.stat-block.accent-yellow .stat-value { text-shadow: 0 0 15px rgba(255, 235, 59, 0.4); }
+
+.stat-block.accent-blue { border-left-color: #00e5ff; }
+.stat-block.accent-blue .stat-value { text-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
+
+/* =====================================================
+   ADRENALINE BUTTONS
+===================================================== */
+.btn-adrenaline {
+  background: linear-gradient(45deg, #ff5722, #f97316);
+  color: #fff;
+  border: none;
+  font-family: 'Teko', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.4rem 1.5rem;
+  transform: skewX(-10deg);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  z-index: 1;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.btn-adrenaline span {
+  display: inline-block;
+  transform: skewX(10deg); /* unskew text */
+}
+
+.btn-adrenaline::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: all 0.4s ease;
+  z-index: -1;
+}
+
+.btn-adrenaline:hover {
+  background: linear-gradient(45deg, #f97316, #ff9800);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(255, 87, 34, 0.6);
+  transform: skewX(-10deg) scale(1.05);
+}
+
+.btn-adrenaline:hover::after {
+  left: 100%;
+}
+
+.btn-adrenaline-outline {
+  background: transparent;
+  color: #ff5722;
+  border: 2px solid #ff5722;
+  font-family: 'Teko', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.3rem 1.5rem;
+  transform: skewX(-10deg);
+  transition: all 0.2s ease;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn-adrenaline-outline span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.btn-adrenaline-outline:hover {
+  background: rgba(255, 87, 34, 0.1);
+  color: #fff;
+  box-shadow: inset 0 0 10px rgba(255, 87, 34, 0.4);
+}
+
+.btn-adrenaline-danger {
+  background: linear-gradient(45deg, #e11d48, #be123c);
+  border: none;
+}
+.btn-adrenaline-danger:hover {
+  background: linear-gradient(45deg, #f43f5e, #e11d48);
+  box-shadow: 0 0 15px rgba(225, 29, 72, 0.6);
+}
+
+/* =====================================================
+   RACE SCHEDULE LIST (Dynamic)
+===================================================== */
+.race-track-item {
+  display: flex;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid #334155;
+  margin-bottom: 0.75rem;
+  padding: 1rem;
+  transition: all 0.2s ease;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.race-track-item:hover {
+  background: rgba(255, 87, 34, 0.05);
+  border-left-color: #ff5722;
+  transform: translateX(5px);
+}
+
+.race-time-block {
+  min-width: 80px;
+  font-family: 'Teko', sans-serif;
+  font-size: 1.8rem;
+  color: #ffeb3b;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.race-info-block {
+  flex: 1;
+  padding-left: 1rem;
+  border-left: 1px solid rgba(255,255,255,0.1);
+  margin-left: 1rem;
+}
+
+.race-info-block h6 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+  color: #fff;
+  text-transform: uppercase;
+  font-style: italic;
+}
+
+.race-gate-block {
+  font-family: 'Teko', sans-serif;
+  font-size: 2.5rem;
+  color: #fff;
+  opacity: 0.2;
+  font-weight: 700;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.race-track-item:hover .race-gate-block {
+  opacity: 0.8;
+  color: #ff5722;
+}
+
+/* =====================================================
+   INVITATION CARDS
+===================================================== */
+.invite-card {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid #334155;
+  border-radius: 4px;
+  padding: 1.5rem;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.invite-card:hover {
+  border-color: #ff5722;
+  box-shadow: 0 8px 20px rgba(255, 87, 34, 0.15);
+}
+
+.invite-card .horse-name {
+  font-family: 'Teko', sans-serif;
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 0;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.invite-card .owner-name {
+  color: #ffeb3b;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* =====================================================
+   PROFILE STATS HUD
+===================================================== */
+.hud-stat-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid #334155;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin: 0 auto;
+}
+
+.hud-stat-circle::after {
+  content: '';
+  position: absolute;
+  top: -4px; left: -4px; right: -4px; bottom: -4px;
+  border-radius: 50%;
+  border: 4px solid transparent;
+  border-top-color: #ff5722;
+  border-right-color: #ffeb3b;
+  transform: rotate(-45deg);
+}
+
+.hud-stat-circle .hud-val {
+  font-family: 'Teko', sans-serif;
+  font-size: 3rem;
+  color: #fff;
+  line-height: 1;
+}
+
+.hud-stat-circle .hud-lbl {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}

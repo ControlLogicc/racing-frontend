@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
 import { resultService } from '../../services/resultService';
 import { raceService } from '../../services/raceService';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -9,9 +8,8 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
-import RaceResultTable from '../../components/shared/RaceResultTable';
+import './spectator-theme.css';
 
-// Fix #2: appendChild + setTimeout revokeObjectURL để tránh download fail trên Firefox
 function exportCSV(race, results) {
   const sorted = [...results].sort((a, b) => Number(a.position) - Number(b.position));
   const header = ['Vị trí', 'Ngựa', 'Jockey', 'Thời gian', 'Giải thưởng (VND)'];
@@ -23,7 +21,7 @@ function exportCSV(race, results) {
     formatCurrency(r.prize),
   ]);
   const csvContent = [header, ...rows].map((row) => row.join(',')).join('\n');
-  const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -34,7 +32,7 @@ function exportCSV(race, results) {
   setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
-export default function RaceResultPage() {
+export default function SpectatorRaceResultPage() {
   const { raceId } = useParams();
   const navigate = useNavigate();
   const [results, setResults] = useState([]);
@@ -42,7 +40,6 @@ export default function RaceResultPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Fix #5: guard NaN khi raceId thiếu hoặc không phải số
   const numericId = Number(raceId);
 
   const load = () => {
@@ -66,45 +63,75 @@ export default function RaceResultPage() {
   const refetch = () => { setLoading(true); setError(''); load(); };
 
   return (
-    <div className="pub-page">
-      <section className="container pt-5 pb-5">
-        {/* Header */}
-        <div className="d-flex align-items-center gap-3 mb-4 flex-wrap">
-          <Button variant="outline-secondary" size="sm" onClick={() => navigate(-1)}>
-            ← Quay lại
-          </Button>
-          <div className="pub-section-title-wrap flex-grow-1 mb-0">
-            <h2 className="pub-section-title mb-0">
-              Kết quả {race ? `— ${race.name}` : ''}
-            </h2>
-          </div>
+    <div className="spectator-context">
+      <div className="spec-hero" style={{ padding: '2rem 3rem' }}>
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <button className="btn-vip" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }} onClick={() => navigate(-1)}>
+            ← TRỞ LẠI
+          </button>
           {!loading && !error && results.length > 0 && (
-            <Button className="btn-gold-sm" size="sm" onClick={() => exportCSV(race, results)}>
-              Xuất CSV
-            </Button>
+            <button className="btn-vip" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }} onClick={() => exportCSV(race, results)}>
+              XUẤT BẢNG KẾT QUẢ
+            </button>
           )}
         </div>
+        <h2 style={{ fontSize: '2.2rem' }}>KẾT QUẢ {race ? `— ${race.name.toUpperCase()}` : ''}</h2>
+        <p>BẢNG VÀNG THÀNH TÍCH CỦA NHỮNG NHÀ VÔ ĐỊCH</p>
+      </div>
 
-        {/* Race meta */}
+      <div className="vip-panel">
         {race && !loading && (
-          <div className="dash-card d-flex flex-wrap gap-4 mb-4" style={{ fontSize: 14 }}>
-            <div><span style={{ color: '#888' }}>Race: </span><strong style={{ color: '#D4AF37' }}>{race.name}</strong></div>
-            {race.raceTime && <div><span style={{ color: '#888' }}>Giờ đua: </span><span style={{ color: '#ccc' }}>{formatDate(race.raceTime)}</span></div>}
-            {race.distance && <div><span style={{ color: '#888' }}>Cự ly: </span><span style={{ color: '#ccc' }}>{race.distance} m</span></div>}
-            <div><span style={{ color: '#888' }}>Số tham dự: </span><span style={{ color: '#ccc' }}>{results.length} ngựa</span></div>
+          <div className="d-flex flex-wrap gap-4 mb-4" style={{ fontSize: '0.9rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1.5rem' }}>
+            <div><span style={{ color: '#64748b' }}>Race: </span><strong style={{ color: '#fbbf24', fontSize: '1rem' }}>{race.name}</strong></div>
+            {race.raceTime && <div><span style={{ color: '#64748b' }}>Giờ đua: </span><span style={{ color: '#e2e8f0' }}>{formatDate(race.raceTime)}</span></div>}
+            {race.distance && <div><span style={{ color: '#64748b' }}>Cự ly: </span><span style={{ color: '#e2e8f0' }}>{race.distance} m</span></div>}
+            <div><span style={{ color: '#64748b' }}>Số tham dự: </span><span style={{ color: '#e2e8f0' }}>{results.length} chiến mã</span></div>
           </div>
         )}
 
-        {/* Table */}
         {loading && <Loading />}
         {!loading && error && <ErrorState message={error} onRetry={refetch} />}
         {!loading && !error && results.length === 0 && (
           <EmptyState message="Kết quả race này chưa được công bố." />
         )}
+        
         {!loading && !error && results.length > 0 && (
-          <RaceResultTable rows={results} showPrize highlightFirst />
+          <div className="vip-table-wrapper">
+            <table className="vip-table">
+              <thead>
+                <tr>
+                  <th>Vị trí</th>
+                  <th>Chiến mã</th>
+                  <th>Jockey</th>
+                  <th>Thời gian</th>
+                  <th className="text-end">Giải thưởng (VND)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...results].sort((a, b) => Number(a.position) - Number(b.position)).map((r) => {
+                  const isWinner = r.position === 1;
+                  return (
+                    <tr key={r.id} style={isWinner ? { background: 'rgba(251,191,36,0.05)' } : {}}>
+                      <td>
+                        {isWinner ? <span className="vip-badge vip-badge-gold" style={{ fontSize: '1rem', padding: '6px 14px' }}>🏆 1</span> : 
+                        <span style={{ opacity: 0.8 }}>#{r.position}</span>}
+                      </td>
+                      <td>
+                        <strong style={isWinner ? { color: '#fbbf24', fontSize: '1.1rem' } : {}}>{r.horseName}</strong>
+                      </td>
+                      <td>{r.jockeyName}</td>
+                      <td>{r.finishTime || '—'}</td>
+                      <td className="text-end">
+                        {r.prize ? <span style={{ color: isWinner ? '#fbbf24' : '#34d399', fontWeight: 600 }}>{formatCurrency(r.prize)}</span> : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
-      </section>
+      </div>
     </div>
   );
 }

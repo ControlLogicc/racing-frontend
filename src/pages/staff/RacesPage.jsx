@@ -10,6 +10,7 @@ import ErrorState from '../../components/common/ErrorState';
 import DataTable from '../../components/common/DataTable';
 import StatusBadge from '../../components/common/StatusBadge';
 import Toaster from '../../components/common/Toaster';
+import './staff-theme.css';
 
 export default function StaffRacesPage() {
   const [races, setRaces] = useState([]);
@@ -31,17 +32,17 @@ export default function StaffRacesPage() {
   }, []);
 
   const columns = [
-    { key: 'raceNo', label: 'Race No', render: (val) => val || '—' },
+    { key: 'raceNo', label: 'Race No', render: (row) => row.raceNo || '—' },
     { key: 'name', label: 'Tên Race' },
-    { key: 'meetingName', label: 'Meeting', render: (val) => val || '—' },
-    { key: 'raceTime', label: 'Ngày đua', render: (val) => formatDate(val) },
-    { key: 'status', label: 'Trạng thái', render: (val) => <StatusBadge status={val} /> },
+    { key: 'meetingName', label: 'Meeting', render: (row) => row.meetingName || '—' },
+    { key: 'raceTime', label: 'Ngày đua', render: (row) => formatDate(row.raceTime) },
+    { key: 'status', label: 'Trạng thái', render: (row) => <StatusBadge status={row.status} /> },
     {
       key: 'actions',
       label: 'Hành động',
-      render: (_, race) => (
-        <Link to={`/staff/races/${race.id}`}>
-          <Button variant="outline-primary" size="sm">Xem chi tiết</Button>
+      render: (row) => (
+        <Link to={`/staff/races/${row.id}`}>
+          <Button className="staff-btn-outline" size="sm">Xem chi tiết</Button>
         </Link>
       ),
     },
@@ -52,14 +53,16 @@ export default function StaffRacesPage() {
   if (races.length === 0) return <EmptyState message="Bạn chưa được phân công race nào. Liên hệ Admin để được gán." />;
 
   return (
-    <div>
-      <div className="page-header">
+    <div className="staff-theme-wrapper p-3">
+      <div className="page-header mb-4">
         <div>
-          <h2>Races của tôi</h2>
-          <p className="text-muted mb-0">Danh sách các cuộc đua bạn được phân công phụ trách.</p>
+          <h2 className="staff-header-title">Races của tôi</h2>
+          <p className="staff-subtitle mb-0">Danh sách các cuộc đua bạn được phân công phụ trách.</p>
         </div>
       </div>
-      <DataTable columns={columns} data={races} />
+      <div className="staff-card p-3">
+        <DataTable columns={columns} rows={races} rowClassName={() => 'align-middle'} />
+      </div>
       <Toaster toast={toast} onClose={() => setToast(null)} />
     </div>
   );

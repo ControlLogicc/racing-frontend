@@ -43,6 +43,8 @@ const mapHorse = (h) => ({
   ownerId: h.ownerId,
   ownerName: h.ownerName,
   totalWins: h.totalWins,
+  registrationType: h.registrationType,
+  ratingVerified: h.ratingVerified,
 });
 const mapHorses = (list) => (Array.isArray(list) ? list.map(mapHorse) : []);
 
@@ -53,25 +55,29 @@ const realService = {
   getByOwner: () => api.get('/owner/horses').then((r) => mapHorses(r.data)),
   getById: (id) => api.get(`/owner/horses/${id}`).then((r) => mapHorse(r.data)),
 
-  // Payload tạo ngựa: { horseName, color, age, gender, healthNote }
-  // Frontend gửi shape { name, age, breed } → map sang backend field names
-  create: ({ name, horseName, age, breed, color, gender, healthNote }) =>
+  // Payload tạo ngựa: { horseName, color, age, gender, healthNote, registrationType, claimedScore, claimedClass }
+  create: ({ name, horseName, age, breed, color, gender, healthNote, registrationType, claimedScore, claimedClass }) =>
     api.post('/owner/horses', {
       horseName: horseName || name,
       color: color || breed || '',
-      age,
+      age: Number(age),
       gender: gender || 'M',
       healthNote: healthNote || '',
+      registrationType: registrationType || 'NEW',
+      ...(registrationType === 'PREVIOUSLY_REGISTERED' && {
+        claimedScore: Number(claimedScore),
+        claimedClass: Number(claimedClass)
+      })
     }).then((r) => mapHorse(r.data)),
 
   update: (id, { name, horseName, age, breed, color, gender, healthNote, status }) =>
     api.put(`/owner/horses/${id}`, {
       horseName: horseName || name,
       color: color || breed || '',
-      age,
+      age: Number(age),
       gender: gender || 'M',
       healthNote: healthNote || '',
-      status,
+      status: status || 'ACTIVE',
     }).then((r) => mapHorse(r.data)),
 
   remove: (id) => api.delete(`/owner/horses/${id}`).then((r) => r.data),
@@ -79,12 +85,16 @@ const realService = {
   // Spectator / public: thử /horses (nếu có), fallback []
   getPublicAll: () => api.get('/admin/horses').then((r) => mapHorses(r.data)).catch(() => []),
 
-  // Admin: quản lý toàn bộ ngựa
+  // Admin/Staff: quản lý toàn bộ ngựa
   adminGetAll: (params) => api.get('/admin/horses', { params }).then((r) => mapHorses(r.data)),
   adminGetById: (id) => api.get(`/admin/horses/${id}`).then((r) => mapHorse(r.data)),
   adminCreate: (payload) => api.post('/admin/horses', payload).then((r) => mapHorse(r.data)),
   adminUpdate: (id, payload) => api.put(`/admin/horses/${id}`, payload).then((r) => mapHorse(r.data)),
   adminRemove: (id) => api.delete(`/admin/horses/${id}`).then((r) => r.data),
+
+  // Staff: Verify Horse Rating
+  verifyRating: (id, action = 'APPROVE') => 
+    api.put(`/staff/horses/${id}/verify-rating`, { action }).then((r) => mapHorse(r.data)),
 };
 
 export const horseService = USE_MOCK ? mockService : realService;

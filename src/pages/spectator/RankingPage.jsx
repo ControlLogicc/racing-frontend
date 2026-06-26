@@ -4,7 +4,7 @@ import { getApiErrorMessage } from '../../utils/apiError';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
-import DataTable from '../../components/common/DataTable';
+import './spectator-theme.css'; // Import VIP Theme
 
 export default function SpectatorRankingPage() {
   const [results, setResults] = useState([]);
@@ -40,25 +40,53 @@ export default function SpectatorRankingPage() {
     }, {})
   ).sort((a, b) => b.wins - a.wins);
 
-  const columns = [
-    { key: 'rank', label: '#', render: (row) => ranking.indexOf(row) + 1 },
-    { key: 'horseName', label: 'Ngựa' },
-    { key: 'jockeyName', label: 'Jockey' },
-    { key: 'wins', label: 'Số lần về nhất' },
-    { key: 'races', label: 'Số race đã đua' },
-  ];
-
   return (
-    <div className="pub-page">
-      <section className="container pt-5">
-        <div className="pub-section-title-wrap"><h2 className="pub-section-title">Bảng xếp hạng</h2></div>
+    <div className="spectator-context">
+      <div className="spec-hero">
+        <h2>BẢNG PHONG THẦN</h2>
+        <p>VINH DANH NHỮNG CHIẾN MÃ VÀ NÀI NGỰA XUẤT SẮC NHẤT</p>
+      </div>
+
+      <div className="vip-panel">
         {loading && <Loading />}
         {!loading && error && <ErrorState message={error} onRetry={refetch} />}
         {!loading && !error && ranking.length === 0 && <EmptyState message="Chưa có dữ liệu xếp hạng." />}
+        
         {!loading && !error && ranking.length > 0 && (
-          <DataTable columns={columns} rows={ranking} rowKey="horseName" />
+          <div className="vip-table-wrapper">
+            <table className="vip-table">
+              <thead>
+                <tr>
+                  <th>Hạng</th>
+                  <th>Chiến mã</th>
+                  <th>Jockey</th>
+                  <th>Số trận thắng</th>
+                  <th>Tổng số trận</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ranking.map((row, index) => {
+                  const rank = index + 1;
+                  return (
+                    <tr key={row.horseName}>
+                      <td>
+                        {rank === 1 && <span className="vip-badge vip-badge-gold">👑 #1</span>}
+                        {rank === 2 && <span className="vip-badge vip-badge-emerald">🥈 #2</span>}
+                        {rank === 3 && <span className="vip-badge" style={{ background: '#cd7f32', color: '#fff' }}>🥉 #3</span>}
+                        {rank > 3 && <span>#{rank}</span>}
+                      </td>
+                      <td><strong>{row.horseName}</strong></td>
+                      <td>{row.jockeyName}</td>
+                      <td><span style={{ color: '#fbbf24', fontWeight: 600 }}>{row.wins}</span></td>
+                      <td>{row.races}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
-      </section>
+      </div>
     </div>
   );
 }

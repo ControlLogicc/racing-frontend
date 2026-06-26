@@ -26,6 +26,7 @@ import CreateUserPage from '../pages/admin/CreateUserPage';
 
 // Staff
 import StaffDashboardOverview from '../pages/staff/Dashboard';
+import StaffHorsesPage from '../pages/staff/HorsesPage';
 import StaffInvitationsPage from '../pages/staff/InvitationsPage';
 import StaffRegistrationsPage from '../pages/staff/RegistrationsPage';
 import StaffEntriesPage from '../pages/staff/EntriesPage';
@@ -66,6 +67,7 @@ import HorseDetailPage from '../pages/owner/HorseDetailPage';
 
 // Jockey
 import JockeyDashboardOverview from '../pages/jockey/Dashboard';
+import JockeyProfilePage from '../pages/jockey/ProfilePage';
 import JockeyInvitationsPage from '../pages/jockey/InvitationsPage';
 import JockeyRacesPage from '../pages/jockey/RacesPage';
 
@@ -172,6 +174,9 @@ export default function AppRoutes() {
           <Route path="staff" element={
             <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffDashboardOverview /></ProtectedRoute>
           } />
+          <Route path="staff/horses" element={
+            <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffHorsesPage /></ProtectedRoute>
+          } />
           <Route path="staff/races" element={
             <ProtectedRoute allowedRoles={[ROLES.STAFF]}><StaffRacesPage /></ProtectedRoute>
           } />
@@ -217,6 +222,9 @@ export default function AppRoutes() {
           {/* Jockey: xem & phản hồi lời mời, lịch đua của mình */}
           <Route path="jockey" element={
             <ProtectedRoute allowedRoles={[ROLES.JOCKEY]}><JockeyDashboardOverview /></ProtectedRoute>
+          } />
+          <Route path="jockey/profile" element={
+            <ProtectedRoute allowedRoles={[ROLES.JOCKEY]}><JockeyProfilePage /></ProtectedRoute>
           } />
           <Route path="jockey/invitations" element={
             <ProtectedRoute allowedRoles={[ROLES.JOCKEY]}><JockeyInvitationsPage /></ProtectedRoute>

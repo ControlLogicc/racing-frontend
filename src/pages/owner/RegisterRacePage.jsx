@@ -251,19 +251,21 @@ export default function RegisterRacePage() {
                 <div className="d-flex gap-3 pt-2">
                   <button
                     type="button"
-                    className="btn-ghost"
-                    style={{ padding: '9px 20px', fontSize: '0.82rem' }}
-                    onClick={() => navigate(-1)}
+                    className="btn-outline-gold"
+                    onClick={() => {
+                      setStep(1);
+                      setHorseId(null);
+                    }}
                   >
-                    Huỷ
+                    Quay lại
                   </button>
                   <button
-                    type="submit"
-                    className="btn-gold btn-gold-sm"
-                    style={{ padding: '9px 28px', flex: 1 }}
-                    disabled={!raceId || !horseId}
+                    type="button"
+                    className="btn-gold"
+                    onClick={() => setStep(3)}
+                    disabled={!selectedHorse}
                   >
-                    Tiếp tục xem lại →
+                    Tiếp tục ›
                   </button>
                 </div>
               </Form>
@@ -297,15 +299,14 @@ export default function RegisterRacePage() {
 
               <div className="d-flex gap-3 mt-4">
                 <button
-                  className="btn-ghost"
-                  style={{ padding: '9px 20px', fontSize: '0.82rem' }}
+                  className="btn-outline-gold"
                   onClick={() => setStep(1)}
                 >
                   ← Quay lại
                 </button>
                 <button
-                  className="btn-gold btn-gold-sm"
-                  style={{ padding: '9px 0', flex: 1 }}
+                  className="btn-gold"
+                  style={{ flex: 1 }}
                   onClick={handleConfirm}
                   disabled={submitting}
                 >
@@ -339,15 +340,13 @@ export default function RegisterRacePage() {
 
             <div className="d-flex gap-3 justify-content-center flex-wrap">
               <button
-                className="btn-ghost"
-                style={{ padding: '10px 22px', fontSize: '0.82rem' }}
+                className="btn-outline-gold"
                 onClick={() => navigate('/owner/registrations')}
               >
                 Xem đăng ký của tôi
               </button>
               <button
-                className="btn-gold btn-gold-sm"
-                style={{ padding: '10px 22px', fontSize: '0.82rem' }}
+                className="btn-gold"
                 onClick={() => navigate('/owner/invitations')}
               >
                 Mời Jockey ngay →

@@ -24,9 +24,25 @@ export default function HorseProfileCard({ horse, showHistory = false }) {
       {/* Header */}
       <div className="horse-card-header">
         <div className="d-flex align-items-center gap-3">
-          <div className="horse-card-avatar">🐎</div>
+          <div className="horse-card-avatar" style={{ position: 'relative' }}>
+            🐎
+            {horse.ratingVerified === false && horse.registrationType === 'PREVIOUSLY_REGISTERED' && (
+              <span title="Chờ duyệt bằng chứng" style={{
+                position: 'absolute', top: -5, right: -5, 
+                background: '#e55', width: 14, height: 14, 
+                borderRadius: '50%', border: '2px solid #2a2418'
+              }}></span>
+            )}
+          </div>
           <div className="flex-grow-1 min-width-0">
-            <div className="horse-card-name">{horse.name}</div>
+            <div className="horse-card-name d-flex align-items-center gap-2">
+              {horse.name}
+              {horse.ratingVerified === false && horse.registrationType === 'PREVIOUSLY_REGISTERED' && (
+                <span style={{ fontSize: '0.65rem', background: 'rgba(238,85,85,0.15)', color: '#ff6b6b', padding: '2px 6px', borderRadius: 4, whiteSpace: 'nowrap' }}>
+                  Chờ duyệt điểm
+                </span>
+              )}
+            </div>
             <div className="horse-card-owner">
               {horse.ownerName}
             </div>

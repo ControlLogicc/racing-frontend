@@ -18,5 +18,5 @@ export const HOME_ROUTE_BY_ROLE = {
   [ROLES.SPECTATOR]: '/spectator',
 };
 
-// Chỉ 3 role này được tự đăng ký qua form public
-export const SELF_REGISTER_ROLES = [ROLES.OWNER, ROLES.JOCKEY, ROLES.SPECTATOR];
+// Chỉ các role này được tự đăng ký qua form public
+export const SELF_REGISTER_ROLES = [ROLES.OWNER, ROLES.SPECTATOR];

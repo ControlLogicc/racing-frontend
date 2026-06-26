@@ -45,33 +45,41 @@ export default function HomePage() {
     <div className="pub-page">
       {/* ── HERO ─────────────────────────────────── */}
       <section className="pub-hero">
-        <div className="pub-hero-inner">
-          <div className="pub-hero-badge">FPT Horse Racing System</div>
+        <div className="vip-particles">
+          <div className="particle p1"></div>
+          <div className="particle p2"></div>
+          <div className="particle p3"></div>
+          <div className="particle p4"></div>
+          <div className="particle p5"></div>
+        </div>
 
-          <h1 className="pub-hero-title">
-            <span>Hệ Thống</span>
-            <span>Quản Lý Đua Ngựa</span>
-            <span>Chuyên Nghiệp</span>
+        <div className="pub-hero-inner">
+          <div className="pub-hero-badge vip-glow">FPT Horse Racing System</div>
+
+          <h1 className="pub-hero-title vip-shimmer">
+            <span>THE ULTIMATE</span>
+            <span>RACING</span>
+            <span>EXPERIENCE</span>
           </h1>
 
           <p className="pub-hero-sub">
-            Nền tảng toàn diện quản lý mùa giải, cuộc đua, ngựa và jockey —
-            minh bạch, chính xác và đẳng cấp.
+            Nơi hội tụ của những huyền thoại đường đua. Trải nghiệm cảm giác nghẹt thở,
+            đẳng cấp và minh bạch tuyệt đối trên nền tảng thể thao quý tộc.
           </p>
 
           {!user ? (
             <div className="pub-hero-actions">
-              <Link to="/register" className="pub-btn-gold">Đăng ký ngay</Link>
-              <Link to="/login" className="pub-btn-outline">Đăng nhập</Link>
+              <Link to="/register" className="pub-btn-gold vip-btn-effect">BẮT ĐẦU NGAY</Link>
+              <Link to="/login" className="pub-btn-outline vip-btn-effect">ĐĂNG NHẬP</Link>
             </div>
           ) : (
             <div className="pub-hero-actions">
-              <Link to="/schedule" className="pub-btn-gold">Xem lịch đua</Link>
-              <Link to="/horses" className="pub-btn-outline">Hồ sơ ngựa</Link>
+              <Link to="/schedule" className="pub-btn-gold vip-btn-effect">LỊCH ĐUA VIP</Link>
+              <Link to="/horses" className="pub-btn-outline vip-btn-effect">CHIẾN MÃ</Link>
             </div>
           )}
 
-          <div className="pub-hero-stats">
+          <div className="pub-hero-stats vip-glass">
             {STATS.map((s) => (
               <div className="pub-hero-stat" key={s.label}>
                 <div className="pub-stat-value">{s.value}</div>
@@ -88,7 +96,7 @@ export default function HomePage() {
       <section className="pub-section">
         <div className="container">
           <div className="pub-section-label">
-            <span className="pub-section-badge">Tính năng</span>
+            <span className="pub-section-badge">ĐẶC QUYỀN</span>
           </div>
           <h2 className="pub-section-title">Khám phá nền tảng</h2>
           <p className="pub-section-sub">
@@ -98,7 +106,7 @@ export default function HomePage() {
           <div className="row g-4">
             {FEATURES.map((f) => (
               <div className="col-12 col-sm-6 col-lg-3" key={f.id}>
-                <div className="pub-feature-card">
+                <div className="pub-feature-card vip-hover">
                   <div className="pub-feature-icon">{f.icon}</div>
                   <h5>{f.title}</h5>
                   <p>{f.desc}</p>
@@ -118,7 +126,7 @@ export default function HomePage() {
       <section className="pub-section">
         <div className="container">
           <div className="pub-section-label">
-            <span className="pub-section-badge">Quy trình</span>
+            <span className="pub-section-badge">QUY TRÌNH</span>
           </div>
           <h2 className="pub-section-title">Cách hoạt động</h2>
           <p className="pub-section-sub">
@@ -152,8 +160,8 @@ export default function HomePage() {
               chuyên nghiệp ngay hôm nay.
             </p>
             <div className="pub-hero-actions">
-              <Link to="/register" className="pub-btn-gold">Bắt đầu ngay</Link>
-              <Link to="/schedule" className="pub-btn-outline">Xem lịch đua</Link>
+              <Link to="/register" className="pub-btn-gold vip-btn-effect">TRỞ THÀNH HỘI VIÊN</Link>
+              <Link to="/schedule" className="pub-btn-outline vip-btn-effect">XEM LỊCH ĐUA</Link>
             </div>
           </div>
         </section>

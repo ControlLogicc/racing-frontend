@@ -64,4 +64,26 @@ export const MOCK_RACES = [
     resultStatus: RACE_RESULT_STATUS.REVIEWED_BY_REFEREE,
     assignedRefereeIds: [1],
   },
+  {
+    id: 6,
+    meetingId: 1,
+    meetingName: 'Staff Test Meeting',
+    name: 'Race 6 - Test Duyệt Đăng Ký',
+    distance: 1200,
+    raceTime: '2026-07-01T10:00:00',
+    status: RACE_STATUS.OPEN_FOR_ENTRY,
+    resultStatus: null,
+    assignedRefereeIds: [3],
+  },
+  {
+    id: 7,
+    meetingId: 1,
+    meetingName: 'Staff Test Meeting',
+    name: 'Race 7 - Test Bốc Thăm Cổng',
+    distance: 1400,
+    raceTime: '2026-07-02T10:00:00',
+    status: RACE_STATUS.CLOSED_FOR_ENTRY,
+    resultStatus: null,
+    assignedRefereeIds: [3],
+  }
 ];

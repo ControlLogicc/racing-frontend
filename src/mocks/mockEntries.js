@@ -47,4 +47,43 @@ export const MOCK_ENTRIES = [
     status: RACE_ENTRY_STATUS.REMOVED,
     createdAt: '2026-06-12T08:00:00',
   },
+  {
+    id: 5,
+    registrationId: 6,
+    raceId: 7,
+    raceName: 'Race 7 - Test Bốc Thăm Cổng',
+    horseName: 'Hắc Dạ',
+    jockeyId: 5,
+    jockeyName: 'Jockey User',
+    status: RACE_ENTRY_STATUS.DECLARED,
+    createdAt: '2026-06-25T10:00:00',
+    gateNumber: null,
+    handicapWeight: 55.5
+  },
+  {
+    id: 6,
+    registrationId: 7,
+    raceId: 7,
+    raceName: 'Race 7 - Test Bốc Thăm Cổng',
+    horseName: 'Bạch Tuyết',
+    jockeyId: 22,
+    jockeyName: 'K. Pham',
+    status: RACE_ENTRY_STATUS.DECLARED,
+    createdAt: '2026-06-25T11:00:00',
+    gateNumber: null,
+    handicapWeight: 54.0
+  },
+  {
+    id: 7,
+    registrationId: 8,
+    raceId: 7,
+    raceName: 'Race 7 - Test Bốc Thăm Cổng',
+    horseName: 'Tia Chớp',
+    jockeyId: 23,
+    jockeyName: 'T. Nguyen',
+    status: RACE_ENTRY_STATUS.DECLARED,
+    createdAt: '2026-06-25T12:00:00',
+    gateNumber: null,
+    handicapWeight: 56.0
+  }
 ];

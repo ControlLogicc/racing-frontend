@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Badge, Button, Form, Modal } from 'react-bootstrap';
+import { Button, Form, Modal } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
 import { entryService } from '../../services/entryService';
 import { raceService } from '../../services/raceService';
@@ -11,8 +11,8 @@ import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import StatusBadge from '../../components/common/StatusBadge';
 import Toaster from '../../components/common/Toaster';
+import './referee-theme.css'; // Import Cyber Theme
 
-const GOLD = '#D4AF37';
 const CHECKABLE_STATUSES = new Set([
   RACE_ENTRY_STATUS.DECLARED,
   RACE_ENTRY_STATUS.PASSED,
@@ -135,110 +135,123 @@ export default function RefereeChecksPage() {
   if (error) return <ErrorState message={error} onRetry={refetch} />;
 
   return (
-    <div>
-      <div className="page-header">
+    <div className="referee-context">
+      <div className="referee-hero d-flex justify-content-between align-items-center">
         <div>
-          <h2>Kiểm tra trước đua</h2>
-          <p className="text-muted mb-0" style={{ fontSize: '0.9rem' }}>
-            Referee kiểm tra cân nặng, tình trạng entry và chốt sẵn sàng trước khi race chạy.
+          <h2>EQUIPMENT & WEIGHT CHECK</h2>
+          <p className="mb-0">
+            &gt; SYSTEM: VERIFYING ENTRY COMPLIANCE BEFORE RACE
           </p>
         </div>
       </div>
 
       <div className="row g-3 mb-4">
-        {[
-          ['Entry cần check', stats.total],
-          ['Chưa cân', stats.pending],
-          ['Cần xem lại', stats.review],
-          ['Sẵn sàng', stats.ready],
-        ].map(([label, value]) => (
-          <div className="col-12 col-sm-6 col-xl-3" key={label}>
-            <div className="dash-card" style={{ minHeight: 92 }}>
-              <div style={{ color: '#888', fontSize: 12, textTransform: 'uppercase', fontWeight: 700 }}>{label}</div>
-              <div style={{ color: GOLD, fontSize: 30, fontWeight: 800 }}>{value}</div>
-            </div>
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="cyber-stat-card accent-primary">
+            <h6 className="stat-label">Entry Cần Check</h6>
+            <h2 className="stat-value">{stats.total}</h2>
           </div>
-        ))}
+        </div>
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="cyber-stat-card accent-warning">
+            <h6 className="stat-label">Chưa Cân</h6>
+            <h2 className="stat-value text-warning">{stats.pending}</h2>
+          </div>
+        </div>
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="cyber-stat-card accent-danger">
+            <h6 className="stat-label">Cần Xem Lại</h6>
+            <h2 className="stat-value">{stats.review}</h2>
+          </div>
+        </div>
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="cyber-stat-card accent-success">
+            <h6 className="stat-label">Sẵn Sàng</h6>
+            <h2 className="stat-value">{stats.ready}</h2>
+          </div>
+        </div>
       </div>
 
-      <div className="dash-card mb-4">
-        <Form.Group style={{ maxWidth: 360 }}>
-          <Form.Label style={{ color: GOLD }}>Race</Form.Label>
-          <Form.Select value={selectedRaceId} onChange={(e) => setSelectedRaceId(e.target.value)}>
-            <option value="">Tất cả race được phân công</option>
+      <div className="cyber-panel mb-4">
+        <Form.Group style={{ maxWidth: 400 }}>
+          <Form.Label className="cyber-form-label">Bộ Lọc Race</Form.Label>
+          <Form.Select className="cyber-input" value={selectedRaceId} onChange={(e) => setSelectedRaceId(e.target.value)}>
+            <option value="">-- Hiển thị tất cả race --</option>
             {races.map((race) => (
               <option key={race.id} value={race.id}>
-                {race.name} ({race.meetingName || 'không có meeting'})
+                {race.name} ({race.meetingName || 'Không có meeting'})
               </option>
             ))}
           </Form.Select>
         </Form.Group>
       </div>
 
-      {visibleEntries.length === 0 ? (
-        <EmptyState message="Không có entry nào cần referee kiểm tra." />
-      ) : (
-        <div className="table-responsive">
-          <table className="table table-dark table-hover align-middle mb-0">
-            <thead>
-              <tr>
-                <th style={{ color: GOLD }}>Race</th>
-                <th style={{ color: GOLD }}>Entry</th>
-                <th style={{ color: GOLD }}>Cổng</th>
-                <th style={{ color: GOLD }}>Handicap</th>
-                <th style={{ color: GOLD }}>Cân thực tế</th>
-                <th style={{ color: GOLD }}>Check cân</th>
-                <th style={{ color: GOLD }}>Trạng thái</th>
-                <th style={{ color: GOLD }}>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleEntries.map((entry) => {
-                const weightStatus = entry.weightCheckStatus || getWeightStatus(entry.actualWeight, entry.handicapWeight);
-                const race = raceMap.get(Number(entry.raceId));
-                return (
-                  <tr key={entry.id}>
-                    <td>
-                      <div style={{ fontWeight: 700 }}>{entry.raceName || race?.name || `Race #${entry.raceId}`}</div>
-                      <small className="text-muted">{formatDate(entry.scheduledTime || race?.raceTime)}</small>
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 700 }}>{entry.horseName}</div>
-                      <small className="text-muted">{entry.jockeyName || 'Chưa có jockey'}</small>
-                    </td>
-                    <td>{entry.gateNumber || entry.drawNumber || '—'}</td>
-                    <td>{entry.handicapWeight ? `${entry.handicapWeight} kg` : '—'}</td>
-                    <td>{entry.actualWeight ? `${entry.actualWeight} kg` : '—'}</td>
-                    <td><Badge bg={WEIGHT_BADGE[weightStatus]}>{WEIGHT_LABEL[weightStatus]}</Badge></td>
-                    <td><StatusBadge status={entry.status || RACE_ENTRY_STATUS.DECLARED} /></td>
-                    <td>
-                      <div className="d-flex gap-2 flex-wrap">
-                        <Button size="sm" className="btn-gold-sm" onClick={() => openWeight(entry)}>Check cân</Button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div className="cyber-panel">
+        <h5 className="mb-4 text-info fw-bold" style={{ letterSpacing: '1px' }}>ENTRY LIST</h5>
+        {visibleEntries.length === 0 ? (
+          <EmptyState message="Không có entry nào cần kiểm tra lúc này." />
+        ) : (
+          <div className="table-responsive">
+            <table className="table-cyber w-100">
+              <thead>
+                <tr>
+                  <th>Race</th>
+                  <th>Entry</th>
+                  <th>Cổng</th>
+                  <th>Handicap</th>
+                  <th>Cân thực tế</th>
+                  <th>Check cân</th>
+                  <th>Trạng thái</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visibleEntries.map((entry) => {
+                  const weightStatus = entry.weightCheckStatus || getWeightStatus(entry.actualWeight, entry.handicapWeight);
+                  const race = raceMap.get(Number(entry.raceId));
+                  return (
+                    <tr key={entry.id}>
+                      <td>
+                        <div style={{ fontWeight: 700, color: '#fff' }}>{entry.raceName || race?.name || `Race #${entry.raceId}`}</div>
+                        <small className="text-muted">{formatDate(entry.scheduledTime || race?.raceTime)}</small>
+                      </td>
+                      <td>
+                        <div style={{ fontWeight: 700, color: '#fff' }}>{entry.horseName}</div>
+                        <small className="text-info">{entry.jockeyName || 'Chưa có jockey'}</small>
+                      </td>
+                      <td className="fw-bold">{entry.gateNumber || entry.drawNumber || '—'}</td>
+                      <td>{entry.handicapWeight ? `${entry.handicapWeight} kg` : '—'}</td>
+                      <td>{entry.actualWeight ? `${entry.actualWeight} kg` : '—'}</td>
+                      <td><span className={`cyber-badge cyber-badge-${WEIGHT_BADGE[weightStatus]}`}>{WEIGHT_LABEL[weightStatus]}</span></td>
+                      <td><StatusBadge status={entry.status || RACE_ENTRY_STATUS.DECLARED} /></td>
+                      <td>
+                        <Button className="btn-cyber btn-cyber-sm" onClick={() => openWeight(entry)}>Check Cân</Button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
-      <Modal show={!!weightRow} onHide={() => setWeightRow(null)} centered>
-        <Modal.Header closeButton style={{ background: '#1a1a2e', borderColor: '#333' }}>
-          <Modal.Title style={{ color: GOLD }}>Kiểm tra cân nặng</Modal.Title>
+      <Modal show={!!weightRow} onHide={() => setWeightRow(null)} centered className="cyber-modal">
+        <Modal.Header closeButton>
+          <Modal.Title>KIỂM TRA CÂN NẶNG</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ background: '#1a1a2e', color: '#e0d6b0' }}>
+        <Modal.Body style={{ background: '#0f172a', color: '#cbd5e1' }}>
           {weightRow && (
             <Form onSubmit={handleSaveWeight} className="d-flex flex-column gap-3">
-              <div>
-                <div style={{ color: '#888', fontSize: 12 }}>Entry</div>
-                <strong>{weightRow.horseName}</strong>
-                <div className="text-muted" style={{ fontSize: 13 }}>{weightRow.raceName}</div>
+              <div className="mb-2">
+                <div className="cyber-form-label mb-1">ĐỐI TƯỢNG KIỂM TRA</div>
+                <strong className="fs-5 text-white">{weightRow.horseName}</strong>
+                <div className="text-info">{weightRow.raceName}</div>
               </div>
               <Form.Group>
-                <Form.Label style={{ color: GOLD }}>Handicap weight (kg)</Form.Label>
+                <Form.Label className="cyber-form-label">Handicap weight (kg)</Form.Label>
                 <Form.Control
+                  className="cyber-input"
                   type="number"
                   min="0"
                   step="0.1"
@@ -248,8 +261,9 @@ export default function RefereeChecksPage() {
                 />
               </Form.Group>
               <Form.Group>
-                <Form.Label style={{ color: GOLD }}>Cân thực tế (kg)</Form.Label>
+                <Form.Label className="cyber-form-label text-warning">Cân thực tế (kg)</Form.Label>
                 <Form.Control
+                  className="cyber-input"
                   type="number"
                   min="0"
                   step="0.1"
@@ -258,25 +272,26 @@ export default function RefereeChecksPage() {
                   required
                   autoFocus
                 />
-                <Form.Text style={{ color: '#aaa' }}>
-                  Sai số từ 0.5kg trở xuống được tính đạt theo backend.
+                <Form.Text className="text-muted font-monospace small">
+                  &gt; Sai số từ 0.5kg trở xuống được tính ĐẠT tự động.
                 </Form.Text>
               </Form.Group>
               <Form.Group>
-                <Form.Label style={{ color: GOLD }}>Ghi chú</Form.Label>
+                <Form.Label className="cyber-form-label">Ghi chú (Tùy chọn)</Form.Label>
                 <Form.Control
+                  className="cyber-input"
                   as="textarea"
                   rows={2}
                   maxLength={500}
                   value={preCheckNote}
                   onChange={(e) => setPreCheckNote(e.target.value)}
-                  placeholder="Ghi chú tình trạng entry nếu cần..."
+                  placeholder="Nhập ghi chú hoặc biên bản nếu có..."
                 />
               </Form.Group>
-              <div className="d-flex justify-content-end gap-2">
-                <Button variant="secondary" onClick={() => setWeightRow(null)}>Huỷ</Button>
-                <Button type="submit" className="btn-gold-sm" disabled={saving}>
-                  {saving ? 'Đang lưu...' : 'Lưu kiểm tra'}
+              <div className="d-flex justify-content-end gap-3 mt-3">
+                <Button variant="link" className="text-muted text-decoration-none" onClick={() => setWeightRow(null)}>HỦY BỎ</Button>
+                <Button type="submit" className="btn-cyber btn-cyber-primary" disabled={saving}>
+                  {saving ? 'ĐANG XỬ LÝ...' : 'LƯU HỒ SƠ KIỂM TRA'}
                 </Button>
               </div>
             </Form>
