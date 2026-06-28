@@ -1,0 +1,370 @@
+.season-admin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.season-wizard-shell {
+  background:
+    linear-gradient(180deg, rgba(17, 17, 17, 0.98), rgba(10, 10, 10, 0.98));
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  overflow: visible;
+}
+
+.season-stepper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 0;
+  padding: 18px 28px 16px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.14);
+}
+
+.season-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #b7b1a2;
+}
+
+.season-step-node {
+  position: relative;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #5c5c5c;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #0d0d0d;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.season-step-icon {
+  display: none;
+}
+
+.season-step.active {
+  color: #ffc400;
+}
+
+.season-step.active .season-step-node {
+  color: #171100;
+  background: linear-gradient(180deg, #ffd95d 0%, #ffc400 100%);
+  border-color: #ffc400;
+  box-shadow: 0 0 0 5px rgba(255, 196, 0, 0.12);
+}
+
+.season-step-line {
+  position: absolute;
+  top: 17px;
+  left: calc(50% + 20px);
+  width: calc(100% - 40px);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.season-step.active .season-step-line {
+  border-color: #ffc400;
+}
+
+.season-step-label {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.season-wizard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 8px;
+  padding: 8px;
+}
+
+.season-panel {
+  min-height: 350px;
+  background: #101010;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+
+.season-form-panel {
+  padding: 24px;
+}
+
+.season-panel-heading {
+  margin-bottom: 22px;
+}
+
+.season-panel-heading h2 {
+  color: #ffc400;
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.season-panel-heading p {
+  color: #8f8f8f;
+  font-size: 12px;
+  margin: 0;
+}
+
+.season-field {
+  margin-bottom: 24px;
+}
+
+.season-field .form-label {
+  color: #e8e1cb;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.season-field .form-label span {
+  color: #ff3d3d;
+}
+
+.season-field .form-control {
+  min-height: 44px;
+  color: #e9e4d6;
+  background: #0e0e0e;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+.season-field .form-select {
+  min-height: 44px;
+  color: #e9e4d6;
+  background-color: #0e0e0e;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+.condition-class-dropdown {
+  width: 100%;
+}
+
+.condition-class-toggle {
+  width: 100%;
+  min-height: 44px;
+  color: #e9e4d6 !important;
+  background: #0e0e0e !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 2px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px !important;
+  text-align: left;
+}
+
+.condition-class-toggle:focus,
+.condition-class-toggle.show {
+  border-color: rgba(255, 196, 0, 0.65) !important;
+  box-shadow: 0 0 0 3px rgba(255, 196, 0, 0.12) !important;
+}
+
+.condition-class-menu {
+  width: 100%;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #111 !important;
+  border: 1px solid rgba(255, 196, 0, 0.35) !important;
+  border-radius: 2px !important;
+  z-index: 1080;
+}
+
+.condition-class-menu .dropdown-item {
+  color: #e9e4d6;
+  font-size: 13px;
+}
+
+.condition-class-menu .dropdown-item:hover,
+.condition-class-menu .dropdown-item:focus,
+.condition-class-menu .dropdown-item.active {
+  color: #171100;
+  background: #ffc400;
+}
+
+.season-form-duo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.season-field .form-control:focus {
+  background: #111;
+  color: #fff;
+  border-color: rgba(255, 196, 0, 0.65);
+  box-shadow: 0 0 0 3px rgba(255, 196, 0, 0.12);
+}
+
+.season-summary-panel {
+  padding: 28px 24px;
+}
+
+.season-summary-icon {
+  display: block;
+  margin: 4px auto 8px;
+  color: #ffc400;
+  font-size: 25px;
+}
+
+.season-summary-panel h3 {
+  color: #ffc400;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 0 22px;
+}
+
+.season-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.season-summary-row {
+  display: grid;
+  grid-template-columns: 22px minmax(92px, 1fr) minmax(120px, 1.4fr);
+  align-items: center;
+  min-height: 42px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e9e4d6;
+  font-size: 12px;
+}
+
+.season-summary-row svg {
+  color: #d6d6d6;
+}
+
+.season-summary-row span {
+  color: #c8c2b2;
+  font-weight: 600;
+}
+
+.season-summary-row strong {
+  color: #f5f5f5;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.season-wizard-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.season-footer-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.season-btn {
+  min-width: 150px;
+  height: 42px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.season-btn-ghost,
+.season-btn-outline {
+  color: #ffc400 !important;
+  background: #0d0d0d !important;
+  border: 1px solid rgba(255, 196, 0, 0.55) !important;
+}
+
+.season-btn-ghost {
+  min-width: 96px;
+}
+
+.season-btn-primary {
+  color: #171100 !important;
+  background: linear-gradient(180deg, #ffd95d 0%, #ffc400 100%) !important;
+  border: 1px solid #ffc400 !important;
+}
+
+.season-btn:hover {
+  filter: brightness(1.08);
+}
+
+.season-list-section {
+  background: rgba(17, 17, 17, 0.72);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.season-create-toggle {
+  min-height: 38px;
+  padding: 0 18px;
+  color: #171100 !important;
+  background: linear-gradient(180deg, #ffd95d 0%, #ffc400 100%) !important;
+  border: 1px solid #ffc400 !important;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.season-create-toggle:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 1100px) {
+  .season-wizard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .season-stepper {
+    grid-template-columns: repeat(5, 1fr);
+    padding: 14px 8px;
+  }
+
+  .season-step-label {
+    display: none;
+  }
+
+  .season-step-icon {
+    display: inline-flex;
+  }
+
+  .season-step-number {
+    display: none;
+  }
+
+  .season-wizard-footer,
+  .season-footer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .season-btn {
+    width: 100%;
+  }
+
+  .season-form-panel,
+  .season-summary-panel {
+    padding: 18px;
+  }
+
+  .season-form-duo {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
