@@ -107,7 +107,7 @@ export default function StaffRegistrationsPage() {
             </span>
           )}
         </h4>
-        <p className="mb-0" style={{ color: '#888', fontSize: 13 }}>
+        <p className="mb-0" style={{ color: '#9ca3af', fontSize: 13 }}>
           Danh sách đăng ký race từ owner. Xem chi tiết ngựa để kiểm tra thông tin trước khi race bắt đầu.
         </p>
       </div>
@@ -202,40 +202,40 @@ export default function StaffRegistrationsPage() {
             <div className="d-flex flex-column gap-2">
               <div className="row g-3">
                 <div className="col-6">
-                  <div style={{ color: '#64748b', fontSize: 12, textTransform: 'uppercase' }}>Tên ngựa</div>
+                  <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Tên ngựa</div>
                   <div style={{ fontWeight: 600, color: '#fff' }}>{horseDetail.name || horseDetail.horseName || selectedReg.horseName}</div>
                 </div>
                 <div className="col-6">
-                  <div style={{ color: '#64748b', fontSize: 12, textTransform: 'uppercase' }}>Trạng thái</div>
+                  <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Trạng thái</div>
                   <StatusBadge status={horseDetail.status} />
                 </div>
                 <div className="col-6">
-                  <div style={{ color: '#64748b', fontSize: 12, textTransform: 'uppercase' }}>Tuổi</div>
+                  <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Tuổi</div>
                   <div>{horseDetail.age ?? '—'}</div>
                 </div>
                 <div className="col-6">
-                  <div style={{ color: '#64748b', fontSize: 12, textTransform: 'uppercase' }}>Giới tính</div>
+                  <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Giới tính</div>
                   <div>{horseDetail.gender ?? '—'}</div>
                 </div>
                 <div className="col-6">
-                  <div style={{ color: '#64748b', fontSize: 12, textTransform: 'uppercase' }}>Màu lông</div>
+                  <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Màu lông</div>
                   <div>{horseDetail.color ?? '—'}</div>
                 </div>
                 <div className="col-6">
-                  <div style={{ color: '#64748b', fontSize: 12, textTransform: 'uppercase' }}>Class</div>
+                  <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Class</div>
                   <div>{horseDetail.horseClass ?? horseDetail.class ?? '—'}</div>
                 </div>
                 <div className="col-6">
-                  <div style={{ color: '#64748b', fontSize: 12, textTransform: 'uppercase' }}>Rating hiện tại</div>
+                  <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Rating hiện tại</div>
                   <div style={{ color: '#D4AF37', fontWeight: 700 }}>{horseDetail.currentScore ?? horseDetail.rating ?? '—'}</div>
                 </div>
                 <div className="col-6">
-                  <div style={{ color: '#64748b', fontSize: 12, textTransform: 'uppercase' }}>Owner</div>
+                  <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Owner</div>
                   <div>{horseDetail.ownerName ?? selectedReg.ownerName ?? '—'}</div>
                 </div>
                 {horseDetail.healthNote && (
                   <div className="col-12">
-                    <div style={{ color: '#64748b', fontSize: 12, textTransform: 'uppercase' }}>Ghi chú sức khoẻ</div>
+                    <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Ghi chú sức khoẻ</div>
                     <div style={{ color: '#fbbf24' }}>{horseDetail.healthNote}</div>
                   </div>
                 )}
@@ -244,7 +244,7 @@ export default function StaffRegistrationsPage() {
           )}
         </Modal.Body>
         <Modal.Footer style={{ background: '#1e293b', borderColor: 'rgba(212,175,55,0.2)' }}>
-          <Button variant="link" style={{ color: '#64748b', textDecoration: 'none' }} onClick={() => setSelectedReg(null)}>
+          <Button variant="link" style={{ color: '#94a3b8', textDecoration: 'none' }} onClick={() => setSelectedReg(null)}>
             Đóng
           </Button>
         </Modal.Footer>

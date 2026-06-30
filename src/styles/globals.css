@@ -13,7 +13,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Montserrat', sans-serif;
 }
 
 body, html, #root {
@@ -22,6 +21,7 @@ body, html, #root {
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
+  font-family: 'Montserrat', sans-serif;
 }
 
 /* =========================================
@@ -270,5 +270,5 @@ body, html, #root {
 /* Fix Bootstrap text-muted trên nền tối — mặc định BS5 ra màu gần đen, không đọc được */
 .text-muted,
 .form-text {
-  color: #64748b !important;
+  color: #94a3b8 !important;
 }

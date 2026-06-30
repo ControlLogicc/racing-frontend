@@ -136,7 +136,7 @@ export default function StaffRacesPage() {
     <div className="staff-theme-wrapper p-3">
       <div className="staff-card mb-4 p-4">
         <h4 className="mb-1" style={{ color: '#D4AF37', fontWeight: 700 }}>Races của tôi</h4>
-        <p className="mb-0" style={{ color: '#888', fontSize: 13 }}>Danh sách các cuộc đua bạn được phân công phụ trách.</p>
+        <p className="mb-0" style={{ color: '#9ca3af', fontSize: 13 }}>Danh sách các cuộc đua bạn được phân công phụ trách.</p>
       </div>
       <div className="staff-card p-3">
         <DataTable columns={columns} rows={races} rowClassName={() => 'align-middle'} />

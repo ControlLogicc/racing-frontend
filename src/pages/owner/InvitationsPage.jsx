@@ -112,7 +112,7 @@ export default function OwnerInvitationsPage() {
   if (error) return <ErrorState message={error} onRetry={refetch} />;
 
   return (
-    <div>
+    <div className="owner-context">
       <div className="page-header mb-4">
         <div>
           <h2>Lời mời Jockey</h2>

@@ -157,7 +157,7 @@ export default function HorseDetailPage() {
   const ratingPct = Math.min(100, horse.rating ?? 0);
 
   return (
-    <div>
+    <div className="owner-context">
       {/* ── Back + Hero ──────────────────────────────────────── */}
       <div className="owner-hero mb-4">
         <div className="d-flex justify-content-between align-items-center mb-3">

@@ -60,7 +60,7 @@ export default function StaffDashboard() {
           <h4 className="mb-1" style={{ color: '#D4AF37', fontWeight: 700 }}>
             Xin chào, {user?.fullName || 'Staff'}
           </h4>
-          <p className="mb-0" style={{ color: '#888', fontSize: 13 }}>
+          <p className="mb-0" style={{ color: '#9ca3af', fontSize: 13 }}>
             Vận hành race — theo dõi entry, xác nhận, công bố kết quả.
           </p>
         </div>
@@ -73,28 +73,28 @@ export default function StaffDashboard() {
       <div className="row g-3 mb-4">
         <div className="col-6 col-xl-3">
           <div className="staff-card p-3">
-            <div style={{ color: '#888', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>Race được gán</div>
+            <div style={{ color: '#9ca3af', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>Race được gán</div>
             <div style={{ fontSize: 32, fontWeight: 700, color: '#D4AF37' }}>{races.length}</div>
             <div style={{ color: '#666', fontSize: 12 }}>{upcomingRaces.length} sắp tới</div>
           </div>
         </div>
         <div className="col-6 col-xl-3">
           <div className="staff-card p-3">
-            <div style={{ color: '#888', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>Entry cần xử lý</div>
+            <div style={{ color: '#9ca3af', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>Entry cần xử lý</div>
             <div style={{ fontSize: 32, fontWeight: 700, color: '#f59e0b' }}>{pendingEntries.length}</div>
             <div style={{ color: '#666', fontSize: 12 }}>Chờ confirm</div>
           </div>
         </div>
         <div className="col-6 col-xl-3">
           <div className="staff-card p-3">
-            <div style={{ color: '#888', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>Đang chạy</div>
+            <div style={{ color: '#9ca3af', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>Đang chạy</div>
             <div style={{ fontSize: 32, fontWeight: 700, color: '#ef4444' }}>{runningRaces.length}</div>
             <div style={{ color: '#666', fontSize: 12 }}>Race RUNNING</div>
           </div>
         </div>
         <div className="col-6 col-xl-3">
           <div className="staff-card p-3">
-            <div style={{ color: '#888', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>Tổng entry</div>
+            <div style={{ color: '#9ca3af', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>Tổng entry</div>
             <div style={{ fontSize: 32, fontWeight: 700, color: '#10b981' }}>{activeEntries.length}</div>
             <div style={{ color: '#666', fontSize: 12 }}>Đang hoạt động</div>
           </div>

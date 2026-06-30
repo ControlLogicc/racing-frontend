@@ -72,7 +72,7 @@ export default function OwnerHorsesPage() {
   };
 
   return (
-    <div>
+    <div className="owner-context">
       {/* Header */}
       <div className="page-header mb-4">
         <h2>Ngựa của tôi</h2>

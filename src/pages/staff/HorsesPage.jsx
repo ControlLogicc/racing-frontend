@@ -59,19 +59,19 @@ function ApproveModal({ horse, onClose, onConfirm, saving }) {
           <div style={{ fontSize: 13, color: '#aaa', marginBottom: 6 }}>Thông tin chủ ngựa khai báo</div>
           <div className="d-flex gap-4">
             <div>
-              <div style={{ fontSize: 11, color: '#888' }}>Rating (Claimed)</div>
+              <div style={{ fontSize: 11, color: '#9ca3af' }}>Rating (Claimed)</div>
               <div style={{ color: '#D4AF37', fontWeight: 700, fontSize: 18 }}>
                 {horse.claimedScore ?? '—'}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: '#888' }}>Class (Claimed)</div>
+              <div style={{ fontSize: 11, color: '#9ca3af' }}>Class (Claimed)</div>
               <div style={{ color: '#D4AF37', fontWeight: 700, fontSize: 18 }}>
                 {horse.claimedClass ?? '—'}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: '#888' }}>Chủ ngựa</div>
+              <div style={{ fontSize: 11, color: '#9ca3af' }}>Chủ ngựa</div>
               <div style={{ color: '#fff', fontWeight: 600 }}>{horse.ownerName}</div>
             </div>
           </div>
@@ -119,7 +119,7 @@ function ApproveModal({ horse, onClose, onConfirm, saving }) {
         )}
 
         {!useOverride && (
-          <p style={{ fontSize: 13, color: '#888', marginTop: 4 }}>
+          <p style={{ fontSize: 13, color: '#9ca3af', marginTop: 4 }}>
             Nếu không override, hệ thống sẽ dùng đúng score/class chủ ngựa đã khai báo.
           </p>
         )}
@@ -273,7 +273,7 @@ export default function StaffHorsesPage() {
                     <td>
                       <span style={{ fontWeight: 600, color: '#fff' }}>{h.name}</span>
                       {h.breed && (
-                        <div style={{ fontSize: 11, color: '#888' }}>{h.breed}</div>
+                        <div style={{ fontSize: 11, color: '#9ca3af' }}>{h.breed}</div>
                       )}
                     </td>
                     <td style={{ color: '#c4b5fd' }}>{h.ownerName || '—'}</td>
@@ -301,7 +301,7 @@ export default function StaffHorsesPage() {
                           {Number(h.claimedScore).toFixed(1)}
                         </span>
                       ) : (
-                        <span style={{ color: '#555' }}>—</span>
+                        <span style={{ color: '#9ca3af' }}>—</span>
                       )}
                     </td>
 
@@ -321,7 +321,7 @@ export default function StaffHorsesPage() {
                           Class {h.claimedClass}
                         </span>
                       ) : (
-                        <span style={{ color: '#555' }}>—</span>
+                        <span style={{ color: '#9ca3af' }}>—</span>
                       )}
                     </td>
 
@@ -385,7 +385,7 @@ export default function StaffHorsesPage() {
                   { label: 'Loại đăng ký', value: detailHorse.registrationType || '—', col: 6 },
                 ].map(({ label, value, col, color, badge }) => (
                   <div key={label} className={`col-${col}`}>
-                    <div style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
+                    <div style={{ color: '#94a3b8', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
                     {badge ? <HorseStatusBadge status={detailHorse.status} /> : <div style={{ color: color || '#e2e8f0', fontWeight: 500, marginTop: 2 }}>{value}</div>}
                   </div>
                 ))}
@@ -396,12 +396,12 @@ export default function StaffHorsesPage() {
                 <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 1 }}>So sánh Rating / Class</div>
                 <div className="row g-3">
                   <div className="col-6">
-                    <div style={{ fontSize: 11, color: '#64748b' }}>Owner khai báo</div>
+                    <div style={{ fontSize: 11, color: '#94a3b8' }}>Owner khai báo</div>
                     <div style={{ color: '#c4b5fd', fontWeight: 700, fontSize: 22 }}>{detailHorse.claimedScore ?? '—'}</div>
                     <div style={{ color: '#67e8f9', fontSize: 13 }}>{detailHorse.claimedClass != null ? `Class ${detailHorse.claimedClass}` : '—'}</div>
                   </div>
                   <div className="col-6">
-                    <div style={{ fontSize: 11, color: '#64748b' }}>Rating hiện tại trong hệ thống</div>
+                    <div style={{ fontSize: 11, color: '#94a3b8' }}>Rating hiện tại trong hệ thống</div>
                     <div style={{ color: '#D4AF37', fontWeight: 700, fontSize: 22 }}>{detailHorse.currentScore ?? '—'}</div>
                     <div style={{ color: '#D4AF37', fontSize: 13 }}>{detailHorse.horseClass != null ? `Class ${detailHorse.horseClass}` : '—'}</div>
                   </div>
@@ -443,7 +443,7 @@ export default function StaffHorsesPage() {
 
               {detailHorse.evidenceLink && (
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Link Bằng chứng</div>
+                  <div style={{ color: '#94a3b8', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Link Bằng chứng</div>
                   <a href={detailHorse.evidenceLink} target="_blank" rel="noopener noreferrer"
                     style={{ color: '#60a5fa', fontSize: 13, wordBreak: 'break-all' }}>
                     {detailHorse.evidenceLink}
@@ -453,7 +453,7 @@ export default function StaffHorsesPage() {
 
               {detailHorse.healthNote && (
                 <div>
-                  <div style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>Ghi chú sức khoẻ</div>
+                  <div style={{ color: '#94a3b8', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>Ghi chú sức khoẻ</div>
                   <div style={{
                     color: '#fbbf24', marginTop: 4, fontSize: 13,
                     background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.2)',
@@ -468,7 +468,7 @@ export default function StaffHorsesPage() {
           )}
         </Modal.Body>
         <Modal.Footer style={{ background: '#1a1a2e', borderTop: '1px solid #2a2a4a' }}>
-          <Button variant="link" style={{ color: '#64748b', textDecoration: 'none' }} onClick={() => setDetailHorse(null)} disabled={saving}>
+          <Button variant="link" style={{ color: '#94a3b8', textDecoration: 'none' }} onClick={() => setDetailHorse(null)} disabled={saving}>
             Đóng
           </Button>
           <button

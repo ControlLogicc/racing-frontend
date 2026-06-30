@@ -234,7 +234,7 @@ export default function StaffRaceDetailPage() {
         label: 'Weight check',
         render: (row) => {
           const result = getWeightResult(row);
-          if (result === 'PENDING') return <span style={{ color: '#64748b' }}>Chưa cân</span>;
+          if (result === 'PENDING') return <span style={{ color: '#94a3b8' }}>Chưa cân</span>;
           if (result === 'FAILED') {
             const shortage = Number(row.handicapWeight || 0) - (Number(row.actualWeight) + Number(row.leadWeight || 0));
             return <Badge bg="danger">Thiếu {shortage.toFixed(1)} kg</Badge>;

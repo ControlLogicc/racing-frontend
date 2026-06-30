@@ -68,7 +68,7 @@ export default function OwnerDashboard() {
   ];
 
   return (
-    <div>
+    <div className="owner-context">
       {/* ── Hero ─────────────────────────────────────────────── */}
       <div className="owner-hero mb-4">
         <div className="d-flex align-items-start justify-content-between flex-wrap gap-3">

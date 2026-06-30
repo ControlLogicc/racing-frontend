@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 /* ==========================================================================
    STAFF THEME - "EXECUTIVE COMMAND CENTER"
    Deep Black & Gold Palette with Glassmorphism and Micro-animations
@@ -76,7 +78,7 @@
 }
 
 .staff-custom-tabs .nav-link {
-  color: #888;
+  color: #9ca3af;
   border: none;
   border-bottom: 2px solid transparent;
   padding: 1rem 1.5rem;
@@ -230,7 +232,7 @@
    General Info Grid
    ========================================= */
 .info-grid-label {
-  color: #888;
+  color: #9ca3af;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 1px;
