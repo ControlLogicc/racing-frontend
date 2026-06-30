@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://lonely-prep-venue-cdna.trycloudflare.com',
+        target: 'https://titten-spring-parallel-terminals.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

@@ -88,6 +88,7 @@ const realService = {
 
   // Spectator / public: thử /horses (nếu có), fallback []
   getPublicAll: () => api.get('/admin/horses').then((r) => mapHorses(r.data)).catch(() => []),
+  getPublicById: (id) => api.get(`/admin/horses/${id}`).then((r) => mapHorse(r.data)),
 
   // Admin/Staff: quản lý toàn bộ ngựa
   adminGetAll: (params) => api.get('/admin/horses', { params }).then((r) => mapHorses(r.data)),
