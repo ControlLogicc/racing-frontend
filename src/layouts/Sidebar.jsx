@@ -22,8 +22,6 @@ const MENU_CONFIG = {
     { path: '/admin/prizes', label: 'Giải thưởng', icon: <TrophyFill /> },
     { path: '/admin/results', label: 'Kết quả đua', icon: <GraphUpArrow /> },
     { path: '/admin/reports', label: 'Báo cáo Referee', icon: <Search /> },
-    { path: '/staff/races', label: 'Quản lý Race (Staff)', icon: <LightningChargeFill /> },
-    { path: '/staff/registrations', label: 'Duyệt Đăng Ký', icon: <PencilSquare /> },
   ],
   [ROLES.STAFF]: [
     { path: '/staff', label: 'Dashboard', icon: <Speedometer2 /> },

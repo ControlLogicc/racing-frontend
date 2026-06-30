@@ -6,13 +6,22 @@
    ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
-body {
-  font-family: 'Outfit', sans-serif !important;
+body:has(.owner-context) {
   background-color: #050505;
   color: #E0E6ED;
 }
 
-h1, h2, h3, h4, h5, h6 {
+.owner-context {
+  min-height: 100vh;
+  font-family: 'Outfit', sans-serif;
+}
+
+.owner-context h1,
+.owner-context h2,
+.owner-context h3,
+.owner-context h4,
+.owner-context h5,
+.owner-context h6 {
   font-family: 'Outfit', sans-serif;
   font-weight: 700;
   letter-spacing: -0.5px;
@@ -479,7 +488,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ── Forms ─────────────────────────────────────────────────── */
-.lux-form-control, .form-control, .form-select {
+.lux-form-control,
+.owner-context .form-control,
+.owner-context .form-select {
   background-color: rgba(30, 30, 35, 0.6) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: #FFFFFF !important;
@@ -489,20 +500,22 @@ h1, h2, h3, h4, h5, h6 {
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
 }
-.lux-form-control:focus, .form-control:focus, .form-select:focus {
+.lux-form-control:focus,
+.owner-context .form-control:focus,
+.owner-context .form-select:focus {
   background-color: rgba(40, 40, 45, 0.8) !important;
   border-color: #D4AF37 !important;
   box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2) !important;
   transform: translateY(-2px);
 }
-.form-label {
+.owner-context .form-label {
   color: #C0C8D0;
   font-weight: 600;
   font-size: 0.95rem;
   margin-bottom: 8px;
   letter-spacing: 0.5px;
 }
-.form-text {
+.owner-context .form-text {
   color: #7A8490;
   font-size: 0.85rem;
 }

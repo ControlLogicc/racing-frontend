@@ -78,10 +78,12 @@ export default function StaffResultsPage() {
   return (
     <div>
       <div className="page-header">
-        <h2 style={{ color: GOLD }}>Kết quả & Công bố</h2>
-        <p className="text-muted" style={{ fontSize: '0.9rem' }}>
-          Xem kết quả referee đã nhập, tính lại giải thưởng, rồi công bố chính thức.
-        </p>
+        <div>
+          <h2 style={{ color: GOLD }}>Kết quả & Công bố</h2>
+          <p className="mb-0" style={{ fontSize: '0.9rem', color: '#c8bea0' }}>
+            Xem kết quả referee đã nhập, tính lại giải thưởng, rồi công bố chính thức.
+          </p>
+        </div>
       </div>
 
       {groups.length === 0 ? (

@@ -172,7 +172,7 @@ export default function OwnerRegistrationsPage() {
   if (error) return <ErrorState message={error} onRetry={refetch} />;
 
   return (
-    <div>
+    <div className="owner-context">
       {/* Header */}
       <div className="page-header mb-4">
         <div>

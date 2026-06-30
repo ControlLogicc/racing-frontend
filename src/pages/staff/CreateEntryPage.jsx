@@ -53,19 +53,19 @@ function CreateEntryModal({ candidate, onHide, onSuccess }) {
         }}>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             <div>
-              <div style={{ fontSize: '0.72rem', color: '#888', textTransform: 'uppercase', letterSpacing: 1 }}>Race</div>
+              <div style={{ fontSize: '0.72rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1 }}>Race</div>
               <div style={{ color: '#f0e8d0', fontWeight: 700 }}>{candidate.raceName}</div>
             </div>
             <div>
-              <div style={{ fontSize: '0.72rem', color: '#888', textTransform: 'uppercase', letterSpacing: 1 }}>Ngựa</div>
+              <div style={{ fontSize: '0.72rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1 }}>Ngựa</div>
               <div style={{ color: '#D4AF37', fontWeight: 700 }}>🐎 {candidate.horseName}</div>
             </div>
             <div>
-              <div style={{ fontSize: '0.72rem', color: '#888', textTransform: 'uppercase', letterSpacing: 1 }}>Owner</div>
+              <div style={{ fontSize: '0.72rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1 }}>Owner</div>
               <div style={{ color: '#c8bea0' }}>{candidate.ownerName}</div>
             </div>
             <div>
-              <div style={{ fontSize: '0.72rem', color: '#888', textTransform: 'uppercase', letterSpacing: 1 }}>Jockey</div>
+              <div style={{ fontSize: '0.72rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1 }}>Jockey</div>
               <div style={{ color: '#22c55e', fontWeight: 600 }}>
                 <PersonFill className="me-1" />{candidate.jockeyName}
               </div>
@@ -159,7 +159,7 @@ export default function StaffCreateEntryPage() {
           <FlagFill size={28} style={{ color: '#D4AF37' }} />
           <div>
             <h2 style={{ color: '#f0e8d0', margin: 0, fontWeight: 800 }}>Tạo Race Entry</h2>
-            <p style={{ margin: 0, marginTop: 4, color: '#7a6a50', fontSize: '0.9rem' }}>
+            <p style={{ margin: 0, marginTop: 4, color: '#a89a7e', fontSize: '0.9rem' }}>
               Xác nhận cặp <strong style={{ color: '#D4AF37' }}>Ngựa + Jockey</strong> đã được owner chốt để đưa vào Race Entry
             </p>
           </div>
@@ -195,7 +195,7 @@ export default function StaffCreateEntryPage() {
       ) : loadingCandidates ? (
         <div className="text-center py-5">
           <Spinner animation="border" style={{ color: '#D4AF37' }} />
-          <div style={{ color: '#888', marginTop: 12 }}>Đang tải danh sách...</div>
+          <div style={{ color: '#9ca3af', marginTop: 12 }}>Đang tải danh sách...</div>
         </div>
       ) : candidates.length === 0 ? (
         <EmptyState message="Chưa có cặp Ngựa–Jockey nào sẵn sàng cho race này. Owner cần mời và Jockey cần chấp nhận trước." />
@@ -219,16 +219,16 @@ export default function StaffCreateEntryPage() {
                   }}>
                     <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', flex: 1 }}>
                       <div>
-                        <div style={{ fontSize: '0.7rem', color: '#555', textTransform: 'uppercase', letterSpacing: 1 }}>Ngựa</div>
+                        <div style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1 }}>Ngựa</div>
                         <div style={{ color: '#D4AF37', fontWeight: 700, fontSize: '1rem' }}>🐎 {c.horseName}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#7a6a50' }}>Owner: {c.ownerName}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#a89a7e' }}>Owner: {c.ownerName}</div>
                       </div>
                       <div style={{ borderLeft: '1px solid #2a2a2a', paddingLeft: 24 }}>
-                        <div style={{ fontSize: '0.7rem', color: '#555', textTransform: 'uppercase', letterSpacing: 1 }}>Jockey</div>
+                        <div style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1 }}>Jockey</div>
                         <div style={{ color: '#22c55e', fontWeight: 700, fontSize: '1rem' }}>
                           <PersonFill className="me-1" />{c.jockeyName}
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: '#22c55e', opacity: 0.7 }}>✓ Đã chấp nhận lời mời</div>
+                        <div style={{ fontSize: '0.75rem', color: '#22c55e' }}>✓ Đã chấp nhận lời mời</div>
                       </div>
                     </div>
                     <button
@@ -262,11 +262,11 @@ export default function StaffCreateEntryPage() {
                     background: 'rgba(239,68,68,0.03)',
                     border: '1px solid rgba(239,68,68,0.15)',
                     borderRadius: 10, padding: '12px 18px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', opacity: 0.7
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between'
                   }}>
                     <div>
                       <span style={{ color: '#D4AF37' }}>🐎 {c.horseName}</span>
-                      <span style={{ color: '#555', margin: '0 8px' }}>+</span>
+                      <span style={{ color: '#9ca3af', margin: '0 8px' }}>+</span>
                       <span style={{ color: '#9a9a9a' }}>{c.jockeyName}</span>
                     </div>
                     <span style={{ fontSize: '0.78rem', color: '#ef4444' }}>

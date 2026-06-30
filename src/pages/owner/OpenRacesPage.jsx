@@ -74,7 +74,7 @@ export default function OwnerOpenRacesPage() {
   if (error) return <ErrorState message={error} onRetry={refetch} />;
 
   return (
-    <div>
+    <div className="owner-context">
       <div className="page-header mb-4">
         <div>
           <h2>Races đang mở</h2>

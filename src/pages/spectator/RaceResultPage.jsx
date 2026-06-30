@@ -82,10 +82,10 @@ export default function SpectatorRaceResultPage() {
       <div className="vip-panel">
         {race && !loading && (
           <div className="d-flex flex-wrap gap-4 mb-4" style={{ fontSize: '0.9rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1.5rem' }}>
-            <div><span style={{ color: '#64748b' }}>Race: </span><strong style={{ color: '#fbbf24', fontSize: '1rem' }}>{race.name}</strong></div>
-            {race.raceTime && <div><span style={{ color: '#64748b' }}>Giờ đua: </span><span style={{ color: '#e2e8f0' }}>{formatDate(race.raceTime)}</span></div>}
-            {race.distance && <div><span style={{ color: '#64748b' }}>Cự ly: </span><span style={{ color: '#e2e8f0' }}>{race.distance} m</span></div>}
-            <div><span style={{ color: '#64748b' }}>Số tham dự: </span><span style={{ color: '#e2e8f0' }}>{results.length} chiến mã</span></div>
+            <div><span style={{ color: '#94a3b8' }}>Race: </span><strong style={{ color: '#fbbf24', fontSize: '1rem' }}>{race.name}</strong></div>
+            {race.raceTime && <div><span style={{ color: '#94a3b8' }}>Giờ đua: </span><span style={{ color: '#e2e8f0' }}>{formatDate(race.raceTime)}</span></div>}
+            {race.distance && <div><span style={{ color: '#94a3b8' }}>Cự ly: </span><span style={{ color: '#e2e8f0' }}>{race.distance} m</span></div>}
+            <div><span style={{ color: '#94a3b8' }}>Số tham dự: </span><span style={{ color: '#e2e8f0' }}>{results.length} chiến mã</span></div>
           </div>
         )}
 

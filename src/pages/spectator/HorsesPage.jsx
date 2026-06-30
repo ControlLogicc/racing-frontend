@@ -24,7 +24,7 @@ const VIPHorseCard = ({ horse }) => {
       {/* Body */}
       <div className="p-3 flex-grow-1">
         <h5 style={{ fontFamily: "'Playfair Display', serif", color: '#fbbf24', marginBottom: 2 }}>{horse.name || horse.horseName}</h5>
-        <div style={{ fontSize: 12, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+        <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
           {horse.ownerName || horse.ownerEmail || 'Owner N/A'}
         </div>
 
@@ -35,7 +35,7 @@ const VIPHorseCard = ({ horse }) => {
           { label: 'Rating', value: horse.currentScore != null ? Number(horse.currentScore).toFixed(1) : '—' },
         ].map(({ label, value }) => (
           <div key={label} className="d-flex justify-content-between mb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: 6 }}>
-            <span style={{ color: '#64748b', fontSize: 13 }}>{label}</span>
+            <span style={{ color: '#94a3b8', fontSize: 13 }}>{label}</span>
             <span style={{ color: '#e2e8f0', fontWeight: 600, fontSize: 13 }}>{value}</span>
           </div>
         ))}
@@ -108,7 +108,7 @@ export default function SpectatorHorsesPage() {
               <option value="">Tất cả Class</option>
               {[1, 2, 3, 4, 5].map((c) => <option key={c} value={c}>Class {c}</option>)}
             </select>
-            <span style={{ color: '#64748b', fontSize: 13 }}>{filtered.length} ngựa</span>
+            <span style={{ color: '#94a3b8', fontSize: 13 }}>{filtered.length} ngựa</span>
           </div>
         </div>
       )}

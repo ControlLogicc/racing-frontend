@@ -88,7 +88,7 @@ export default function StaffEntriesPage() {
       {/* Header */}
       <div className="staff-card mb-4 p-4">
         <h4 className="mb-1" style={{ color: '#D4AF37', fontWeight: 700 }}>Quản lý Entry</h4>
-        <p className="mb-0" style={{ color: '#888', fontSize: 13 }}>
+        <p className="mb-0" style={{ color: '#9ca3af', fontSize: 13 }}>
           Xem danh sách và thực hiện bốc thăm cổng xuất phát ngẫu nhiên cho các cuộc đua.
         </p>
       </div>
@@ -191,7 +191,7 @@ export default function StaffEntriesPage() {
 
       {removedEntries.length > 0 && !selectedRaceId && (
         <div className="staff-card mt-4">
-          <div className="staff-card-header" style={{ color: '#888' }}>Đã loại khỏi giải đấu</div>
+          <div className="staff-card-header" style={{ color: '#9ca3af' }}>Đã loại khỏi giải đấu</div>
           <div className="table-responsive">
             <table className="staff-table mb-0">
               <thead>

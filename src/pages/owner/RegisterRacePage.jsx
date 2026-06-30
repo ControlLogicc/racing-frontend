@@ -207,7 +207,7 @@ export default function RegisterRacePage() {
   if (error) return <ErrorState message={error} />;
 
   return (
-    <div>
+    <div className="owner-context">
       <div className="page-header mb-4">
         <div>
           <h2>Đăng ký đua</h2>
