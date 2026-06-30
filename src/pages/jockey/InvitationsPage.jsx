@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Row, Col, Badge } from 'react-bootstrap';
+import { Row, Col, Badge, Modal, Spinner } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
 import { invitationService } from '../../services/invitationService';
 import { raceService } from '../../services/raceService';
 import { prizeService } from '../../services/prizeService';
+import { horseService } from '../../services/horseService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
 import { RACE_INVITATION_STATUS } from '../../constants/status';
@@ -14,6 +15,113 @@ import StatusBadge from '../../components/common/StatusBadge';
 import Toaster from '../../components/common/Toaster';
 
 const POSITION_MEDAL = { 1: '🥇', 2: '🥈', 3: '🥉' };
+const GOLD = '#D4AF37';
+
+const GENDER_LABEL = { M: 'Đực', F: 'Cái', G: 'Thiến' };
+
+function HorseModal({ horseId, onClose }) {
+  const [horse, setHorse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!horseId) return;
+    setLoading(true);
+    setError('');
+    horseService.getPublicById(horseId)
+      .then(setHorse)
+      .catch(() => setError('Không tải được thông tin ngựa.'))
+      .finally(() => setLoading(false));
+  }, [horseId]);
+
+  const rows = horse ? [
+    { icon: '🎂', label: 'Tuổi', value: horse.age ? `${horse.age} tuổi` : '—' },
+    { icon: '🎨', label: 'Màu / Giống', value: horse.breed || '—' },
+    { icon: '⚥', label: 'Giới tính', value: GENDER_LABEL[horse.gender] ?? horse.gender ?? '—' },
+    { icon: '🏷️', label: 'Hạng (Class)', value: horse.horseClass ?? '—' },
+    { icon: '⭐', label: 'Điểm rating', value: horse.rating != null ? horse.rating : '—' },
+    { icon: '🏆', label: 'Số lần thắng', value: horse.totalWins != null ? horse.totalWins : '—' },
+    { icon: '👤', label: 'Chủ ngựa', value: horse.ownerName || '—' },
+    ...(horse.healthNote ? [{ icon: '📋', label: 'Ghi chú sức khoẻ', value: horse.healthNote }] : []),
+  ] : [];
+
+  return (
+    <Modal show onHide={onClose} centered size="md">
+      <Modal.Header closeButton style={{ background: '#111', borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+        <Modal.Title style={{ color: GOLD, fontWeight: 700, fontSize: '1.1rem' }}>
+          🐎 Hồ sơ ngựa
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body style={{ background: '#0d0d0d', padding: '1.5rem' }}>
+        {loading && (
+          <div className="text-center py-4">
+            <Spinner animation="border" style={{ color: GOLD }} />
+          </div>
+        )}
+        {error && <p style={{ color: '#ff6b6b', textAlign: 'center' }}>{error}</p>}
+        {horse && (
+          <>
+            {/* Tên ngựa */}
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+              <div style={{ fontSize: 40, marginBottom: 8 }}>🐎</div>
+              <h4 style={{ color: '#fff', fontWeight: 800, marginBottom: 4 }}>{horse.name}</h4>
+              <span style={{
+                display: 'inline-block',
+                background: 'rgba(212,175,55,0.15)',
+                border: '1px solid rgba(212,175,55,0.35)',
+                color: GOLD,
+                borderRadius: 20,
+                padding: '3px 14px',
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: 1,
+                textTransform: 'uppercase',
+              }}>
+                {horse.horseClass ?? 'Chưa xếp hạng'}
+              </span>
+            </div>
+
+            {/* Rating bar */}
+            {horse.rating != null && (
+              <div style={{ marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#888', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>
+                  <span>Rating</span>
+                  <span style={{ color: GOLD, fontWeight: 700 }}>{horse.rating} / 100</span>
+                </div>
+                <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 6, overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${Math.min(100, horse.rating)}%`,
+                    background: `linear-gradient(90deg, ${GOLD}, #FFDF73)`,
+                    borderRadius: 6,
+                    boxShadow: `0 0 8px rgba(212,175,55,0.5)`,
+                    transition: 'width 0.8s ease',
+                  }} />
+                </div>
+              </div>
+            )}
+
+            {/* Thông tin chi tiết */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {rows.map(({ icon, label, value }) => (
+                <div key={label} style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+                  padding: '10px 14px',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                  borderRadius: 8,
+                }}>
+                  <span style={{ color: '#777', fontSize: 13 }}>{icon} {label}</span>
+                  <span style={{ color: '#f0e8d0', fontWeight: 600, fontSize: 13, textAlign: 'right', maxWidth: '55%' }}>{value}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </Modal.Body>
+    </Modal>
+  );
+}
 
 function PrizeList({ prizes }) {
   if (!prizes.length) return <p style={{ color: '#555', fontSize: 13 }}>Chưa có thông tin giải thưởng.</p>;
@@ -35,6 +143,7 @@ function PrizeList({ prizes }) {
 
 function InvitationCard({ inv, race, prizes, onAccept, onDecline }) {
   const isPending = inv.status === RACE_INVITATION_STATUS.SENT || inv.status === RACE_INVITATION_STATUS.PENDING_RESPONSE;
+  const [showHorse, setShowHorse] = useState(false);
 
   return (
     <div className="dash-card smooth-hover" style={{ borderLeft: isPending ? '3px solid #D4AF37' : '3px solid #333' }}>
@@ -42,10 +151,23 @@ function InvitationCard({ inv, race, prizes, onAccept, onDecline }) {
       <div className="d-flex justify-content-between align-items-start mb-3">
         <div>
           <h5 style={{ color: '#D4AF37', marginBottom: 4 }}>{inv.raceName}</h5>
-          <span style={{ color: '#888', fontSize: 13 }}>🐎 Ngựa: <strong style={{ color: '#fff' }}>{inv.horseName}</strong></span>
+          <span style={{ color: '#888', fontSize: 13 }}>
+            🐎 Ngựa:{' '}
+            <strong
+              style={{ color: '#fff', cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'rgba(212,175,55,0.5)', textUnderlineOffset: 3 }}
+              onClick={() => setShowHorse(true)}
+              title="Xem hồ sơ ngựa"
+            >
+              {inv.horseName}
+            </strong>
+          </span>
         </div>
         <StatusBadge status={inv.status} />
       </div>
+
+      {showHorse && (
+        <HorseModal horseId={inv.horseId} onClose={() => setShowHorse(false)} />
+      )}
 
       <Row className="g-3">
         {/* Race details */}

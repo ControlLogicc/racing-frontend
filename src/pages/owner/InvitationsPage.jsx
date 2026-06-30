@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Form, Button, Spinner, Row, Col } from 'react-bootstrap';
+import { Form, Button, Spinner, Row, Col, Modal, Badge } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
 import { registrationService } from '../../services/registrationService';
 import { invitationService } from '../../services/invitationService';
@@ -25,6 +25,7 @@ export default function OwnerInvitationsPage() {
 
   const [eligibleJockeys, setEligibleJockeys] = useState([]);
   const [loadingJockeys, setLoadingJockeys] = useState(false);
+  const [detailJockey, setDetailJockey] = useState(null);
 
   const {
     register,
@@ -242,15 +243,31 @@ export default function OwnerInvitationsPage() {
                         </div>
                       )}
                     </div>
-                    <button
-                      type="button"
-                      className="btn-gold btn-gold-sm"
-                      disabled={!jockey.canInvite}
-                      onClick={() => setValue('jockeyId', String(jockey.jockeyId))}
-                      style={{ padding: '5px 14px', fontSize: 12 }}
-                    >
-                      {watch('jockeyId') === String(jockey.jockeyId) ? 'Đã chọn' : 'Chọn'}
-                    </button>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => setDetailJockey(jockey)}
+                        style={{
+                          padding: '5px 14px', fontSize: 12, borderRadius: 6,
+                          background: 'transparent', border: '1px solid rgba(212,175,55,0.4)',
+                          color: '#D4AF37', cursor: 'pointer', fontWeight: 600,
+                          transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={e => { e.target.style.background = 'rgba(212,175,55,0.1)'; }}
+                        onMouseLeave={e => { e.target.style.background = 'transparent'; }}
+                      >
+                        Chi tiết
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-gold btn-gold-sm"
+                        disabled={!jockey.canInvite}
+                        onClick={() => setValue('jockeyId', String(jockey.jockeyId))}
+                        style={{ padding: '5px 14px', fontSize: 12 }}
+                      >
+                        {watch('jockeyId') === String(jockey.jockeyId) ? 'Đã chọn' : 'Chọn'}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -268,6 +285,94 @@ export default function OwnerInvitationsPage() {
           <DataTable columns={invColumns} rows={invitations} />
         )}
       </div>
+
+      {/* Modal chi tiết Jockey */}
+      <Modal show={!!detailJockey} onHide={() => setDetailJockey(null)} centered>
+        <Modal.Header closeButton style={{ background: '#141418', borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+          <Modal.Title style={{ color: '#D4AF37', fontSize: '1.1rem', fontWeight: 700 }}>
+            🏇 Chi tiết Jockey
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: '#141418', color: '#e0e0e0' }}>
+          {detailJockey && (
+            <div>
+              {/* Tên jockey */}
+              <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <div style={{
+                  width: 64, height: 64, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05))',
+                  border: '2px solid rgba(212,175,55,0.4)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 12px', fontSize: 28
+                }}>🏇</div>
+                <h4 style={{ color: '#f0e8d0', fontWeight: 700, margin: 0 }}>{detailJockey.jockeyName}</h4>
+                <div style={{ marginTop: 6 }}>
+                  {detailJockey.canInvite ? (
+                    <Badge bg="success" style={{ fontSize: 11 }}>✓ Đủ điều kiện mời</Badge>
+                  ) : (
+                    <Badge bg="danger" style={{ fontSize: 11 }}>✗ Không đủ điều kiện</Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Thông tin chi tiết */}
+              <div style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(212,175,55,0.15)',
+                borderRadius: 12, padding: '16px 20px'
+              }}>
+                {[
+                  { label: 'Cân nặng', value: detailJockey.weight ? `${detailJockey.weight} kg` : '—', icon: '⚖️' },
+                  { label: 'Kinh nghiệm', value: detailJockey.experienceYears ? `${detailJockey.experienceYears} năm` : '—', icon: '📅' },
+                  { label: 'Mã Jockey', value: detailJockey.jockeyId ? `#${detailJockey.jockeyId}` : '—', icon: '🔢' },
+                ].map(({ label, value, icon }) => (
+                  <div key={label} style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '10px 0',
+                    borderBottom: '1px solid rgba(255,255,255,0.05)'
+                  }}>
+                    <span style={{ color: '#94a3b8', fontSize: 14 }}>{icon} {label}</span>
+                    <span style={{ color: '#f0e8d0', fontWeight: 600, fontSize: 14 }}>{value}</span>
+                  </div>
+                ))}
+                {/* Lý do không đủ điều kiện */}
+                {!detailJockey.canInvite && detailJockey.reason && (
+                  <div style={{
+                    marginTop: 12, padding: '10px 14px',
+                    background: 'rgba(239,68,68,0.08)',
+                    border: '1px solid rgba(239,68,68,0.25)',
+                    borderRadius: 8, color: '#ef4444', fontSize: 13
+                  }}>
+                    ⚠️ {detailJockey.reason}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer style={{ background: '#141418', borderTop: '1px solid rgba(212,175,55,0.2)' }}>
+          <Button
+            variant="link"
+            style={{ color: '#94a3b8', textDecoration: 'none' }}
+            onClick={() => setDetailJockey(null)}
+          >
+            Đóng
+          </Button>
+          {detailJockey?.canInvite && (
+            <button
+              type="button"
+              className="btn-gold btn-gold-sm"
+              onClick={() => {
+                setValue('jockeyId', String(detailJockey.jockeyId));
+                setDetailJockey(null);
+              }}
+              style={{ padding: '8px 20px', fontSize: 13 }}
+            >
+              Chọn Jockey này
+            </button>
+          )}
+        </Modal.Footer>
+      </Modal>
 
       <Toaster toast={toast} onClose={() => setToast(null)} />
     </div>
