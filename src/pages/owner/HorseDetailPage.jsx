@@ -19,11 +19,12 @@ import './owner-theme.css';
 const PAGE_SIZE = 10;
 const POSITION_MEDAL = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
-function getClassInfo(rating) {
-  if (rating >= 85) return { label: 'Class 1', css: 'horse-class-1' };
-  if (rating >= 80) return { label: 'Class 2', css: 'horse-class-2' };
-  if (rating >= 60) return { label: 'Class 3', css: 'horse-class-3' };
-  if (rating >= 40) return { label: 'Class 4', css: 'horse-class-other' };
+function getClassInfo(horseClass) {
+  const c = Number(horseClass);
+  if (c === 1) return { label: 'Class 1', css: 'horse-class-1' };
+  if (c === 2) return { label: 'Class 2', css: 'horse-class-2' };
+  if (c === 3) return { label: 'Class 3', css: 'horse-class-3' };
+  if (c === 4) return { label: 'Class 4', css: 'horse-class-other' };
   return { label: 'Class 5', css: 'horse-class-other' };
 }
 
@@ -153,7 +154,7 @@ export default function HorseDetailPage() {
     }
   };
 
-  const cls = horse.rating != null ? getClassInfo(horse.rating) : null;
+  const cls = horse.horseClass != null ? getClassInfo(horse.horseClass) : null;
   const ratingPct = Math.min(100, horse.rating ?? 0);
 
   return (

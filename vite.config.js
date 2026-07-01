@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://titten-spring-parallel-terminals.trycloudflare.com',
+        target: 'https://fool-collins-suzuki-testing.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
