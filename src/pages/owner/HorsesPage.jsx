@@ -8,6 +8,7 @@ import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import Toaster from '../../components/common/Toaster';
+import ImageDropzone from '../../components/common/ImageDropzone';
 import HorseProfileCard from '../../components/shared/HorseProfileCard';
 import './owner-theme.css';
 
@@ -19,15 +20,17 @@ export default function OwnerHorsesPage() {
   const [toast, setToast] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
 
-  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
+  const { register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm({
     defaultValues: {
-      name: '', age: '', breed: '', gender: 'M', healthNote: '',
-      registrationType: 'NEW', claimedScore: '', evidenceLink: ''
+      name: '', age: '', breed: '', color: '', gender: 'M', healthNote: '',
+      registrationType: 'NEW', claimedScore: '', evidenceLink: '',
+      pedigree: '', trainerName: '', stableName: '', imageUrl: '', dateOfBirth: ''
     },
   });
 
   const watchRegistrationType = watch('registrationType');
   const watchClaimedScore = watch('claimedScore');
+  const watchImageUrl = watch('imageUrl');
 
   const scoreToClass = (score) => {
     const s = Number(score);
@@ -54,12 +57,19 @@ export default function OwnerHorsesPage() {
     try {
       await horseService.create({
         horseName: data.name.trim(),
-        color: data.breed.trim(),
+        breed: data.breed.trim(),
+        color: data.color?.trim() || '',
+        pedigree: data.pedigree?.trim() || '',
+        trainerName: data.trainerName?.trim() || '',
+        stableName: data.stableName?.trim() || '',
+        imageUrl: data.imageUrl?.trim() || '',
+        dateOfBirth: data.dateOfBirth || null,
         age: Number(data.age),
         gender: data.gender,
         healthNote: data.healthNote?.trim() || '',
         registrationType: data.registrationType,
         claimedScore: data.claimedScore || undefined,
+        claimedClass: data.registrationType === 'PREVIOUSLY_REGISTERED' ? scoreToClass(data.claimedScore) : undefined,
         evidenceLink: data.registrationType === 'PREVIOUSLY_REGISTERED' ? data.evidenceLink?.trim() : undefined,
       });
       setToast({ message: `"${data.name}" đã được đăng ký thành công.`, variant: 'success' });
@@ -125,13 +135,23 @@ export default function OwnerHorsesPage() {
               </Col>
               <Col md={3}>
                 <Form.Group>
-                  <Form.Label>Màu/Giống <span style={{ color: '#e55' }}>*</span></Form.Label>
+                  <Form.Label>Giống ngựa <span style={{ color: '#e55' }}>*</span></Form.Label>
                   <Form.Control
                     placeholder="VD: Thoroughbred..."
-                    {...register('breed', { required: 'Màu/giống ngựa là bắt buộc' })}
+                    {...register('breed', { required: 'Giống ngựa là bắt buộc' })}
                     isInvalid={!!errors.breed}
                   />
                   <Form.Control.Feedback type="invalid">{errors.breed?.message}</Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group>
+                  <Form.Label>Màu sắc</Form.Label>
+                  <Form.Control
+                    placeholder="VD: Nâu, Đen..."
+                    {...register('color')}
+                  />
+                  <Form.Text className="text-muted">Để trống sẽ dùng theo Giống ngựa.</Form.Text>
                 </Form.Group>
               </Col>
               <Col md={2}>
@@ -150,13 +170,66 @@ export default function OwnerHorsesPage() {
                   <Form.Control.Feedback type="invalid">{errors.age?.message}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
-              <Col md={3}>
+              <Col md={2}>
                 <Form.Group>
                   <Form.Label>Giới tính <span style={{ color: '#e55' }}>*</span></Form.Label>
                   <Form.Select {...register('gender', { required: 'Giới tính là bắt buộc' })} isInvalid={!!errors.gender}>
                     <option value="M">Đực (Male)</option>
                     <option value="F">Cái (Female)</option>
                   </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={2}>
+                <Form.Group>
+                  <Form.Label>Ngày sinh</Form.Label>
+                  <Form.Control
+                    type="date"
+                    {...register('dateOfBirth')}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group>
+                  <Form.Label>Huyết thống (Pedigree)</Form.Label>
+                  <Form.Control
+                    placeholder="VD: Sire x Dam"
+                    {...register('pedigree')}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group>
+                  <Form.Label>Huấn luyện viên</Form.Label>
+                  <Form.Control
+                    placeholder="VD: John Doe"
+                    {...register('trainerName')}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group>
+                  <Form.Label>Trang trại (Stable)</Form.Label>
+                  <Form.Control
+                    placeholder="VD: Golden Stable"
+                    {...register('stableName')}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group>
+                  <Form.Label>Ảnh ngựa</Form.Label>
+                  <div className="d-flex align-items-center gap-2">
+                    <ImageDropzone
+                      size={44}
+                      value={watchImageUrl}
+                      onUploaded={(url) => setValue('imageUrl', url, { shouldDirty: true })}
+                      onError={(msg) => setToast({ message: msg, variant: 'danger' })}
+                    />
+                    <Form.Control
+                      placeholder="hoặc dán URL ảnh..."
+                      {...register('imageUrl')}
+                    />
+                  </div>
                 </Form.Group>
               </Col>
 

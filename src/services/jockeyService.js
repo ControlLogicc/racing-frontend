@@ -8,6 +8,12 @@ const mockProfile = {
   fullName: 'Mock Jockey',
   weight: 55,
   experienceYears: 5,
+  height: 170,
+  nationality: 'VN',
+  licenseNumber: 'L-12345',
+  achievements: 'First place in Mock Race 1',
+  imageUrl: 'https://example.com/mock-jockey.jpg',
+  dateOfBirth: '1995-01-01',
 };
 
 const mockRegistrations = [];
@@ -27,6 +33,12 @@ const mapJockeyProfile = (data) => ({
   weight: data.weight,
   experienceYears: data.experienceYears,
   fullName: data.fullName,
+  height: data.height,
+  nationality: data.nationality,
+  licenseNumber: data.license_number ?? data.licenseNumber,
+  achievements: data.achievements,
+  imageUrl: data.image_url ?? data.imageUrl,
+  dateOfBirth: data.date_of_birth ?? data.dateOfBirth,
 });
 
 const mapJockeyReg = (r) => ({

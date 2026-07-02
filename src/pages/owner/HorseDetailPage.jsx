@@ -14,6 +14,7 @@ import ErrorState from '../../components/common/ErrorState';
 import DataTable from '../../components/common/DataTable';
 import Pagination from '../../components/common/Pagination';
 import Toaster from '../../components/common/Toaster';
+import ImageDropzone from '../../components/common/ImageDropzone';
 import './owner-theme.css';
 
 const PAGE_SIZE = 10;
@@ -53,7 +54,8 @@ export default function HorseDetailPage() {
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm();
+  const watchImageUrl = watch('imageUrl');
 
   useEffect(() => {
     Promise.all([
@@ -125,10 +127,16 @@ export default function HorseDetailPage() {
     reset({
       name: horse.name,
       breed: horse.breed,
+      color: horse.color,
       age: horse.age,
       gender: horse.gender,
       healthNote: horse.healthNote,
       status: horse.status,
+      pedigree: horse.pedigree,
+      trainerName: horse.trainerName,
+      stableName: horse.stableName,
+      imageUrl: horse.imageUrl,
+      dateOfBirth: horse.dateOfBirth ? horse.dateOfBirth.substring(0, 10) : '',
     });
     setShowEdit(true);
   };
@@ -189,8 +197,17 @@ export default function HorseDetailPage() {
             background: 'linear-gradient(135deg,rgba(212,175,55,.2),rgba(212,175,55,.05))',
             border: '2px solid rgba(212,175,55,.3)', borderRadius: 20,
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 42,
+            overflow: 'hidden',
           }}>
-            🐎
+            {horse.imageUrl ? (
+              <img
+                src={horse.imageUrl}
+                alt={horse.name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = ''; }}
+              />
+            ) : null}
+            <span style={{ display: horse.imageUrl ? 'none' : '' }}>🐎</span>
           </div>
 
           {/* Info */}
@@ -207,8 +224,16 @@ export default function HorseDetailPage() {
               )}
             </div>
             <div style={{ color: '#6a6250', fontSize: '0.88rem', marginBottom: 14 }}>
-              {horse.breed} &nbsp;·&nbsp; {horse.age} tuổi
+              {horse.breed} {horse.color ? `(${horse.color})` : ''} &nbsp;·&nbsp; {horse.age} tuổi &nbsp;·&nbsp; {horse.gender === 'M' ? 'Đực' : 'Cái'}
+              {horse.dateOfBirth && ` · Sinh: ${horse.dateOfBirth}`}
             </div>
+            {(horse.trainerName || horse.stableName || horse.pedigree) && (
+              <div style={{ color: '#8a8270', fontSize: '0.82rem', marginBottom: 14 }}>
+                {horse.pedigree && <span className="me-3">🧬 {horse.pedigree}</span>}
+                {horse.trainerName && <span className="me-3">🧑‍🏫 {horse.trainerName}</span>}
+                {horse.stableName && <span className="me-3">🏡 {horse.stableName}</span>}
+              </div>
+            )}
 
             {/* Rating bar */}
             <div style={{ maxWidth: 280 }}>
@@ -308,7 +333,7 @@ export default function HorseDetailPage() {
                   />
                 </Form.Group>
               </Col>
-              <Col md={6}>
+              <Col md={3}>
                 <Form.Group>
                   <Form.Label style={{ color: '#c8bea0' }}>Giới tính</Form.Label>
                   <Form.Select {...register('gender')} style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}>
@@ -317,14 +342,78 @@ export default function HorseDetailPage() {
                   </Form.Select>
                 </Form.Group>
               </Col>
-              <Col md={6}>
+              <Col md={3}>
                 <Form.Group>
-                  <Form.Label style={{ color: '#c8bea0' }}>Màu/Giống <span style={{ color: '#e55' }}>*</span></Form.Label>
+                  <Form.Label style={{ color: '#c8bea0' }}>Giống ngựa <span style={{ color: '#e55' }}>*</span></Form.Label>
                   <Form.Control
                     {...register('breed', { required: 'Bắt buộc' })}
                     isInvalid={!!errors.breed}
                     style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}
                   />
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Màu sắc</Form.Label>
+                  <Form.Control
+                    {...register('color')}
+                    style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Ngày sinh</Form.Label>
+                  <Form.Control
+                    type="date"
+                    {...register('dateOfBirth')}
+                    style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Huyết thống (Pedigree)</Form.Label>
+                  <Form.Control
+                    {...register('pedigree')}
+                    style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Huấn luyện viên</Form.Label>
+                  <Form.Control
+                    {...register('trainerName')}
+                    style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Trang trại (Stable)</Form.Label>
+                  <Form.Control
+                    {...register('stableName')}
+                    style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={12}>
+                <Form.Group>
+                  <Form.Label style={{ color: '#c8bea0' }}>Ảnh ngựa</Form.Label>
+                  <div className="d-flex align-items-center gap-3">
+                    <ImageDropzone
+                      size={56}
+                      value={watchImageUrl}
+                      onUploaded={(url) => setValue('imageUrl', url, { shouldDirty: true })}
+                      onError={(msg) => setToast({ message: msg, variant: 'danger' })}
+                    />
+                    <Form.Control
+                      placeholder="hoặc dán URL ảnh..."
+                      {...register('imageUrl')}
+                      style={{ background: '#2a2418', color: '#f0e8d0', border: '1px solid #3d3424' }}
+                    />
+                  </div>
                 </Form.Group>
               </Col>
               <Col md={6}>

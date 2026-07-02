@@ -6,6 +6,7 @@ import { getApiErrorMessage } from '../../utils/apiError';
 import Loading from '../../components/common/Loading';
 import ErrorState from '../../components/common/ErrorState';
 import Toaster from '../../components/common/Toaster';
+import ImageDropzone from '../../components/common/ImageDropzone';
 import '../owner/owner-theme.css';
 
 export default function JockeyProfilePage() {
@@ -15,7 +16,8 @@ export default function JockeyProfilePage() {
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm();
+  const watchImageUrl = watch('imageUrl');
 
   const load = () => {
     jockeyService.getProfile()
@@ -24,6 +26,12 @@ export default function JockeyProfilePage() {
         reset({
           weight: data.weight || '',
           experienceYears: data.experienceYears || '',
+          height: data.height || '',
+          nationality: data.nationality || '',
+          licenseNumber: data.licenseNumber || '',
+          achievements: data.achievements || '',
+          imageUrl: data.imageUrl || '',
+          dateOfBirth: data.dateOfBirth ? data.dateOfBirth.substring(0, 10) : '',
         });
       })
       .catch((err) => {
@@ -46,6 +54,12 @@ export default function JockeyProfilePage() {
       const updated = await jockeyService.updateProfile({
         weight: Number(data.weight),
         experienceYears: Number(data.experienceYears),
+        height: data.height ? Number(data.height) : null,
+        nationality: data.nationality,
+        licenseNumber: data.licenseNumber,
+        achievements: data.achievements,
+        imageUrl: data.imageUrl,
+        dateOfBirth: data.dateOfBirth,
       });
       setProfile(updated);
       setToast({ message: 'Cập nhật hồ sơ thành công.', variant: 'success' });
@@ -110,6 +124,92 @@ export default function JockeyProfilePage() {
                   isInvalid={!!errors.experienceYears}
                 />
                 <Form.Control.Feedback type="invalid">{errors.experienceYears?.message}</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Chiều cao (cm)</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="VD: 170"
+                  className="smooth-hover"
+                  {...register('height', {
+                    min: { value: 100, message: 'Chiều cao không hợp lệ' },
+                    max: { value: 250, message: 'Chiều cao không hợp lệ' }
+                  })}
+                  isInvalid={!!errors.height}
+                />
+                <Form.Control.Feedback type="invalid">{errors.height?.message}</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Quốc tịch</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="VD: VN"
+                  className="smooth-hover"
+                  {...register('nationality')}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Ngày sinh</Form.Label>
+                <Form.Control
+                  type="date"
+                  className="smooth-hover"
+                  {...register('dateOfBirth')}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Số giấy phép (License Number)</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="VD: L-12345"
+                  className="smooth-hover"
+                  {...register('licenseNumber')}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col md={12}>
+              <Form.Group>
+                <Form.Label>Ảnh đại diện</Form.Label>
+                <div className="d-flex align-items-center gap-3">
+                  <ImageDropzone
+                    size={64}
+                    rounded
+                    value={watchImageUrl}
+                    onUploaded={(url) => setValue('imageUrl', url, { shouldDirty: true })}
+                    onError={(msg) => setToast({ message: msg, variant: 'danger' })}
+                  />
+                  <Form.Control
+                    type="text"
+                    placeholder="hoặc dán URL ảnh..."
+                    className="smooth-hover"
+                    {...register('imageUrl')}
+                  />
+                </div>
+              </Form.Group>
+            </Col>
+
+            <Col md={12}>
+              <Form.Group>
+                <Form.Label>Thành tích nổi bật</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder="Vô địch giải đấu X, hạng 2 giải Y..."
+                  className="smooth-hover"
+                  {...register('achievements')}
+                />
               </Form.Group>
             </Col>
 

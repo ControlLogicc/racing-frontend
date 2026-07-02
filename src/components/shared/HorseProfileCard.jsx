@@ -24,8 +24,16 @@ export default function HorseProfileCard({ horse, showHistory = false }) {
       {/* Header */}
       <div className="horse-card-header">
         <div className="d-flex align-items-center gap-3">
-          <div className="horse-card-avatar" style={{ position: 'relative' }}>
-            🐎
+          <div className="horse-card-avatar" style={{ position: 'relative', overflow: 'hidden' }}>
+            {horse.imageUrl ? (
+              <img
+                src={horse.imageUrl}
+                alt={horse.name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
+                onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = ''; }}
+              />
+            ) : null}
+            <span style={{ display: horse.imageUrl ? 'none' : '' }}>🐎</span>
             {horse.ratingVerified === false && horse.registrationType === 'PREVIOUSLY_REGISTERED' && (
               <span title="Chờ duyệt bằng chứng" style={{
                 position: 'absolute', top: -5, right: -5, 

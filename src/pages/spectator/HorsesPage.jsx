@@ -16,8 +16,16 @@ const VIPHorseCard = ({ horse }) => {
 
       {/* Header */}
       <div style={{ height: 110, background: 'linear-gradient(135deg, rgba(6,78,59,0.4), rgba(2,6,23,0.9))', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(251,191,36,0.15)' }}>
-        <div style={{ width: 70, height: 70, background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.4)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.2rem' }}>
-          🐎
+        <div style={{ width: 70, height: 70, background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.4)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.2rem', overflow: 'hidden' }}>
+          {horse.imageUrl ? (
+            <img
+              src={horse.imageUrl}
+              alt={horse.name || horse.horseName}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = ''; }}
+            />
+          ) : null}
+          <span style={{ display: horse.imageUrl ? 'none' : '' }}>🐎</span>
         </div>
       </div>
 
@@ -31,7 +39,7 @@ const VIPHorseCard = ({ horse }) => {
         {[
           { label: 'Tuổi', value: horse.age ? `${horse.age} tuổi` : '—' },
           { label: 'Giới tính', value: horse.gender === 'M' ? '♂ Đực' : horse.gender === 'F' ? '♀ Cái' : horse.gender || '—' },
-          { label: 'Màu lông', value: horse.color || '—' },
+          { label: 'Giống / Màu lông', value: [horse.breed, horse.color].filter(Boolean).join(' / ') || '—' },
           { label: 'Rating', value: horse.currentScore != null ? Number(horse.currentScore).toFixed(1) : '—' },
         ].map(({ label, value }) => (
           <div key={label} className="d-flex justify-content-between mb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: 6 }}>

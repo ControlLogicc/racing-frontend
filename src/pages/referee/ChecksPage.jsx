@@ -133,7 +133,7 @@ export default function RefereeChecksPage() {
 
     setSaving(true);
     try {
-      await entryService.preCheck(weightRow.id, {
+      const updatedEntry = await entryService.preCheck(weightRow.id, {
         handicapWeight: savedHandicap,
         actualWeight: savedActual,
         leadWeight: savedLead,
@@ -141,10 +141,10 @@ export default function RefereeChecksPage() {
         weightCheckStatus: status,
         note: preCheckNote,
       });
-      // Cập nhật local state trực tiếp — không refetch để tránh server ghi đè leadWeight
+      // Cập nhật local state bằng dữ liệu trả về từ backend (chứa weightCheckStatus và entryStatus)
       setEntries((prev) => prev.map((en) =>
         en.id === weightRow.id
-          ? { ...en, handicapWeight: savedHandicap, actualWeight: savedActual, leadWeight: savedLead, carriedWeight: savedCarried, weightCheckStatus: status, preCheckNote }
+          ? { ...en, ...updatedEntry }
           : en
       ));
       setToast({ message: 'Đã lưu kiểm tra cân nặng.', variant: 'success' });

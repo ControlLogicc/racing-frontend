@@ -200,6 +200,24 @@ export default function StaffRegistrationsPage() {
           )}
           {!horseLoading && horseDetail && !horseDetail.error && (
             <div className="d-flex flex-column gap-2">
+              <div className="text-center mb-2">
+                <div style={{
+                  width: 72, height: 72, borderRadius: 16, margin: '0 auto 8px',
+                  background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05))',
+                  border: '2px solid rgba(212,175,55,0.3)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, overflow: 'hidden',
+                }}>
+                  {horseDetail.imageUrl ? (
+                    <img
+                      src={horseDetail.imageUrl}
+                      alt={horseDetail.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = ''; }}
+                    />
+                  ) : null}
+                  <span style={{ display: horseDetail.imageUrl ? 'none' : '' }}>🐎</span>
+                </div>
+              </div>
               <div className="row g-3">
                 <div className="col-6">
                   <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Tên ngựa</div>
@@ -218,8 +236,8 @@ export default function StaffRegistrationsPage() {
                   <div>{horseDetail.gender ?? '—'}</div>
                 </div>
                 <div className="col-6">
-                  <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Màu lông</div>
-                  <div>{horseDetail.color ?? '—'}</div>
+                  <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Giống / Màu lông</div>
+                  <div>{[horseDetail.breed, horseDetail.color].filter(Boolean).join(' / ') || '—'}</div>
                 </div>
                 <div className="col-6">
                   <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Class</div>
@@ -233,6 +251,30 @@ export default function StaffRegistrationsPage() {
                   <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Owner</div>
                   <div>{horseDetail.ownerName ?? selectedReg.ownerName ?? '—'}</div>
                 </div>
+                {horseDetail.dateOfBirth && (
+                  <div className="col-6">
+                    <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Ngày sinh</div>
+                    <div>{horseDetail.dateOfBirth}</div>
+                  </div>
+                )}
+                {horseDetail.pedigree && (
+                  <div className="col-6">
+                    <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Huyết thống</div>
+                    <div>{horseDetail.pedigree}</div>
+                  </div>
+                )}
+                {horseDetail.trainerName && (
+                  <div className="col-6">
+                    <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Huấn luyện viên</div>
+                    <div>{horseDetail.trainerName}</div>
+                  </div>
+                )}
+                {horseDetail.stableName && (
+                  <div className="col-6">
+                    <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Trang trại</div>
+                    <div>{horseDetail.stableName}</div>
+                  </div>
+                )}
                 {horseDetail.healthNote && (
                   <div className="col-12">
                     <div style={{ color: '#94a3b8', fontSize: 12, textTransform: 'uppercase' }}>Ghi chú sức khoẻ</div>
