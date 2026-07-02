@@ -103,6 +103,11 @@ const realService = {
     return createdResults;
   },
 
+  // POST /races/{raceId}/results { results: [{ entryId, position, finishTime, resultStatus }] }
+  // Lưu nhiều kết quả 1 lần, backend validate + lưu atomically (rollback toàn bộ nếu 1 dòng lỗi).
+  createBatchForRace: (raceId, results) =>
+    api.post(`/races/${raceId}/results`, { results }).then((r) => mapResults(r.data)),
+
   // Backend chưa có PUT /results/{id} — không thể chỉnh sửa kết quả riêng lẻ
   update: (id, { position, finishTime }) =>
     api.put(`/results/${id}`, { position, finishTime }).then((r) => mapResult(r.data)),

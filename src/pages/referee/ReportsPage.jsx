@@ -4,6 +4,7 @@ import { Form, Button, Modal, Row, Col } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
 import { refereeReportService } from '../../services/refereeReportService';
 import { raceService } from '../../services/raceService';
+import { entryService } from '../../services/entryService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
 import Loading from '../../components/common/Loading';
@@ -13,23 +14,55 @@ import DataTable from '../../components/common/DataTable';
 import Toaster from '../../components/common/Toaster';
 import './referee-theme.css'; // Import Cyber Theme
 
-// Backend reportType values
+// 4 loại chuẩn theo spec BE — nhưng enum RefereeReportType.java hiện tại (PRE_RACE, VIOLATION, DECISION)
+// CHƯA được cập nhật để nhận result_confirmation/race_review/pre_race_check (sẽ bị 400 "Invalid report type").
+// Chỉ show "violation" trong dropdown tới khi BE cập nhật enum; 3 loại còn lại giữ lại comment để bật lại nhanh.
 const REPORT_TYPES = [
-  { value: 'PRE_RACE', label: 'Trước đua' },
-  { value: 'VIOLATION', label: 'Vi phạm' },
-  { value: 'DECISION', label: 'Quyết định' },
+  { value: 'violation', label: 'Báo cáo vi phạm' },
+  // { value: 'result_confirmation', label: 'Xác nhận kết quả' },   // chờ BE thêm RESULT_CONFIRMATION vào enum
+  // { value: 'race_review', label: 'Rà soát cuộc đua' },           // chờ BE thêm RACE_REVIEW vào enum
+  // { value: 'pre_race_check', label: 'Kiểm tra trước đua' },      // chờ BE đổi PRE_RACE → PRE_RACE_CHECK
 ];
 
-const TYPE_BADGE = { PRE_RACE: 'info', VIOLATION: 'danger', DECISION: 'warning' };
+const TYPE_BADGE = { pre_race_check: 'info', violation: 'danger', result_confirmation: 'warning', race_review: 'secondary' };
+
+// Value CHUẨN theo BE (đúng 5 giá trị, không thêm/bớt) — gửi sai value (vd label tiếng Việt) sẽ gây lỗi.
+const DECISION_OPTIONS = [
+  { value: '', label: '-- Không có quyết định --' },
+  { value: 'warning', label: 'Cảnh cáo' },
+  { value: 'no_action', label: 'Không xử lý' },
+  { value: 'dnf', label: 'Không hoàn thành' },
+  { value: 'scratched', label: 'Rút khỏi cuộc đua' },
+  { value: 'disqualified', label: 'Loại khỏi giải' },
+];
+
+// Không phải cứ có report là ban/disqualified — chỉ 3 quyết định dưới đây mới đụng tới entry/result/standings,
+// mỗi loại tác động khác nhau (xem note tương ứng). Cảnh cáo/Phạt/Xác nhận... chỉ lưu report, không đổi gì khác.
+const DECISION_IMPACT_NOTE = {
+  dnf: 'Entry sẽ được đánh dấu KHÔNG HOÀN THÀNH (resultStatus = dnf) — thứ tự kết quả (position) sẽ được cập nhật lại.',
+  scratched: 'Entry sẽ bị RÚT KHỎI GIẢI (entryStatus = scratched) — nếu race đã có kết quả, thứ tự sẽ được cập nhật lại.',
+  disqualified: 'Entry sẽ bị TRUẤT QUYỀN THI ĐẤU (entryStatus & resultStatus = disqualified) — thứ tự kết quả sẽ được dồn lại.',
+};
+const hasStandingsImpact = (decision) =>
+  Object.prototype.hasOwnProperty.call(DECISION_IMPACT_NOTE, String(decision || '').trim().toLowerCase().replace(' ', '_'));
+
+// BE chỉ nhận đúng 5 giá trị (ALLOWED_DECISIONS). Report cũ có thể trả về "penalized" (giá trị lưu DB nội bộ,
+// không phải giá trị API hợp lệ) nếu entryStatus của entry đã bị đổi khác dnf/scratched sau khi report được tạo —
+// gửi thẳng giá trị đó lên lại khi Sửa report sẽ bị BE trả 400. Validate lại trước khi gửi.
+const ALLOWED_DECISION_VALUES = new Set(DECISION_OPTIONS.map((d) => d.value).filter(Boolean));
+const sanitizeDecision = (decision) => (ALLOWED_DECISION_VALUES.has(decision) ? decision : null);
+
+// DB report_status chỉ nhận draft/submitted/closed — KHÔNG nhận pending/resolved (CHECK constraint).
+const DEFAULT_REPORT_STATUS = 'submitted';
 
 const EMPTY_FORM = {
   raceId: '',
   entryId: '',
-  reportType: 'PRE_RACE',
+  reportType: 'violation',
   description: '',
   decision: '',
   penalty: '',
-  reportStatus: 'PENDING',
+  reportStatus: DEFAULT_REPORT_STATUS,
 };
 
 export default function RefereeReportsPage() {
@@ -45,6 +78,17 @@ export default function RefereeReportsPage() {
   const [editRow, setEditRow] = useState(null);
   const [editDescription, setEditDescription] = useState('');
   const [savingEdit, setSavingEdit] = useState(false);
+  const [raceEntries, setRaceEntries] = useState([]);
+  const [loadingEntries, setLoadingEntries] = useState(false);
+
+  const loadEntries = (raceId) => {
+    if (!raceId) { setRaceEntries([]); return; }
+    setLoadingEntries(true);
+    entryService.getByRace(Number(raceId))
+      .then(setRaceEntries)
+      .catch(() => setRaceEntries([]))
+      .finally(() => setLoadingEntries(false));
+  };
 
   const load = async () => {
     try {
@@ -80,7 +124,11 @@ export default function RefereeReportsPage() {
   const handleSaveEdit = async () => {
     setSavingEdit(true);
     try {
-      await refereeReportService.update(editRow.id, { ...editRow, description: editDescription });
+      await refereeReportService.update(editRow.id, {
+        ...editRow,
+        description: editDescription,
+        decision: sanitizeDecision(editRow.decision),
+      });
       setToast({ message: 'Đã cập nhật báo cáo.', variant: 'success' });
       setEditRow(null);
       refetch();
@@ -88,11 +136,19 @@ export default function RefereeReportsPage() {
     finally { setSavingEdit(false); }
   };
 
-  const set = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  const set = (field) => (e) => {
+    const value = e.target.value;
+    setForm((prev) => ({ ...prev, [field]: value, ...(field === 'raceId' ? { entryId: '' } : {}) }));
+    if (field === 'raceId') loadEntries(value);
+  };
 
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!form.raceId || !form.description.trim()) return;
+    if (hasStandingsImpact(form.decision) && !form.entryId) {
+      setToast({ message: 'Quyết định này cần chọn Entry cụ thể để áp dụng.', variant: 'warning' });
+      return;
+    }
     setSubmitting(true);
     try {
       await refereeReportService.create({
@@ -102,10 +158,17 @@ export default function RefereeReportsPage() {
         description: form.description,
         decision: form.decision || null,
         penalty: form.penalty || null,
-        reportStatus: form.reportStatus || 'PENDING',
+        reportStatus: form.reportStatus || DEFAULT_REPORT_STATUS,
       });
-      setToast({ message: 'Đã gửi báo cáo.', variant: 'success' });
-      setForm(EMPTY_FORM);
+      setToast({
+        message: hasStandingsImpact(form.decision)
+          ? 'Đã gửi báo cáo — entry/kết quả đã được cập nhật.'
+          : 'Đã gửi báo cáo.',
+        variant: 'success',
+      });
+      // Reload lại danh sách entry của race để cập nhật entryStatus mới nhất (vd: scratched/disqualified)
+      loadEntries(form.raceId);
+      setForm((prev) => ({ ...EMPTY_FORM, raceId: prev.raceId }));
       refetch();
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Gửi báo cáo thất bại.'), variant: 'danger' });
@@ -119,11 +182,15 @@ export default function RefereeReportsPage() {
     {
       key: 'reportType',
       label: 'Loại báo cáo',
-      render: (r) => (
-        <span className={`cyber-badge cyber-badge-${TYPE_BADGE[r.reportType] ?? 'secondary'}`}>
-          {REPORT_TYPES.find((t) => t.value === r.reportType)?.label ?? r.reportType}
-        </span>
-      ),
+      render: (r) => {
+        // BE trả reportType uppercase (enum.name()) dù FE gửi lowercase — so sánh không phân biệt hoa/thường.
+        const normalized = String(r.reportType || '').toLowerCase();
+        return (
+          <span className={`cyber-badge cyber-badge-${TYPE_BADGE[normalized] ?? 'secondary'}`}>
+            {REPORT_TYPES.find((t) => t.value === normalized)?.label ?? r.reportType}
+          </span>
+        );
+      },
     },
     {
       key: 'description',
@@ -171,8 +238,23 @@ export default function RefereeReportsPage() {
           </Form.Group>
 
           <Form.Group style={{ flex: 1, minWidth: 200 }}>
-            <Form.Label className="cyber-form-label">Entry ID (Tùy chọn)</Form.Label>
-            <Form.Control type="number" className="cyber-input" value={form.entryId} onChange={set('entryId')} placeholder="ID của entry..." />
+            <Form.Label className="cyber-form-label">Entry (Tùy chọn)</Form.Label>
+            <Form.Select
+              className="cyber-input"
+              value={form.entryId}
+              onChange={set('entryId')}
+              disabled={!form.raceId || loadingEntries}
+            >
+              <option value="">
+                {!form.raceId ? '-- Chọn race trước --' : loadingEntries ? 'Đang tải entry...' : '-- Không gắn entry --'}
+              </option>
+              {raceEntries.map((en) => (
+                <option key={en.id} value={en.id}>
+                  🐎 {en.horseName}{en.jockeyName ? ` — 🏇 ${en.jockeyName}` : ''}
+                  {['disqualified', 'dnf', 'scratched'].includes(String(en.status || '').toLowerCase()) ? ` (${en.status})` : ''}
+                </option>
+              ))}
+            </Form.Select>
           </Form.Group>
 
           <Form.Group style={{ flex: 1, minWidth: 200 }}>
@@ -213,14 +295,14 @@ export default function RefereeReportsPage() {
 
           <Form.Group style={{ flex: 1, minWidth: 200 }}>
             <Form.Label className="cyber-form-label text-info">Quyết định (Decision)</Form.Label>
-            <Form.Control
-              className="cyber-input"
-              as="textarea"
-              rows={3}
-              value={form.decision}
-              onChange={set('decision')}
-              placeholder="Kết luận của trọng tài..."
-            />
+            <Form.Select className="cyber-input" value={form.decision} onChange={set('decision')}>
+              {DECISION_OPTIONS.map((d) => (
+                <option key={d.value} value={d.value}>{d.label}</option>
+              ))}
+            </Form.Select>
+            {DECISION_IMPACT_NOTE[form.decision] && (
+              <Form.Text className="text-danger">⚠️ {DECISION_IMPACT_NOTE[form.decision]}</Form.Text>
+            )}
           </Form.Group>
         </div>
 
@@ -264,9 +346,14 @@ export default function RefereeReportsPage() {
               <Row>
                 <Col sm={6}>
                   <div className="cyber-form-label">Loại báo cáo</div>
-                  <span className={`cyber-badge cyber-badge-${TYPE_BADGE[detailRow.reportType] ?? 'secondary'}`}>
-                    {REPORT_TYPES.find((t) => t.value === detailRow.reportType)?.label ?? detailRow.reportType}
-                  </span>
+                  {(() => {
+                    const normalized = String(detailRow.reportType || '').toLowerCase();
+                    return (
+                      <span className={`cyber-badge cyber-badge-${TYPE_BADGE[normalized] ?? 'secondary'}`}>
+                        {REPORT_TYPES.find((t) => t.value === normalized)?.label ?? detailRow.reportType}
+                      </span>
+                    );
+                  })()}
                 </Col>
                 <Col sm={6}>
                   <div className="cyber-form-label">Referee</div>
