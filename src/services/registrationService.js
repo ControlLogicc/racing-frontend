@@ -31,7 +31,7 @@ const mockService = {
   },
   cancel: (id) => {
     mockStore = mockStore.map((r) =>
-      r.id === id ? { ...r, status: RACE_REGISTRATION_STATUS.CANCELLED } : r
+      r.id === id ? { ...r, status: RACE_REGISTRATION_STATUS.WITHDRAWN } : r
     );
     return Promise.resolve(mockStore.find((r) => r.id === id));
   },
@@ -101,8 +101,8 @@ const realService = {
   approve: (id) => api.put(`/registrations/${id}/approve`).then((r) => mapReg(r.data)),
   reject: (id) => api.put(`/registrations/${id}/reject`).then((r) => mapReg(r.data)),
 
-  // Owner huỷ đăng ký
-  cancel: (id) => api.patch(`/registrations/${id}/cancel`).then((r) => mapReg(r.data)),
+  // Owner rút đơn đăng ký
+  cancel: (id) => api.put(`/registrations/${id}/withdraw`).then((r) => mapReg(r.data)),
 };
 
 export const registrationService = USE_MOCK ? mockService : realService;

@@ -28,8 +28,10 @@ const mockService = {
     return Promise.resolve(created);
   },
   cancel: (id) => {
-    mockStore = mockStore.filter((i) => i.id !== id);
-    return Promise.resolve({ success: true });
+    mockStore = mockStore.map((i) =>
+      i.id === id ? { ...i, status: RACE_INVITATION_STATUS.CANCELLED, respondedAt: new Date().toISOString() } : i
+    );
+    return Promise.resolve(mockStore.find((i) => i.id === id));
   },
   accept: (id) => {
     mockStore = mockStore.map((i) =>
@@ -104,8 +106,7 @@ const realService = {
   accept: (id) => api.put(`/invitations/${id}/accept`).then((r) => mapInv(r.data)),
   decline: (id) => api.put(`/invitations/${id}/decline`).then((r) => mapInv(r.data)),
 
-  // Backend chưa có endpoint — sẽ trả lỗi rõ ràng thay vì gọi sai
-  cancel: () => Promise.reject(new Error('Chức năng huỷ lời mời chưa được backend hỗ trợ.')),
+  cancel: (id) => api.put(`/invitations/${id}/cancel`).then((r) => mapInv(r.data)),
   setDeadline: () => Promise.reject(new Error('Chức năng chỉnh deadline chưa được backend hỗ trợ.')),
   removeExpired: () => Promise.reject(new Error('Chức năng loại hết hạn chưa được backend hỗ trợ.')),
 };

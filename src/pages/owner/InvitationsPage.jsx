@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form, Button, Spinner, Row, Col, Modal, Badge } from 'react-bootstrap';
-import { useAuth } from '../../hooks/useAuth';
 import { registrationService } from '../../services/registrationService';
 import { invitationService } from '../../services/invitationService';
 import { userService } from '../../services/userService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
+import { RACE_INVITATION_STATUS } from '../../constants/status';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
@@ -15,13 +15,18 @@ import StatusBadge from '../../components/common/StatusBadge';
 import Toaster from '../../components/common/Toaster';
 import './owner-theme.css';
 
+const CANCELLABLE_INVITATION_STATUSES = new Set([
+  RACE_INVITATION_STATUS.SENT,
+  RACE_INVITATION_STATUS.PENDING_RESPONSE,
+]);
+
 export default function OwnerInvitationsPage() {
-  const { user } = useAuth();
   const [registrations, setRegistrations] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [cancellingId, setCancellingId] = useState(null);
   const [toast, setToast] = useState(null);
 
   const [eligibleJockeys, setEligibleJockeys] = useState([]);
@@ -91,13 +96,26 @@ export default function OwnerInvitationsPage() {
       reset();
       
       // Reload invitations
-      invitationService.getAll().then((invs) =>
-        setInvitations(invs.filter((i) => registrations.some((r) => r.id === i.registrationId)))
-      );
+      load();
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Gửi lời mời thất bại.'), variant: 'danger' });
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleCancelInvitation = async (invitation) => {
+    if (!window.confirm(`Hủy lời mời jockey "${invitation.jockeyName}" cho race "${invitation.raceName}"?`)) return;
+
+    setCancellingId(invitation.id);
+    try {
+      await invitationService.cancel(invitation.id);
+      setToast({ message: 'Đã hủy lời mời.', variant: 'success' });
+      load();
+    } catch (err) {
+      setToast({ message: getApiErrorMessage(err, 'Hủy lời mời thất bại.'), variant: 'danger' });
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -111,6 +129,20 @@ export default function OwnerInvitationsPage() {
       key: 'respondedAt',
       label: 'Ngày trả lời',
       render: (r) => r.respondedAt ? formatDate(r.respondedAt) : '—',
+    },
+    {
+      key: 'action',
+      label: '',
+      render: (r) => CANCELLABLE_INVITATION_STATUSES.has(r.status) ? (
+        <button
+          className="btn-outline-gold-sm"
+          style={{ color: '#e57373', borderColor: '#e57373' }}
+          disabled={cancellingId === r.id}
+          onClick={() => handleCancelInvitation(r)}
+        >
+          {cancellingId === r.id ? 'Đang hủy...' : 'Hủy lời mời'}
+        </button>
+      ) : null,
     },
   ];
 

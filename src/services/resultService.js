@@ -48,11 +48,14 @@ const mockService = {
 //   jockeyId, jockeyName, position, finishTime, resultStatus, prizeAmount, scoreAwarded }
 // Frontend JSX: { id, ... }
 const mapResult = (r) => ({
-  id: r.resultId,
+  id: r.resultId ?? r.id,
   resultId: r.resultId,
   entryId: r.entryId,
   raceId: r.raceId,
   raceName: r.raceName,
+  raceDate: r.raceDate ?? r.scheduledTime ?? r.raceTime ?? r.createdAt,
+  seasonId: r.seasonId,
+  seasonName: r.seasonName,
   horseId: r.horseId,
   horseName: r.horseName,
   jockeyId: r.jockeyId,
@@ -61,7 +64,7 @@ const mapResult = (r) => ({
   finishTime: r.finishTime,
   resultStatus: r.resultStatus,
   prizeAmount: r.prizeAmount,
-  prize: r.prizeAmount, // maps to prize for frontend backward compatibility
+  prize: r.prizeAmount ?? r.prize, // maps to prize for frontend backward compatibility
   scoreAwarded: r.scoreAwarded,
   createdAt: r.createdAt,
   updatedAt: r.updatedAt,
@@ -90,7 +93,14 @@ const realService = {
 
   // GET /results/{raceId} (NOT /races/{raceId}/results)
   getByRace: (raceId) => api.get(`/results/${raceId}`).then((r) => mapResults(r.data)),
-  getByHorse: (horseId) => api.get(`/results/horse/${horseId}`).then((r) => mapResults(r.data)),
+  getByHorse: async (horseId) => {
+    try {
+      return await api.get(`/results/horse/${horseId}`).then((r) => mapResults(r.data));
+    } catch {
+      const allResults = await realService.getAll();
+      return allResults.filter((r) => String(r.horseId) === String(horseId));
+    }
+  },
 
   // POST /results { entryId, position, finishTime, resultStatus }
   create: (payload) => api.post('/results', payload).then((r) => mapResult(r.data)),
