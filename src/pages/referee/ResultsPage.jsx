@@ -24,8 +24,10 @@ export default function RefereeResultsPage() {
   const [savingEdit, setSavingEdit] = useState(false);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
-  // rowInputs: { [entryId]: { position, finishTime, saving } }
+  // rowInputs: { [entryId]: { position, finishTime } }
   const [rowInputs, setRowInputs] = useState({});
+  // savingGroup: { [raceId]: boolean }
+  const [savingGroup, setSavingGroup] = useState({});
 
   const load = () => {
     Promise.all([
@@ -60,40 +62,80 @@ export default function RefereeResultsPage() {
     const raceResults = results.filter((r) => r.raceId === raceId && r.id !== excludeResultId);
     for (const r of raceResults) {
       if (!r.finishTime) continue;
-      if (position > r.position && finishTime <= r.finishTime) {
-        return `Thời gian phải chậm hơn (lớn hơn) ngựa hạng ${r.position} (${r.finishTime})`;
+      if (position > r.position && finishTime < r.finishTime) {
+        return `Thời gian không được nhanh hơn ngựa hạng ${r.position} (${r.finishTime})`;
       }
-      if (position < r.position && finishTime >= r.finishTime) {
-        return `Thời gian phải nhanh hơn (nhỏ hơn) ngựa hạng ${r.position} (${r.finishTime})`;
+      if (position < r.position && finishTime > r.finishTime) {
+        return `Thời gian không được chậm hơn ngựa hạng ${r.position} (${r.finishTime})`;
       }
     }
     return null;
   };
 
-  const saveRow = async (entry) => {
-    const inp = rowInputs[entry.id] || {};
-    if (!inp.position) {
-      setToast({ message: 'Nhập số hạng trước khi lưu.', variant: 'warning' });
+  // Validate thứ tự finishTime giữa các dòng đang nhập trong cùng 1 lần lưu (không chỉ so với kết quả đã có sẵn)
+  const validateBatchOrder = (rows) => {
+    const withTime = rows.filter((r) => r.finishTime).sort((a, b) => a.position - b.position);
+    for (let i = 1; i < withTime.length; i++) {
+      const prev = withTime[i - 1];
+      const cur = withTime[i];
+      if (cur.finishTime < prev.finishTime) {
+        return `Hạng ${cur.position} (${cur.finishTime}) không được nhanh hơn hạng ${prev.position} (${prev.finishTime}).`;
+      }
+    }
+    return null;
+  };
+
+  const saveGroup = async (raceId, groupEntries) => {
+    const rows = groupEntries
+      .map((en) => ({ entryId: en.id, horseName: en.horseName, ...(rowInputs[en.id] || {}) }))
+      .filter((r) => r.position);
+
+    if (rows.length === 0) {
+      setToast({ message: 'Nhập số hạng cho ít nhất 1 ngựa trước khi lưu.', variant: 'warning' });
       return;
     }
-    const errObj = validateTime(entry.raceId, Number(inp.position), inp.finishTime);
-    if (errObj) {
-      setToast({ message: errObj, variant: 'warning' });
+
+    const positions = rows.map((r) => Number(r.position));
+    if (new Set(positions).size !== positions.length) {
+      setToast({ message: 'Có 2 ngựa trùng số hạng — kiểm tra lại.', variant: 'warning' });
       return;
     }
-    setField(entry.id, 'saving', true);
+
+    const normalizedRows = rows.map((r) => ({ ...r, position: Number(r.position) }));
+    const batchErr = validateBatchOrder(normalizedRows);
+    if (batchErr) {
+      setToast({ message: batchErr, variant: 'warning' });
+      return;
+    }
+    for (const r of normalizedRows) {
+      const errObj = validateTime(raceId, r.position, r.finishTime);
+      if (errObj) {
+        setToast({ message: `${r.horseName}: ${errObj}`, variant: 'warning' });
+        return;
+      }
+    }
+
+    setSavingGroup((prev) => ({ ...prev, [raceId]: true }));
     try {
-      await resultService.createForRace(entry.raceId, {
-        entryId: entry.id,
-        position: Number(inp.position),
-        finishTime: inp.finishTime || null,
+      await resultService.createBatchForRace(
+        raceId,
+        normalizedRows.map((r) => ({
+          entryId: r.entryId,
+          position: r.position,
+          finishTime: r.finishTime || null,
+        }))
+      );
+      setToast({ message: `Đã lưu ${normalizedRows.length} kết quả.`, variant: 'success' });
+      setRowInputs((prev) => {
+        const n = { ...prev };
+        normalizedRows.forEach((r) => delete n[r.entryId]);
+        return n;
       });
-      setToast({ message: `Đã lưu kết quả cho ${entry.horseName}.`, variant: 'success' });
-      setRowInputs((prev) => { const n = { ...prev }; delete n[entry.id]; return n; });
       refetch();
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Lưu thất bại.'), variant: 'danger' });
-      setField(entry.id, 'saving', false);
+    } finally {
+      setSavingGroup((prev) => ({ ...prev, [raceId]: false }));
     }
   };
 
@@ -103,7 +145,7 @@ export default function RefereeResultsPage() {
   // Group entries by race
   const byRace = enterableEntries.reduce((acc, e) => {
     const key = e.raceId;
-    if (!acc[key]) acc[key] = { raceName: e.raceName, entries: [] };
+    if (!acc[key]) acc[key] = { raceId: e.raceId, raceName: e.raceName, entries: [] };
     acc[key].entries.push(e);
     return acc;
   }, {});
@@ -129,7 +171,7 @@ export default function RefereeResultsPage() {
               <table className="w-100" style={{ borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid rgba(0,200,255,0.2)' }}>
-                    {['NGỰA', 'JOCKEY', 'SỐ CỔNG', 'HANDICAP', 'HẠNG', 'THỜI GIAN', ''].map((h) => (
+                    {['NGỰA', 'JOCKEY', 'SỐ CỔNG', 'HANDICAP', 'HẠNG', 'THỜI GIAN'].map((h) => (
                       <th key={h} style={{ padding: '8px 12px', fontSize: 11, color: '#00c8ff', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700 }}>{h}</th>
                     ))}
                   </tr>
@@ -168,21 +210,21 @@ export default function RefereeResultsPage() {
                             }}
                           />
                         </td>
-                        <td style={{ padding: '10px 12px' }}>
-                          <button
-                            onClick={() => saveRow(en)}
-                            disabled={inp.saving}
-                            className="btn-cyber btn-cyber-danger"
-                            style={{ fontSize: 12, padding: '5px 14px', whiteSpace: 'nowrap' }}
-                          >
-                            {inp.saving ? '...' : 'LƯU'}
-                          </button>
-                        </td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
+            </div>
+            <div className="d-flex justify-content-end mt-3">
+              <button
+                onClick={() => saveGroup(group.raceId, group.entries)}
+                disabled={!!savingGroup[group.raceId]}
+                className="btn-cyber btn-cyber-danger"
+                style={{ fontSize: 13, padding: '8px 22px', whiteSpace: 'nowrap' }}
+              >
+                {savingGroup[group.raceId] ? 'ĐANG LƯU...' : `LƯU TẤT CẢ KẾT QUẢ`}
+              </button>
             </div>
           </div>
         ))
@@ -203,35 +245,40 @@ export default function RefereeResultsPage() {
                 </tr>
               </thead>
               <tbody>
-                {results.map((r) => (
-                  <tr key={r.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '10px 12px', color: '#D4AF37', fontWeight: 700 }}>🏅 {r.position}</td>
-                    <td style={{ padding: '10px 12px', color: '#f0e8d0', fontWeight: 600 }}>{r.raceName}</td>
-                    <td style={{ padding: '10px 12px', color: '#D4AF37' }}>🐎 {r.horseName}</td>
-                    <td style={{ padding: '10px 12px', color: '#aaa' }}>{r.jockeyName}</td>
-                    <td style={{ padding: '10px 12px', color: '#c8bea0', fontFamily: 'monospace' }}>{r.finishTime || '—'}</td>
-                    <td style={{ padding: '10px 12px' }}>
-                      {['PUBLISHED', 'OFFICIAL'].includes(r.resultStatus) ? (
-                        <span style={{ fontSize: 11, color: '#4caf7d', fontStyle: 'italic' }}>Đã công bố</span>
-                      ) : (
-                        <div className="d-flex gap-2">
-                          <button className="btn-cyber btn-cyber-sm" style={{ fontSize: 12, padding: '4px 12px' }}
-                            onClick={() => { setEditResult(r); setEditPos(r.position ?? ''); setEditTime(r.finishTime ?? ''); }}>
-                            Sửa
-                          </button>
-                          <button className="btn-cyber btn-cyber-danger btn-cyber-sm" style={{ fontSize: 12, padding: '4px 12px' }}
-                            onClick={async () => {
-                              if (!window.confirm('Xóa kết quả này?')) return;
-                              try { await resultService.remove(r.id); setToast({ message: 'Đã xóa.', variant: 'success' }); refetch(); }
-                              catch { setToast({ message: 'Xóa thất bại.', variant: 'danger' }); }
-                            }}>
-                            Xóa
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {results.map((r) => {
+                  // Race đã "Công bố chính thức" (Staff set race.status = OFFICIAL) → chỉ xem, không cho sửa/xóa nữa.
+                  const race = races.find((item) => Number(item.id) === Number(r.raceId));
+                  const isRacePublished = race?.status === 'OFFICIAL';
+                  return (
+                    <tr key={r.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '10px 12px', color: '#D4AF37', fontWeight: 700 }}>🏅 {r.position}</td>
+                      <td style={{ padding: '10px 12px', color: '#f0e8d0', fontWeight: 600 }}>{r.raceName}</td>
+                      <td style={{ padding: '10px 12px', color: '#D4AF37' }}>🐎 {r.horseName}</td>
+                      <td style={{ padding: '10px 12px', color: '#aaa' }}>{r.jockeyName}</td>
+                      <td style={{ padding: '10px 12px', color: '#c8bea0', fontFamily: 'monospace' }}>{r.finishTime || '—'}</td>
+                      <td style={{ padding: '10px 12px' }}>
+                        {isRacePublished ? (
+                          <span style={{ fontSize: 11, color: '#4caf7d', fontStyle: 'italic' }}>Đã công bố</span>
+                        ) : (
+                          <div className="d-flex gap-2">
+                            <button className="btn-cyber btn-cyber-sm" style={{ fontSize: 12, padding: '4px 12px' }}
+                              onClick={() => { setEditResult(r); setEditPos(r.position ?? ''); setEditTime(r.finishTime ?? ''); }}>
+                              Sửa
+                            </button>
+                            <button className="btn-cyber btn-cyber-danger btn-cyber-sm" style={{ fontSize: 12, padding: '4px 12px' }}
+                              onClick={async () => {
+                                if (!window.confirm('Xóa kết quả này?')) return;
+                                try { await resultService.remove(r.id); setToast({ message: 'Đã xóa.', variant: 'success' }); refetch(); }
+                                catch { setToast({ message: 'Xóa thất bại.', variant: 'danger' }); }
+                              }}>
+                              Xóa
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

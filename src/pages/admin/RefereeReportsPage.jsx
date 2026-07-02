@@ -24,14 +24,14 @@ const TYPE_LABEL = {
 };
 
 function exportCSV(rows) {
-  const header = ['Race', 'Referee', 'Loại báo cáo', 'Nội dung', 'Vi phạm', 'Quyết định', 'Ngày tạo'];
+  const header = ['Race', 'Referee', 'Loại báo cáo', 'Mô tả', 'Hình phạt', 'Quyết định', 'Ngày tạo'];
   const data = rows.map((r) => [
     r.raceName,
     r.refereeName,
     TYPE_LABEL[r.reportType] ?? r.reportType,
-    `"${(r.content ?? '').replace(/"/g, '""')}"`,
-    `"${(r.violations ?? '').replace(/"/g, '""')}"`,
-    `"${(r.decisions ?? '').replace(/"/g, '""')}"`,
+    `"${(r.description ?? '').replace(/"/g, '""')}"`,
+    `"${(r.penalty ?? '').replace(/"/g, '""')}"`,
+    `"${(r.decision ?? '').replace(/"/g, '""')}"`,
     formatDate(r.createdAt),
   ]);
   const csv = [header, ...data].map((row) => row.join(',')).join('\n');
@@ -111,19 +111,19 @@ export default function AdminRefereeReportsPage() {
       ),
     },
     {
-      key: 'content',
-      label: 'Nội dung',
+      key: 'description',
+      label: 'Mô tả',
       render: (r) => (
         <span style={{ color: '#ccc', fontSize: 13 }}>
-          {r.content?.length > 60 ? r.content.slice(0, 60) + '…' : r.content}
+          {r.description?.length > 60 ? r.description.slice(0, 60) + '…' : r.description}
         </span>
       ),
     },
     {
-      key: 'violations',
-      label: 'Vi phạm',
-      render: (r) => r.violations
-        ? <span style={{ color: '#ffc107', fontSize: 12 }}>{r.violations.slice(0, 40)}{r.violations.length > 40 ? '…' : ''}</span>
+      key: 'decision',
+      label: 'Quyết định',
+      render: (r) => r.decision
+        ? <span style={{ color: '#ffc107', fontSize: 12 }}>{r.decision}</span>
         : <span style={{ color: '#666' }}>—</span>,
     },
     { key: 'createdAt', label: 'Ngày tạo', render: (r) => formatDate(r.createdAt) },
@@ -244,22 +244,22 @@ export default function AdminRefereeReportsPage() {
               <div>
                 <div style={{ color: '#888', fontSize: 12, marginBottom: 6 }}>Nội dung báo cáo</div>
                 <div style={{ background: '#0d0d1a', border: '1px solid #333', borderRadius: 6, padding: '12px 16px', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-                  {detailRow.content || '—'}
+                  {detailRow.description || '—'}
                 </div>
               </div>
-              {detailRow.violations && (
+              {detailRow.penalty && (
                 <div>
-                  <div style={{ color: '#ffc107', fontSize: 12, marginBottom: 6 }}>Vi phạm</div>
+                  <div style={{ color: '#ffc107', fontSize: 12, marginBottom: 6 }}>Hình phạt</div>
                   <div style={{ background: '#0d0d1a', border: '1px solid #333', borderRadius: 6, padding: '12px 16px', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-                    {detailRow.violations}
+                    {detailRow.penalty}
                   </div>
                 </div>
               )}
-              {detailRow.decisions && (
+              {detailRow.decision && (
                 <div>
                   <div style={{ color: '#4caf50', fontSize: 12, marginBottom: 6 }}>Quyết định</div>
                   <div style={{ background: '#0d0d1a', border: '1px solid #333', borderRadius: 6, padding: '12px 16px', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-                    {detailRow.decisions}
+                    {detailRow.decision}
                   </div>
                 </div>
               )}

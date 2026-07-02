@@ -131,6 +131,7 @@ export default function StaffResultsPage() {
                       <th style={{ color: GOLD, borderColor: '#333' }}>Ngựa</th>
                       <th style={{ color: GOLD, borderColor: '#333' }}>Jockey</th>
                       <th style={{ color: GOLD, borderColor: '#333' }}>Thời gian</th>
+                      <th style={{ color: GOLD, borderColor: '#333' }}>Trạng thái</th>
                       <th style={{ color: GOLD, borderColor: '#333' }}>Giải thưởng</th>
                       <th style={{ color: GOLD, borderColor: '#333' }}>Ngày nhập</th>
                     </tr>
@@ -147,6 +148,13 @@ export default function StaffResultsPage() {
                           <td style={{ borderColor: '#2a2a2a' }}>{row.horseName}</td>
                           <td style={{ borderColor: '#2a2a2a', color: '#a0a0a0' }}>{row.jockeyName}</td>
                           <td style={{ borderColor: '#2a2a2a' }}>{row.finishTime}</td>
+                          <td style={{ borderColor: '#2a2a2a' }}>
+                            {row.resultStatus && (
+                              <Badge bg={STATUS_BADGE_VARIANT[row.resultStatus] || 'secondary'}>
+                                {STATUS_LABEL[row.resultStatus] || row.resultStatus}
+                              </Badge>
+                            )}
+                          </td>
                           <td style={{ borderColor: '#2a2a2a', color: '#4caf50' }}>
                             {row.prizeAmount != null ? row.prizeAmount.toLocaleString('vi-VN') + 'đ' : '—'}
                           </td>

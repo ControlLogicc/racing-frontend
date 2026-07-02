@@ -165,6 +165,11 @@ export const STATUS_LABEL = {
   FINAL_EDITED_BY_STAFF: 'Staff đã chỉnh',
   PUBLISHED:             'Đã công bố',
 
+  // RaceResult.resultStatus (BE: PROVISIONAL / OFFICIAL / AMENDED / DISQUALIFIED — uppercase, enum.name())
+  PROVISIONAL:  'Tạm thời',
+  AMENDED:      'Đã chỉnh sửa',
+  DISQUALIFIED: 'Truất quyền',
+
   // Payout
   PROCESSED: 'Đã xử lý',
 };
@@ -228,6 +233,11 @@ export const STATUS_BADGE_VARIANT = {
   REVIEWED_BY_REFEREE:   'info',
   FINAL_EDITED_BY_STAFF: 'warning',
   PUBLISHED:             'success',
+
+  // RaceResult.resultStatus (BE: PROVISIONAL / OFFICIAL / AMENDED / DISQUALIFIED)
+  PROVISIONAL:  'info',
+  AMENDED:      'warning',
+  DISQUALIFIED: 'danger',
 
   // Payout
   PROCESSED: 'success',
