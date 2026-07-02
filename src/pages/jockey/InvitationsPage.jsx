@@ -36,12 +36,15 @@ function HorseModal({ horseId, onClose }) {
 
   const rows = horse ? [
     { icon: '🎂', label: 'Tuổi', value: horse.age ? `${horse.age} tuổi` : '—' },
-    { icon: '🎨', label: 'Màu / Giống', value: horse.breed || '—' },
+    { icon: '🎨', label: 'Màu / Giống', value: [horse.breed, horse.color].filter(Boolean).join(' / ') || '—' },
     { icon: '⚥', label: 'Giới tính', value: GENDER_LABEL[horse.gender] ?? horse.gender ?? '—' },
     { icon: '🏷️', label: 'Hạng (Class)', value: horse.horseClass ?? '—' },
     { icon: '⭐', label: 'Điểm rating', value: horse.rating != null ? horse.rating : '—' },
     { icon: '🏆', label: 'Số lần thắng', value: horse.totalWins != null ? horse.totalWins : '—' },
     { icon: '👤', label: 'Chủ ngựa', value: horse.ownerName || '—' },
+    ...(horse.pedigree ? [{ icon: '🧬', label: 'Huyết thống', value: horse.pedigree }] : []),
+    ...(horse.trainerName ? [{ icon: '🧑‍🏫', label: 'Huấn luyện viên', value: horse.trainerName }] : []),
+    ...(horse.stableName ? [{ icon: '🏡', label: 'Trang trại', value: horse.stableName }] : []),
     ...(horse.healthNote ? [{ icon: '📋', label: 'Ghi chú sức khoẻ', value: horse.healthNote }] : []),
   ] : [];
 
@@ -63,7 +66,15 @@ function HorseModal({ horseId, onClose }) {
           <>
             {/* Tên ngựa */}
             <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              <div style={{ fontSize: 40, marginBottom: 8 }}>🐎</div>
+              {horse.imageUrl ? (
+                <img
+                  src={horse.imageUrl}
+                  alt={horse.name}
+                  style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', marginBottom: 8, border: '2px solid rgba(212,175,55,0.4)' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = ''; }}
+                />
+              ) : null}
+              <div style={{ fontSize: 40, marginBottom: 8, display: horse.imageUrl ? 'none' : '' }}>🐎</div>
               <h4 style={{ color: '#fff', fontWeight: 800, marginBottom: 4 }}>{horse.name}</h4>
               <span style={{
                 display: 'inline-block',

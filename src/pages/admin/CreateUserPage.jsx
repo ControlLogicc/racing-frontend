@@ -7,6 +7,7 @@ import { userService } from '../../services/userService';
 import { ROLES } from '../../constants/roles';
 import { getApiErrorMessage } from '../../utils/apiError';
 import Toaster from '../../components/common/Toaster';
+import ImageDropzone from '../../components/common/ImageDropzone';
 import './season-wizard.css';
 
 const EMPTY_FORM = {
@@ -20,6 +21,12 @@ const EMPTY_FORM = {
   licenseNo: '',
   weight: '',
   experienceYears: '',
+  height: '',
+  nationality: '',
+  jockeyLicenseNumber: '',
+  achievements: '',
+  imageUrl: '',
+  dateOfBirth: '',
 };
 
 const ROLE_OPTIONS = Object.values(ROLES);
@@ -36,6 +43,7 @@ export default function CreateUserPage() {
     formState: { errors },
     reset,
     watch,
+    setValue,
   } = useForm({
     defaultValues: EMPTY_FORM,
     shouldUnregister: true,
@@ -45,6 +53,7 @@ export default function CreateUserPage() {
   const watchedName = watch('fullName');
   const watchedEmail = watch('email');
   const watchedPhone = watch('phone');
+  const watchImageUrl = watch('imageUrl');
 
   const onSubmit = async (data) => {
     try {
@@ -186,6 +195,62 @@ export default function CreateUserPage() {
                   <Form.Control.Feedback type="invalid">{errors.experienceYears?.message}</Form.Control.Feedback>
                 </Form.Group>
               </div>
+            )}
+
+            {selectedRole === ROLES.JOCKEY && (
+              <>
+                <div className="season-form-duo">
+                  <Form.Group className="season-field">
+                    <Form.Label>Chiều cao (cm)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      step="0.01"
+                      {...register('height', {
+                        min: { value: 1, message: 'Chiều cao không hợp lệ' },
+                      })}
+                      isInvalid={!!errors.height}
+                      placeholder="170"
+                    />
+                    <Form.Control.Feedback type="invalid">{errors.height?.message}</Form.Control.Feedback>
+                  </Form.Group>
+
+                  <Form.Group className="season-field">
+                    <Form.Label>Quốc tịch</Form.Label>
+                    <Form.Control {...register('nationality')} placeholder="VN" />
+                  </Form.Group>
+                </div>
+
+                <div className="season-form-duo">
+                  <Form.Group className="season-field">
+                    <Form.Label>Số giấy phép Jockey</Form.Label>
+                    <Form.Control {...register('jockeyLicenseNumber')} placeholder="L-12345" />
+                  </Form.Group>
+
+                  <Form.Group className="season-field">
+                    <Form.Label>Ngày sinh</Form.Label>
+                    <Form.Control type="date" {...register('dateOfBirth')} />
+                  </Form.Group>
+                </div>
+
+                <Form.Group className="season-field">
+                  <Form.Label>Ảnh đại diện</Form.Label>
+                  <div className="d-flex align-items-center gap-3">
+                    <ImageDropzone
+                      size={48}
+                      rounded
+                      value={watchImageUrl}
+                      onUploaded={(url) => setValue('imageUrl', url, { shouldDirty: true })}
+                      onError={(msg) => setToast({ message: msg, variant: 'danger' })}
+                    />
+                    <Form.Control {...register('imageUrl')} placeholder="hoặc dán URL ảnh..." />
+                  </div>
+                </Form.Group>
+
+                <Form.Group className="season-field">
+                  <Form.Label>Thành tích nổi bật</Form.Label>
+                  <Form.Control as="textarea" rows={2} {...register('achievements')} placeholder="Vô địch giải đấu X..." />
+                </Form.Group>
+              </>
             )}
           </section>
 

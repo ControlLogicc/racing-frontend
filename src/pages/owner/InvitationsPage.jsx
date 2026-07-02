@@ -4,6 +4,7 @@ import { Form, Button, Spinner, Row, Col, Modal, Badge } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
 import { registrationService } from '../../services/registrationService';
 import { invitationService } from '../../services/invitationService';
+import { userService } from '../../services/userService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
 import Loading from '../../components/common/Loading';
@@ -26,6 +27,7 @@ export default function OwnerInvitationsPage() {
   const [eligibleJockeys, setEligibleJockeys] = useState([]);
   const [loadingJockeys, setLoadingJockeys] = useState(false);
   const [detailJockey, setDetailJockey] = useState(null);
+  const [jockeyProfiles, setJockeyProfiles] = useState({}); // jockeyId → full JockeyResponse (height, nationality, licenseNumber, achievements, imageUrl, dateOfBirth)
 
   const {
     register,
@@ -42,13 +44,16 @@ export default function OwnerInvitationsPage() {
     setLoading(true);
     Promise.allSettled([
       registrationService.getByOwner(),
-      invitationService.getAll()
+      invitationService.getAll(),
+      userService.getJockeys(),
     ])
-      .then(([regsRes, invsRes]) => {
+      .then(([regsRes, invsRes, jockeysRes]) => {
         const regs = regsRes.status === 'fulfilled' ? regsRes.value : [];
         const invs = invsRes.status === 'fulfilled' ? invsRes.value : [];
+        const jockeys = jockeysRes.status === 'fulfilled' ? jockeysRes.value : [];
         setRegistrations(regs);
         setInvitations(invs.filter((i) => regs.some((r) => r.id === i.registrationId)));
+        setJockeyProfiles(Object.fromEntries(jockeys.map((j) => [j.jockeyId, j])));
       })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu lời mời.')))
       .finally(() => setLoading(false));
@@ -246,7 +251,7 @@ export default function OwnerInvitationsPage() {
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <button
                         type="button"
-                        onClick={() => setDetailJockey(jockey)}
+                        onClick={() => setDetailJockey({ ...jockey, ...jockeyProfiles[jockey.jockeyId] })}
                         style={{
                           padding: '5px 14px', fontSize: 12, borderRadius: 6,
                           background: 'transparent', border: '1px solid rgba(212,175,55,0.4)',
@@ -303,8 +308,18 @@ export default function OwnerInvitationsPage() {
                   background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05))',
                   border: '2px solid rgba(212,175,55,0.4)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  margin: '0 auto 12px', fontSize: 28
-                }}>🏇</div>
+                  margin: '0 auto 12px', fontSize: 28, overflow: 'hidden',
+                }}>
+                  {detailJockey.imageUrl ? (
+                    <img
+                      src={detailJockey.imageUrl}
+                      alt={detailJockey.jockeyName}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = ''; }}
+                    />
+                  ) : null}
+                  <span style={{ display: detailJockey.imageUrl ? 'none' : '' }}>🏇</span>
+                </div>
                 <h4 style={{ color: '#f0e8d0', fontWeight: 700, margin: 0 }}>{detailJockey.jockeyName}</h4>
                 <div style={{ marginTop: 6 }}>
                   {detailJockey.canInvite ? (
@@ -324,6 +339,11 @@ export default function OwnerInvitationsPage() {
                 {[
                   { label: 'Cân nặng', value: detailJockey.weight ? `${detailJockey.weight} kg` : '—', icon: '⚖️' },
                   { label: 'Kinh nghiệm', value: detailJockey.experienceYears ? `${detailJockey.experienceYears} năm` : '—', icon: '📅' },
+                  { label: 'Chiều cao', value: detailJockey.height ? `${detailJockey.height} cm` : '—', icon: '📏' },
+                  { label: 'Quốc tịch', value: detailJockey.nationality || '—', icon: '🌍' },
+                  { label: 'Số giấy phép', value: detailJockey.licenseNumber || '—', icon: '🪪' },
+                  { label: 'Ngày sinh', value: detailJockey.dateOfBirth || '—', icon: '🎂' },
+                  ...(detailJockey.achievements ? [{ label: 'Thành tích', value: detailJockey.achievements, icon: '🏆' }] : []),
                   { label: 'Mã Jockey', value: detailJockey.jockeyId ? `#${detailJockey.jockeyId}` : '—', icon: '🔢' },
                 ].map(({ label, value, icon }) => (
                   <div key={label} style={{

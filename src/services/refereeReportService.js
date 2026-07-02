@@ -30,9 +30,11 @@ const mapReport = (r) => ({
   refereeId: r.refereeId,
   refereeName: r.refereeName,
   reportType: r.reportType,
-  content: r.content,
-  violations: r.violations,
-  decisions: r.decisions,
+  description: r.description ?? r.content,
+  decision: r.decision ?? r.decisions,
+  penalty: r.penalty,
+  reportStatus: r.reportStatus,
+  entryId: r.entryId,
   createdAt: r.createdAt,
   updatedAt: r.updatedAt,
 });
@@ -46,18 +48,20 @@ const realService = {
   getByRace: (raceId) => api.get(`/reports/${raceId}`).then((r) => mapReports(r.data)).catch(() => []),
 
   // POST /reports — REFEREE
-  create: ({ raceId, reportType, content, violations, decisions }) =>
+  create: ({ raceId, entryId, reportType, description, decision, penalty, reportStatus }) =>
     api.post('/reports', {
       raceId,
+      entryId: entryId || null,
       reportType,
-      content,
-      violations: violations || null,
-      decisions: decisions || null,
+      description,
+      decision: decision || null,
+      penalty: penalty || null,
+      reportStatus: reportStatus || 'PENDING',
     }).then((r) => mapReport(r.data)),
 
   // PUT /reports/{id} — ADMIN or REFEREE
-  update: (id, { reportType, content, violations, decisions }) =>
-    api.put(`/reports/${id}`, { reportType, content, violations, decisions })
+  update: (id, { reportType, description, decision, penalty, reportStatus }) =>
+    api.put(`/reports/${id}`, { reportType, description, decision, penalty, reportStatus })
       .then((r) => mapReport(r.data)),
 
   remove: (id) => api.delete(`/reports/${id}`).then((r) => r.data),

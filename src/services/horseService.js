@@ -34,7 +34,13 @@ const mapHorse = (h) => ({
   id: h.horseId,
   name: h.horseName,
   age: h.age,
-  breed: h.color,           // color → breed (hiển thị giống/màu)
+  breed: h.breed,           // color → breed (hiển thị giống/màu)
+  color: h.color,
+  pedigree: h.pedigree,
+  trainerName: h.trainerName,
+  stableName: h.stableName,
+  imageUrl: h.imageUrl,
+  dateOfBirth: h.dateOfBirth,
   gender: h.gender,
   healthNote: h.healthNote,
   rating: h.currentScore,   // currentScore → rating (official)
@@ -60,24 +66,38 @@ const realService = {
   getById: (id) => api.get(`/owner/horses/${id}`).then((r) => mapHorse(r.data)),
 
   // Payload tạo ngựa: { horseName, color, age, gender, healthNote, registrationType, claimedScore, claimedClass }
-  create: ({ name, horseName, age, breed, color, gender, healthNote, registrationType, claimedScore, evidenceLink }) =>
+  create: ({ name, horseName, age, breed, color, gender, healthNote, registrationType, claimedScore, claimedClass, evidenceLink, pedigree, trainerName, stableName, imageUrl, dateOfBirth }) =>
     api.post('/owner/horses', {
       horseName: horseName || name,
-      color: color || breed || '',
+      breed: breed || '',
+      // Backend bắt buộc `color`; nếu Owner chỉ điền "Giống ngựa" thì dùng luôn giá trị đó làm color.
+      color: (color || breed || '').trim(),
+      pedigree: pedigree || '',
+      trainerName: trainerName || '',
+      stableName: stableName || '',
+      imageUrl: imageUrl || '',
+      dateOfBirth: dateOfBirth || null,
       age: Number(age),
       gender: gender || 'M',
       healthNote: healthNote || '',
       registrationType: registrationType || 'NEW',
       ...(registrationType === 'PREVIOUSLY_REGISTERED' && {
         claimedScore: Number(claimedScore),
-        evidenceLink: evidenceLink || '',
+        claimedClass: Number(claimedClass),
+        evidenceLink: evidenceLink || healthNote || '',
       })
     }).then((r) => mapHorse(r.data)),
 
-  update: (id, { name, horseName, age, breed, color, gender, healthNote, status }) =>
+  update: (id, { name, horseName, age, breed, color, gender, healthNote, status, pedigree, trainerName, stableName, imageUrl, dateOfBirth }) =>
     api.put(`/owner/horses/${id}`, {
       horseName: horseName || name,
-      color: color || breed || '',
+      breed: breed || '',
+      color: (color || breed || '').trim(),
+      pedigree: pedigree || '',
+      trainerName: trainerName || '',
+      stableName: stableName || '',
+      imageUrl: imageUrl || '',
+      dateOfBirth: dateOfBirth || null,
       age: Number(age),
       gender: gender || 'M',
       healthNote: healthNote || '',

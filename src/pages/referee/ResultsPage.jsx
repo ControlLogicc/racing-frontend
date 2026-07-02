@@ -55,10 +55,30 @@ export default function RefereeResultsPage() {
     }));
   };
 
+  const validateTime = (raceId, position, finishTime, excludeResultId = null) => {
+    if (!finishTime) return null;
+    const raceResults = results.filter((r) => r.raceId === raceId && r.id !== excludeResultId);
+    for (const r of raceResults) {
+      if (!r.finishTime) continue;
+      if (position > r.position && finishTime <= r.finishTime) {
+        return `Thời gian phải chậm hơn (lớn hơn) ngựa hạng ${r.position} (${r.finishTime})`;
+      }
+      if (position < r.position && finishTime >= r.finishTime) {
+        return `Thời gian phải nhanh hơn (nhỏ hơn) ngựa hạng ${r.position} (${r.finishTime})`;
+      }
+    }
+    return null;
+  };
+
   const saveRow = async (entry) => {
     const inp = rowInputs[entry.id] || {};
     if (!inp.position) {
       setToast({ message: 'Nhập số hạng trước khi lưu.', variant: 'warning' });
+      return;
+    }
+    const errObj = validateTime(entry.raceId, Number(inp.position), inp.finishTime);
+    if (errObj) {
+      setToast({ message: errObj, variant: 'warning' });
       return;
     }
     setField(entry.id, 'saving', true);
@@ -236,6 +256,15 @@ export default function RefereeResultsPage() {
         <Modal.Footer style={{ background: '#0a0f1a', borderColor: 'rgba(0,200,255,0.2)' }}>
           <Button className="btn-cyber btn-cyber-sm" onClick={() => setEditResult(null)}>Hủy</Button>
           <Button className="btn-cyber btn-cyber-danger btn-cyber-sm" disabled={savingEdit} onClick={async () => {
+            if (!editPos) {
+              setToast({ message: 'Nhập số hạng.', variant: 'warning' });
+              return;
+            }
+            const errObj = validateTime(editResult.raceId, Number(editPos), editTime, editResult.id);
+            if (errObj) {
+              setToast({ message: errObj, variant: 'warning' });
+              return;
+            }
             setSavingEdit(true);
             try {
               await resultService.update(editResult.id, { position: Number(editPos), finishTime: editTime });

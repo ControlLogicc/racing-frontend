@@ -374,6 +374,26 @@ export default function StaffHorsesPage() {
         <Modal.Body style={{ background: '#0f172a', color: '#cbd5e1' }}>
           {detailHorse && (
             <div className="d-flex flex-column gap-4">
+              {/* Avatar */}
+              <div className="text-center">
+                <div style={{
+                  width: 72, height: 72, borderRadius: 16, margin: '0 auto', overflow: 'hidden',
+                  background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05))',
+                  border: '2px solid rgba(212,175,55,0.3)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32,
+                }}>
+                  {detailHorse.imageUrl ? (
+                    <img
+                      src={detailHorse.imageUrl}
+                      alt={detailHorse.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = ''; }}
+                    />
+                  ) : null}
+                  <span style={{ display: detailHorse.imageUrl ? 'none' : '' }}>🐎</span>
+                </div>
+              </div>
+
               {/* Thông tin cơ bản */}
               <div className="row g-3">
                 {[
@@ -381,8 +401,12 @@ export default function StaffHorsesPage() {
                   { label: 'Trạng thái', value: null, col: 6, badge: true },
                   { label: 'Tuổi', value: detailHorse.age ?? '—', col: 3 },
                   { label: 'Giới tính', value: detailHorse.gender === 'M' ? '♂ Đực' : detailHorse.gender === 'F' ? '♀ Cái' : detailHorse.gender || '—', col: 3, color: detailHorse.gender === 'M' ? '#60a5fa' : '#f472b6' },
-                  { label: 'Màu lông', value: detailHorse.color || detailHorse.breed || '—', col: 3 },
+                  { label: 'Giống / Màu lông', value: [detailHorse.breed, detailHorse.color].filter(Boolean).join(' / ') || '—', col: 6 },
                   { label: 'Loại đăng ký', value: detailHorse.registrationType || '—', col: 6 },
+                  ...(detailHorse.dateOfBirth ? [{ label: 'Ngày sinh', value: detailHorse.dateOfBirth, col: 6 }] : []),
+                  ...(detailHorse.pedigree ? [{ label: 'Huyết thống', value: detailHorse.pedigree, col: 6 }] : []),
+                  ...(detailHorse.trainerName ? [{ label: 'Huấn luyện viên', value: detailHorse.trainerName, col: 6 }] : []),
+                  ...(detailHorse.stableName ? [{ label: 'Trang trại', value: detailHorse.stableName, col: 6 }] : []),
                 ].map(({ label, value, col, color, badge }) => (
                   <div key={label} className={`col-${col}`}>
                     <div style={{ color: '#94a3b8', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>

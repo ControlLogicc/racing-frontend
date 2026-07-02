@@ -6,7 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://fool-collins-suzuki-testing.trycloudflare.com',
+        target: 'https://dakota-traveler-then-debut.trycloudflare.com',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/uploads': {
+        target: 'https://dakota-traveler-then-debut.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

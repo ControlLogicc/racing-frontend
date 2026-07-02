@@ -45,6 +45,12 @@ const mapJockey = (j) => ({
   email: j.email,
   weight: j.weight,
   experienceYears: j.experienceYears,
+  height: j.height,
+  nationality: j.nationality,
+  licenseNumber: j.licenseNumber,
+  achievements: j.achievements,
+  imageUrl: j.imageUrl,
+  dateOfBirth: j.dateOfBirth,
   role: 'jockey',       // thêm field role để compatible với code cũ filter u.role === 'jockey'
   locked: false,        // JockeyResponse không có locked field
   status: j.status,
@@ -120,7 +126,10 @@ const realService = {
   // GET /referees — danh sách referee (dùng để admin assign referee vào race)
   getReferees: () => api.get('/referees').then((r) => mapReferees(r.data)).catch(() => []),
 
-  create: ({ fullName, email, password, role, phone, staffCode, department, licenseNo, weight, experienceYears }) => {
+  create: ({
+    fullName, email, password, role, phone, staffCode, department, licenseNo, weight, experienceYears,
+    height, nationality, jockeyLicenseNumber, achievements, imageUrl, dateOfBirth,
+  }) => {
     const normalizedRole = role ? role.toUpperCase() : 'SPECTATOR';
     const payload = {
       fullName,
@@ -132,9 +141,15 @@ const realService = {
       department: department || null,
       position: department || null,
       licenseNo: licenseNo || null,
-      licenseNumber: licenseNo || null,
+      // Referee dùng licenseNo; Jockey dùng jockeyLicenseNumber — 2 khái niệm khác nhau, không dùng chung 1 field.
+      licenseNumber: normalizedRole === 'JOCKEY' ? (jockeyLicenseNumber || null) : (licenseNo || null),
       weight: weight ? parseFloat(weight) : null,
       experienceYears: experienceYears ? parseInt(experienceYears, 10) : null,
+      height: height ? parseFloat(height) : null,
+      nationality: nationality || null,
+      achievements: achievements || null,
+      imageUrl: imageUrl || null,
+      dateOfBirth: dateOfBirth || null,
     };
 
     if (['STAFF', 'JOCKEY', 'REFEREE'].includes(normalizedRole)) {
