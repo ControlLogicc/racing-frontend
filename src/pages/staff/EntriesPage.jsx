@@ -164,7 +164,7 @@ export default function StaffEntriesPage() {
                     <th>Cuộc đua</th>
                     <th>Ngựa</th>
                     <th>Jockey</th>
-                    <th>Rating / Class</th>
+                    <th>Rating</th>
                     <th>Số cổng</th>
                     <th>Handicap</th>
                     <th>Trạng thái</th>
@@ -179,7 +179,7 @@ export default function StaffEntriesPage() {
                       <td style={{ color: '#aaa' }}>{e.jockeyName || '—'}</td>
                       <td>
                         {e.currentScore != null ? (
-                          <span style={{ color: '#D4AF37', fontWeight: 600 }}>{e.currentScore} (C{e.horseClass})</span>
+                          <span style={{ color: '#D4AF37', fontWeight: 600 }}>{e.currentScore}</span>
                         ) : '—'}
                         {e.ratingVerified === false && (
                           <span className="badge ms-2" style={{ backgroundColor: '#dc3545', fontSize: '0.65rem' }}>Chưa duyệt</span>

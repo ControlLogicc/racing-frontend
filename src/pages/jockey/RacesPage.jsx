@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
 import { jockeyService } from '../../services/jockeyService';
+import { prizeService } from '../../services/prizeService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import Toaster from '../../components/common/Toaster';
-import { Calendar3, GeoAltFill, PlusCircleFill, Search, CheckCircleFill } from 'react-bootstrap-icons';
+import { Calendar3, GeoAltFill, PlusCircleFill, Search, CheckCircleFill, TrophyFill } from 'react-bootstrap-icons';
 import { Modal, Button, Form, Spinner, Badge } from 'react-bootstrap';
 import '../owner/owner-theme.css';
 
 function RegisterRaceModal({ show, onHide, onSuccess }) {
   const [availableRaces, setAvailableRaces] = useState([]);
+  const [prizes, setPrizes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -22,15 +24,29 @@ function RegisterRaceModal({ show, onHide, onSuccess }) {
     if (show) {
       setLoading(true);
       setError('');
-      jockeyService.getAvailableRaces()
-        .then(setAvailableRaces)
+      Promise.all([
+        jockeyService.getAvailableRaces(),
+        prizeService.getPublicAll().catch(() => []),
+      ])
+        .then(([raceData, prizeData]) => {
+          setAvailableRaces(raceData);
+          setPrizes(prizeData);
+        })
         .catch(err => setError(getApiErrorMessage(err, 'Lỗi khi tải danh sách giải đua.')))
         .finally(() => setLoading(false));
     } else {
       setSelectedRaceId('');
       setNote('');
+      setPrizes([]);
     }
   }, [show]);
+
+  const selectedRace = availableRaces.find((race) => String(race.id || race.raceId) === String(selectedRaceId));
+  const selectedPrizes = prizes
+    .filter((prize) => String(prize.raceId) === String(selectedRaceId))
+    .sort((a, b) => Number(a.position) - Number(b.position));
+  const totalPrize = selectedPrizes.reduce((sum, prize) => sum + Number(prize.amount || 0), 0);
+  const formatPrizeAmount = (amount) => amount != null ? `${Number(amount).toLocaleString('vi-VN')} đ` : '—';
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -83,6 +99,94 @@ function RegisterRaceModal({ show, onHide, onSuccess }) {
                 ))}
               </Form.Select>
             </Form.Group>
+
+            {selectedRace && (
+              <div
+                key={selectedRaceId}
+                className="jockey-race-detail-panel mb-4"
+                style={{
+                  background: 'rgba(212, 175, 55, 0.06)',
+                  border: '1px solid rgba(212, 175, 55, 0.24)',
+                  borderRadius: 8,
+                  padding: '14px 16px',
+                }}
+              >
+                <div className="d-flex justify-content-between align-items-start gap-3 mb-3">
+                  <div>
+                    <div style={{ color: '#D4AF37', fontWeight: 800, fontSize: 17 }}>
+                      {selectedRace.name || selectedRace.raceName}
+                    </div>
+                    <div style={{ color: '#8f856b', fontSize: 12, marginTop: 2 }}>
+                      {selectedRace.meetingName || 'Meeting chưa cập nhật'}
+                    </div>
+                  </div>
+                  <Badge className="jockey-race-status-badge" style={{ background: 'rgba(34,197,94,0.16)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.35)' }}>
+                    {selectedRace.status || 'OPEN_FOR_ENTRY'}
+                  </Badge>
+                </div>
+
+                <div className="row g-2 mb-3">
+                  <div className="col-12 col-sm-6">
+                    <div style={{ color: '#9ca3af', fontSize: 12 }}>Race time</div>
+                    <div style={{ color: '#fff', fontWeight: 600 }}>
+                      <Calendar3 className="me-2" />
+                      {selectedRace.raceTime ? formatDate(selectedRace.raceTime) : 'Chưa có lịch'}
+                    </div>
+                  </div>
+                  <div className="col-12 col-sm-6">
+                    <div style={{ color: '#9ca3af', fontSize: 12 }}>Racecourse</div>
+                    <div style={{ color: '#fff', fontWeight: 600 }}>
+                      <GeoAltFill className="me-2" />
+                      {selectedRace.racecourseName || 'Chưa cập nhật'}
+                    </div>
+                  </div>
+                  <div className="col-12 col-sm-6">
+                    <div style={{ color: '#9ca3af', fontSize: 12 }}>Distance</div>
+                    <div style={{ color: '#fff', fontWeight: 600 }}>
+                      {selectedRace.distance ? `${selectedRace.distance}m` : 'Chưa cập nhật'}
+                    </div>
+                  </div>
+                  <div className="col-12 col-sm-6">
+                    <div style={{ color: '#9ca3af', fontSize: 12 }}>Prize pool</div>
+                    <div className="jockey-prize-pool" style={{ color: '#fff', fontWeight: 600 }}>
+                      <TrophyFill className="me-2" />
+                      {selectedPrizes.length ? formatPrizeAmount(totalPrize) : 'Chưa có cơ cấu'}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 12 }}>
+                  <div style={{ color: '#D4AF37', fontWeight: 700, fontSize: 13, marginBottom: 8 }}>
+                    Prize structure
+                  </div>
+                  {selectedPrizes.length ? (
+                    <div className="d-flex flex-column gap-2">
+                      {selectedPrizes.map((prize) => (
+                        <div
+                          key={prize.id || prize.prizeId || prize.position}
+                          className="jockey-prize-row"
+                          style={{
+                            background: 'rgba(0,0,0,0.18)',
+                            borderRadius: 6,
+                            padding: '8px 10px',
+                            color: '#e5e7eb',
+                            fontSize: 13,
+                          }}
+                        >
+                          <span>#{prize.position}</span>
+                          <strong style={{ color: '#86efac' }}>{formatPrizeAmount(prize.amount)}</strong>
+                          <span style={{ color: '#9ca3af' }}>{prize.score ?? 0} điểm</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ color: '#8f856b', fontSize: 13 }}>
+                      Race này chưa có cơ cấu giải thưởng được công bố.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
             
             <Form.Group className="mb-4">
               <Form.Label className="lux-label">Ghi chú (Tùy chọn)</Form.Label>
