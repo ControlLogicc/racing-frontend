@@ -23,7 +23,15 @@ const mockService = {
   updateProfile: (payload) => Promise.resolve({ ...mockProfile, ...payload }),
   registerForRace: (payload) => Promise.resolve({ id: 1, ...payload }),
   getMyRaceRegistrations: () => Promise.resolve([...mockRegistrations]),
-  getAvailableRaces: () => Promise.resolve([{ id: 1, name: 'Giải Đua Mock', raceTime: new Date().toISOString(), distance: 1000, status: 'OPEN_FOR_ENTRY' }]),
+  getAvailableRaces: () => Promise.resolve([{
+    id: 1,
+    name: 'Giải Đua Mock',
+    raceTime: new Date().toISOString(),
+    distance: 1000,
+    racecourseName: 'Mock Racecourse',
+    meetingName: 'Mock Meeting',
+    status: 'OPEN_FOR_ENTRY',
+  }]),
 };
 
 const mapJockeyProfile = (data) => ({
@@ -54,14 +62,18 @@ const mapJockeyReg = (r) => ({
 });
 
 const mapRace = (r) => ({
-  id: r.raceId,
-  raceId: r.raceId,
-  name: r.raceName,
-  raceName: r.raceName,
-  raceTime: r.scheduledTime,
-  scheduledTime: r.scheduledTime,
+  id: r.raceId ?? r.id,
+  raceId: r.raceId ?? r.id,
+  name: r.raceName ?? r.name,
+  raceName: r.raceName ?? r.name,
+  raceTime: r.scheduledTime ?? r.raceTime,
+  scheduledTime: r.scheduledTime ?? r.raceTime,
   status: r.status,
-  distance: r.distanceMeters,
+  distance: r.distanceMeters ?? r.distance,
+  racecourseName: r.racecourseName,
+  meetingName: r.meetingName,
+  trackType: r.trackType,
+  classRequirement: r.classRequirement,
   registrationOpenAt: r.registrationOpenAt,
   registrationCloseAt: r.registrationCloseAt,
 });

@@ -579,3 +579,128 @@ body:has(.owner-context) {
   transform: scale(1.05) translateY(-2px);
   box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
 }
+
+/* Jockey race registration detail reveal */
+.jockey-race-detail-panel {
+  position: relative;
+  overflow: hidden;
+  animation: raceDetailReveal 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+
+.jockey-race-detail-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 0%, rgba(255, 223, 115, 0.09) 38%, transparent 70%);
+  transform: translateX(-115%);
+  animation: raceDetailSweep 760ms ease-out 120ms both;
+  pointer-events: none;
+}
+
+.jockey-race-detail-panel:hover {
+  border-color: rgba(212, 175, 55, 0.44) !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.34), 0 0 24px rgba(212, 175, 55, 0.13);
+  transform: translateY(-2px);
+}
+
+.jockey-race-status-badge {
+  animation: raceStatusPulse 1.9s ease-in-out infinite;
+  letter-spacing: 0.3px;
+}
+
+.jockey-prize-pool {
+  color: #f8fafc !important;
+  text-shadow: 0 0 14px rgba(249, 168, 38, 0.28);
+  animation: prizePoolGlow 1.8s ease-in-out infinite alternate;
+}
+
+.jockey-prize-row {
+  display: grid;
+  grid-template-columns: 44px minmax(110px, 1fr) 72px;
+  align-items: center;
+  column-gap: 12px;
+  border: 1px solid transparent;
+  animation: prizeRowIn 320ms ease both;
+  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.jockey-prize-row strong {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.jockey-prize-row span:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.jockey-prize-row:nth-child(1) { animation-delay: 70ms; }
+.jockey-prize-row:nth-child(2) { animation-delay: 130ms; }
+.jockey-prize-row:nth-child(3) { animation-delay: 190ms; }
+.jockey-prize-row:nth-child(n + 4) { animation-delay: 240ms; }
+
+.jockey-prize-row:hover {
+  background: rgba(212, 175, 55, 0.10) !important;
+  border-color: rgba(212, 175, 55, 0.28);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+  transform: translateX(4px);
+}
+
+@keyframes raceDetailReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes raceDetailSweep {
+  to {
+    transform: translateX(115%);
+  }
+}
+
+@keyframes raceStatusPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(34, 197, 94, 0.26);
+  }
+}
+
+@keyframes prizePoolGlow {
+  from {
+    filter: brightness(1);
+  }
+  to {
+    filter: brightness(1.12);
+  }
+}
+
+@keyframes prizeRowIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jockey-race-detail-panel,
+  .jockey-race-detail-panel::before,
+  .jockey-race-status-badge,
+  .jockey-prize-pool,
+  .jockey-prize-row {
+    animation: none !important;
+    transition: none !important;
+  }
+}

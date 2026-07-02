@@ -221,6 +221,11 @@ export default function StaffRaceDetailPage() {
       { key: 'gateNumber', label: 'Số cổng', render: (row) => row.gateNumber ?? '—' },
       { key: 'horseName', label: 'Ngựa' },
       { key: 'jockeyName', label: 'Jockey', render: (row) => row.jockeyName || '—' },
+      {
+        key: 'rating',
+        label: 'Rating',
+        render: (row) => row.currentScore ?? '—',
+      },
       { key: 'handicapWeight', label: 'Handicap (kg)', render: (row) => row.handicapWeight != null ? `${row.handicapWeight} kg` : '—' },
       { key: 'actualWeight', label: 'Cân thực (kg)', render: (row) => row.actualWeight != null ? `${row.actualWeight} kg` : '—' },
       { key: 'leadWeight', label: 'Chì (kg)', render: (row) => row.leadWeight != null ? `${row.leadWeight} kg` : '—' },
