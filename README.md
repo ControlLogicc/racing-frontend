@@ -1,84 +1,62 @@
-# 🏇 Horse Racing Management System — Frontend
+# 🐎 HorseRacing — Frontend
 
-Phân hệ giao diện người dùng và quản trị hệ thống đua ngựa.  
-Dự án được xây dựng trên nền tảng **ReactJS** và **Bootstrap 5**.
+Frontend client for **HorseRacingMVP**, a full-stack web application for managing horse racing operations, including race scheduling, event management, and role-based access for different user types.
 
 ---
 
-##  Tech Stack
+## 📋 Overview
 
-| Thành phần | Công nghệ |
+This is the client-side application for HorseRacingMVP, built with React. It consumes the [backend REST API](../horseracing-backend) to provide a tailored interface for each of the platform's 6 user roles — from race administrators to spectators.
+
+## ✨ Key Features
+
+- **Role-Based Interface** — dynamic views and permissions for 6 user roles:
+  - **Admin** — full system control, user and race management
+  - **Staff** — operational management of races and events
+  - **Owner** — manages horses and views race entries
+  - **Jockey** — views assigned races and schedules
+  - **User** — general registered access
+  - **Spectator** — public/read-only access to race information
+- **Race & Schedule Views** — browse, create, and update races and event calendars
+- **JWT-Based Authentication** — secure login flow integrated with the backend API
+- **Responsive UI** — built with React for a smooth cross-device experience
+
+## 🛠️ Tech Stack
+
+| Component | Technology |
 |---|---|
-| Framework | ReactJS (Vite) |
-| UI Library | [Bootstrap 5](https://getbootstrap.com/) & [React-Bootstrap](https://react-bootstrap.github.io/) |
-| Icons | Font Awesome / Bootstrap Icons |
-| HTTP Client | Axios |
+| Library | React |
+| Auth | JWT (via backend API) |
+| Package Manager | npm |
+| Version Control | Git / GitHub |
 
----
+## 👥 My Role — Team Coordinator & Frontend Contributor
 
-##  Hướng dẫn cài đặt
+As team coordinator for this 4-member project, I was responsible for:
+- Breaking down project requirements into tasks and delegating them across the team
+- Managing timelines and tracking deliverables to keep the project on schedule
+- Coordinating integration between this frontend application and the [backend API](../horseracing-backend), including the JWT authentication flow and role-based UI logic
 
-### 1. Yêu cầu môi trường
+## 🚀 Getting Started
 
-- Node.js **>= 18.0**
+### Prerequisites
+- Node.js & npm
+- The [backend service](../horseracing-backend) running locally (or a configured API base URL)
 
-### 2. Cài đặt thư viện
-
+### Setup
 ```bash
+git clone <this-repo-url>
+cd horseracing-frontend
 npm install
-npm install react-bootstrap bootstrap
+npm start
 ```
 
-### 3. Cấu hình Bootstrap
+Update the API base URL in your environment configuration to point to the running backend instance.
 
-Mở file `src/main.jsx` (hoặc `src/App.jsx`) và thêm dòng import sau vào **đầu file**:
+## 📌 Project Status
 
-```js
-import 'bootstrap/dist/css/bootstrap.min.css';
-```
-
-### 4. Chạy dự án
-
-```bash
-npm run dev
-```
+Developed as an academic MVP (Minimum Viable Product) for the Software Engineering / Software Testing coursework at FPT University, demonstrating full-stack integration, role-based UI design, and team collaboration.
 
 ---
 
-##  Cấu trúc thư mục
-
-```
-src/
-├── components/
-│   ├── common/       # Các component dùng chung (Button, Table, Modal, Input)
-│   └── layout/       # Các thành phần khung (Sidebar, Navbar, Footer)
-├── features/         # Module theo chức năng (Quản lý ngựa, Đặt cược, Lịch đua)
-└── services/         # Gọi API bằng Axios kết nối với Backend
-```
-
----
-
-##  Quy tắc chung (Convention)
-
-### Đặt tên
-
-| Loại | Quy tắc | Ví dụ |
-|---|---|---|
-| Component | `PascalCase` | `HorseCard.jsx`, `RaceResult.jsx` |
-| Hàm & Biến | `camelCase` | `handleLogin`, `horseList` |
-
-### Git Flow
-
--  **Tuyệt đối không** push trực tiếp lên `main` hoặc `develop`.
--  Tạo nhánh mới theo cú pháp: `feature/ten-tinh-nang`
--  Tạo **Pull Request (PR)** và chờ Leader review trước khi Merge.
-
----
-
-##  Thành viên Frontend
-
-| Tên | Vai trò |
-|---|---|
-| Tạ Vũ Hảo (Leader)| Devops |
-| Lê Hoàng Quốc Bảo | UI/UX Design & Frontend Developer |
-| Đặng Đình Danh | Frontend Architect & Logic |
+*Developed by a 4-member team at FPT University, Ho Chi Minh City Campus.*
