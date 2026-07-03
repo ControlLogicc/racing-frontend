@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://collectibles-dividend-fully-acc.trycloudflare.com',
+        target: 'https://little-lawyer-beyond-tribune.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://collectibles-dividend-fully-acc.trycloudflare.com',
+        target: 'https://little-lawyer-beyond-tribune.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

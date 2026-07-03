@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Form, Row, Col } from 'react-bootstrap';
 import { registrationService } from '../../services/registrationService';
 import { invitationService } from '../../services/invitationService';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -10,8 +11,18 @@ import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import StatusBadge from '../../components/common/StatusBadge';
 import DataTable from '../../components/common/DataTable';
+import Pagination from '../../components/common/Pagination';
 import Toaster from '../../components/common/Toaster';
 import './owner-theme.css';
+
+const PAGE_SIZE = 10;
+const REGISTRATION_STATUS_OPTIONS = [
+  { value: '', label: 'Tất cả trạng thái' },
+  { value: 'PENDING', label: 'Chờ xét duyệt' },
+  { value: 'APPROVED', label: 'Đã duyệt' },
+  { value: 'REJECTED', label: 'Bị từ chối' },
+  { value: 'WITHDRAWN', label: 'Đã rút đơn' },
+];
 
 const JOCKEY_STATUS_LABEL = {
   [RACE_INVITATION_STATUS.ACCEPTED]: { text: 'Đã nhận', color: '#4caf7d' },
@@ -58,6 +69,9 @@ export default function OwnerRegistrationsPage() {
   const [toast, setToast] = useState(null);
   const [withdrawingId, setWithdrawingId] = useState(null);
   const [cancellingInvitationId, setCancellingInvitationId] = useState(null);
+  const [search, setSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [page, setPage] = useState(1);
 
   const pickJockey = (invitations, registrationId, horseId, raceId) => {
     // Match ưu tiên theo registrationId, fallback theo horseId+raceId
@@ -255,6 +269,19 @@ export default function OwnerRegistrationsPage() {
   const active = rows.filter((r) => r.status === 'APPROVED').length;
   const submitted = rows.filter((r) => r.status === 'PENDING').length;
 
+  const filteredRows = useMemo(() => rows.filter((r) => {
+    const term = search.trim().toLowerCase();
+    const matchSearch = !term
+      || (r.raceName || '').toLowerCase().includes(term)
+      || (r.horseName || '').toLowerCase().includes(term);
+    const matchStatus = !filterStatus || r.status === filterStatus;
+    return matchSearch && matchStatus;
+  }), [rows, search, filterStatus]);
+
+  const pageRows = filteredRows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const handleFilterChange = (setter) => (e) => { setter(e.target.value); setPage(1); };
+
   if (loading) return <Loading />;
   if (error) return <ErrorState message={error} onRetry={refetch} />;
 
@@ -299,12 +326,43 @@ export default function OwnerRegistrationsPage() {
         </div>
       )}
 
+      {/* Tìm kiếm / lọc */}
+      {rows.length > 0 && (
+        <div className="lux-panel mb-3">
+          <Row className="g-3 align-items-end">
+            <Col md={7}>
+              <Form.Group>
+                <Form.Label style={{ fontSize: 13 }}>Tìm theo race / ngựa</Form.Label>
+                <Form.Control
+                  placeholder="VD: Phú Thọ Grand Cup, Thần Mã..."
+                  value={search}
+                  onChange={handleFilterChange(setSearch)}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={5}>
+              <Form.Group>
+                <Form.Label style={{ fontSize: 13 }}>Trạng thái đăng ký</Form.Label>
+                <Form.Select value={filterStatus} onChange={handleFilterChange(setFilterStatus)}>
+                  {REGISTRATION_STATUS_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+        </div>
+      )}
+
       {/* Table */}
       <div className="lux-panel">
         {rows.length === 0 ? (
           <EmptyState message="Bạn chưa nộp đăng ký nào." />
+        ) : filteredRows.length === 0 ? (
+          <EmptyState message="Không tìm thấy đăng ký nào khớp bộ lọc." />
         ) : (
-          <DataTable columns={columns} rows={rows} />
+          <>
+            <DataTable columns={columns} rows={pageRows} />
+            <Pagination page={page} pageSize={PAGE_SIZE} total={filteredRows.length} onPageChange={setPage} />
+          </>
         )}
       </div>
 

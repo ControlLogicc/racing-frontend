@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Modal } from 'react-bootstrap';
+import { Modal, Form, Row, Col } from 'react-bootstrap';
 import { raceService } from '../../services/raceService';
 import { prizeService } from '../../services/prizeService';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -10,7 +10,10 @@ import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import DataTable from '../../components/common/DataTable';
 import StatusBadge from '../../components/common/StatusBadge';
+import Pagination from '../../components/common/Pagination';
 import './owner-theme.css';
+
+const PAGE_SIZE = 10;
 
 function DetailRow({ label, value }) {
   return (
@@ -28,6 +31,9 @@ export default function OwnerOpenRacesPage() {
   const [error, setError] = useState('');
   const [detailRace, setDetailRace] = useState(null);
   const [prizes, setPrizes] = useState([]);
+  const [search, setSearch] = useState('');
+  const [filterClass, setFilterClass] = useState('');
+  const [page, setPage] = useState(1);
 
   const load = () => {
     raceService.getOpen()
@@ -45,6 +51,24 @@ export default function OwnerOpenRacesPage() {
   };
 
   const refetch = () => { setLoading(true); setError(''); load(); };
+
+  const classOptions = useMemo(
+    () => [...new Set(races.map((r) => r.classRequirement).filter(Boolean))].sort(),
+    [races]
+  );
+
+  const filteredRaces = useMemo(() => races.filter((r) => {
+    const term = search.trim().toLowerCase();
+    const matchSearch = !term
+      || (r.name || '').toLowerCase().includes(term)
+      || (r.meetingName || '').toLowerCase().includes(term);
+    const matchClass = !filterClass || String(r.classRequirement) === filterClass;
+    return matchSearch && matchClass;
+  }), [races, search, filterClass]);
+
+  const pageRaces = filteredRaces.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const handleFilterChange = (setter) => (e) => { setter(e.target.value); setPage(1); };
 
   const columns = [
     { key: 'name', label: 'Tên race', render: (r) => <span style={{ fontWeight: 700, color: '#f0e8d0' }}>{r.name}</span> },
@@ -88,11 +112,44 @@ export default function OwnerOpenRacesPage() {
         )}
       </div>
 
+      {races.length > 0 && (
+        <div className="lux-panel mb-3">
+          <Row className="g-3 align-items-end">
+            <Col md={7}>
+              <Form.Group>
+                <Form.Label style={{ fontSize: 13 }}>Tìm theo tên race / meeting</Form.Label>
+                <Form.Control
+                  placeholder="VD: Phú Thọ Grand Cup..."
+                  value={search}
+                  onChange={handleFilterChange(setSearch)}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={5}>
+              <Form.Group>
+                <Form.Label style={{ fontSize: 13 }}>Yêu cầu Class</Form.Label>
+                <Form.Select value={filterClass} onChange={handleFilterChange(setFilterClass)}>
+                  <option value="">Tất cả</option>
+                  {classOptions.map((c) => (
+                    <option key={c} value={c}>{String(c).startsWith('Class') ? c : `Class ${c}`}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+        </div>
+      )}
+
       <div className="lux-panel">
         {races.length === 0 ? (
           <EmptyState message="Hiện không có race nào đang mở để đăng ký." />
+        ) : filteredRaces.length === 0 ? (
+          <EmptyState message="Không tìm thấy race nào khớp bộ lọc." />
         ) : (
-          <DataTable columns={columns} rows={races} />
+          <>
+            <DataTable columns={columns} rows={pageRaces} />
+            <Pagination page={page} pageSize={PAGE_SIZE} total={filteredRaces.length} onPageChange={setPage} />
+          </>
         )}
       </div>
 

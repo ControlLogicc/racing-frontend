@@ -28,8 +28,12 @@ const mockService = {
     _users = _users.map((u) => (u.id === id ? { ...u, role } : u));
     return Promise.resolve(_users.find((u) => u.id === id));
   },
-  setLocked: (id, locked) => {
-    _users = _users.map((u) => (u.id === id ? { ...u, locked } : u));
+  banUser: (id, reason) => {
+    _users = _users.map((u) => (u.id === id ? { ...u, accountStatus: 'banned', bannedReason: reason, bannedAt: new Date().toISOString() } : u));
+    return Promise.resolve(_users.find((u) => u.id === id));
+  },
+  unbanUser: (id) => {
+    _users = _users.map((u) => (u.id === id ? { ...u, accountStatus: 'active', bannedReason: null, bannedAt: null } : u));
     return Promise.resolve(_users.find((u) => u.id === id));
   },
 };
@@ -90,8 +94,7 @@ const mapReferee = (r) => ({
 const mapReferees = (list) => (Array.isArray(list) ? list.map(mapReferee) : []);
 
 const realService = {
-  // BACKEND PENDING: GET /admin/users chưa có trong spec (chỉ có POST).
-  // Return [] để UsersPage không crash — admin vẫn dùng được form tạo user.
+  // GET /admin/users — trả về UserResponse[] gồm cả accountStatus/bannedReason/bannedAt/bannedBy
   getAll: () => api.get('/admin/users').then((r) => (Array.isArray(r.data) ? r.data : [])).catch(() => []),
 
   // GET /jockeys — danh sách jockey (authenticated, dùng cho Owner mời jockey)
@@ -159,9 +162,13 @@ const realService = {
     return api.post('/admin/users', payload).then((r) => r.data);
   },
 
-  // Backend chưa có endpoints cho change role/lock
+  // Backend chưa có endpoint đổi role
   setRole: () => Promise.reject(new Error('Chức năng đổi role chưa được backend hỗ trợ.')),
-  setLocked: () => Promise.reject(new Error('Chức năng khoá tài khoản chưa được backend hỗ trợ.')),
+
+  // PUT /admin/users/{id}/ban { reason } — ADMIN, không tự ban chính mình (BE chặn 400)
+  banUser: (id, reason) => api.put(`/admin/users/${id}/ban`, { reason }).then((r) => r.data),
+  // PUT /admin/users/{id}/unban — ADMIN
+  unbanUser: (id) => api.put(`/admin/users/${id}/unban`).then((r) => r.data),
 };
 
 export const userService = USE_MOCK ? mockService : realService;

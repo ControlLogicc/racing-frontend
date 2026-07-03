@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Container, Card, Form, Button, Spinner, Alert } from 'react-bootstrap';
 import { authService } from '../../services/authService';
 import { useAuth } from '../../hooks/useAuth';
@@ -12,8 +12,11 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [searchParams] = useSearchParams();
 
-  const [apiError, setApiError] = useState('');
+  const [apiError, setApiError] = useState(
+    searchParams.get('banned') === '1' ? 'Tài khoản của bạn đã bị khoá. Vui lòng liên hệ quản trị viên.' : ''
+  );
   const [submitting, setSubmitting] = useState(false);
 
   const {
