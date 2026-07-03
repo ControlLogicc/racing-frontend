@@ -18,6 +18,36 @@ import ImageDropzone from '../../components/common/ImageDropzone';
 import './owner-theme.css';
 
 const PAGE_SIZE = 10;
+const VISIBLE_RESULT_STATUSES = new Set([
+  RACE_RESULT_STATUS.PUBLISHED,
+  RACE_RESULT_STATUS.FINAL_EDITED_BY_STAFF,
+  RACE_RESULT_STATUS.OFFICIAL,
+  'AMENDED',
+]);
+
+const getResultDate = (result) => result.raceDate ?? result.createdAt ?? result.updatedAt;
+
+const isVisibleResult = (result) => {
+  if (!result.resultStatus) return true;
+  return VISIBLE_RESULT_STATUSES.has(result.resultStatus);
+};
+
+const resolveSeasonId = (result, seasons) => {
+  if (result.seasonId) return String(result.seasonId);
+
+  const resultDate = getResultDate(result);
+  if (!resultDate) return '';
+
+  const time = new Date(resultDate).getTime();
+  const matchedByDate = seasons.find((season) => {
+    const start = season.startDate ? new Date(season.startDate).getTime() : null;
+    const end = season.endDate ? new Date(season.endDate).getTime() : null;
+    return start != null && end != null && time >= start && time <= end;
+  });
+
+  return matchedByDate ? String(matchedByDate.id) : '';
+};
+
 const POSITION_MEDAL = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
 function getClassInfo(horseClass) {
@@ -65,10 +95,11 @@ export default function HorseDetailPage() {
     ])
       .then(([h, r, s]) => {
         setHorse(h);
-        setResults(r.filter(
-          (res) => res.resultStatus === RACE_RESULT_STATUS.PUBLISHED
-            || res.resultStatus === RACE_RESULT_STATUS.FINAL_EDITED_BY_STAFF
-        ));
+        setResults(
+          r
+            .filter(isVisibleResult)
+            .sort((a, b) => new Date(getResultDate(b) || 0) - new Date(getResultDate(a) || 0))
+        );
         setSeasons(s);
       })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được dữ liệu.')))
@@ -77,8 +108,8 @@ export default function HorseDetailPage() {
 
   const filtered = useMemo(() => {
     if (!seasonFilter) return results;
-    return results.filter((r) => String(r.seasonId) === seasonFilter);
-  }, [results, seasonFilter]);
+    return results.filter((r) => resolveSeasonId(r, seasons) === seasonFilter);
+  }, [results, seasonFilter, seasons]);
 
   const paginated = useMemo(() => {
     const start = (page - 1) * PAGE_SIZE;
@@ -93,16 +124,14 @@ export default function HorseDetailPage() {
   }), [filtered]);
 
   const columns = [
-    { key: 'raceName', label: 'Race' },
     { key: 'raceDate', label: 'Ngày đua', render: (r) => formatDate(r.raceDate) },
-    { key: 'seasonName', label: 'Season' },
+    { key: 'raceName', label: 'Race' },
     {
       key: 'position',
       label: 'Vị trí',
       render: (r) => (
         <span style={{ fontWeight: 700, color: r.position === 1 ? '#D4AF37' : r.position <= 3 ? '#cd8c4a' : '#c8bea0' }}>
-          {POSITION_MEDAL[r.position] ?? `#${r.position}`}
-          {r.position > 3 ? ` ${r.position}` : ''}
+          {POSITION_MEDAL[r.position] ?? '🏁'}
         </span>
       ),
     },
@@ -259,7 +288,7 @@ export default function HorseDetailPage() {
       {/* ── Stat cards ───────────────────────────────────────── */}
       <div className="d-flex gap-3 mb-4 flex-wrap">
         <StatCard icon="🥇" label="Chiến thắng" value={stats.wins} color="#D4AF37" />
-        <StatCard icon="🏅" label="Top 3 lần" value={stats.top3} color="#cd8c4a" />
+        <StatCard icon="🏅" label="Số lần top 3" value={stats.top3} color="#cd8c4a" />
         <StatCard icon="💰" label="Tổng thưởng" value={`₫${(stats.totalPrize / 1e6).toFixed(0)}M`} color="#4caf7d" />
         <StatCard icon="🏁" label="Số lần đua" value={stats.races} color="#9a8a6a" />
       </div>

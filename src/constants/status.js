@@ -32,6 +32,7 @@ export const RACE_REGISTRATION_STATUS = {
   PENDING:   'PENDING',    // vừa tạo, chờ Staff duyệt
   APPROVED:  'APPROVED',   // Staff duyệt → Owner được mời Jockey
   REJECTED:  'REJECTED',   // Staff từ chối
+  WITHDRAWN: 'WITHDRAWN',
 
   // Aliases diagram/code cũ (không gửi lên BE)
   SUBMITTED:                     'PENDING',

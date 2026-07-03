@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import { registrationService } from '../../services/registrationService';
 import { invitationService } from '../../services/invitationService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
-import { RACE_INVITATION_STATUS } from '../../constants/status';
+import { RACE_INVITATION_STATUS, RACE_REGISTRATION_STATUS } from '../../constants/status';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
@@ -18,10 +17,27 @@ const JOCKEY_STATUS_LABEL = {
   [RACE_INVITATION_STATUS.ACCEPTED]: { text: 'Đã nhận', color: '#4caf7d' },
   USED: { text: 'Đã vào Entry', color: '#4caf7d' },
   [RACE_INVITATION_STATUS.SENT]: { text: 'Chờ phản hồi', color: '#D4AF37' },
+  [RACE_INVITATION_STATUS.PENDING_RESPONSE]: { text: 'Chờ phản hồi', color: '#D4AF37' },
   [RACE_INVITATION_STATUS.DECLINED]: { text: 'Từ chối', color: '#e57373' },
+  [RACE_INVITATION_STATUS.CANCELLED]: { text: 'Đã hủy', color: '#666' },
   [RACE_INVITATION_STATUS.EXPIRED]: { text: 'Hết hạn', color: '#666' },
   [RACE_INVITATION_STATUS.REMOVED]: { text: 'Đã xoá', color: '#666' },
 };
+
+const WITHDRAWABLE_REGISTRATION_STATUSES = new Set([
+  RACE_REGISTRATION_STATUS.PENDING,
+]);
+
+const CLOSED_RACE_STATUSES = new Set(['RUNNING', 'RESULT_PENDING', 'OFFICIAL', 'CANCELLED']);
+const CANCELLABLE_INVITATION_STATUSES = new Set([
+  RACE_INVITATION_STATUS.SENT,
+  RACE_INVITATION_STATUS.PENDING_RESPONSE,
+]);
+
+const canWithdrawRegistration = (registration) =>
+  WITHDRAWABLE_REGISTRATION_STATUSES.has(registration.status)
+  && !registration.entryId
+  && !CLOSED_RACE_STATUSES.has(registration.raceStatus);
 
 function JockeyCell({ name, status }) {
   if (!name) return <span style={{ color: '#444', fontStyle: 'italic', fontSize: '0.82rem' }}>Chưa mời</span>;
@@ -40,6 +56,8 @@ export default function OwnerRegistrationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
+  const [withdrawingId, setWithdrawingId] = useState(null);
+  const [cancellingInvitationId, setCancellingInvitationId] = useState(null);
 
   const pickJockey = (invitations, registrationId, horseId, raceId) => {
     // Match ưu tiên theo registrationId, fallback theo horseId+raceId
@@ -48,13 +66,15 @@ export default function OwnerRegistrationsPage() {
       regInvs = invitations.filter((i) => String(i.horseId) === String(horseId) && String(i.raceId) === String(raceId));
     }
     const used = regInvs.find((i) => i.status === 'USED');
-    if (used) return { jockeyName: used.jockeyName, invStatus: 'USED' };
+    if (used) return { jockeyName: used.jockeyName, invStatus: 'USED', activeInvitationId: used.id };
     const accepted = regInvs.find((i) => i.status === 'ACCEPTED');
-    if (accepted) return { jockeyName: accepted.jockeyName, invStatus: 'ACCEPTED' };
-    const sent = regInvs.find((i) => i.status === 'SENT');
-    if (sent) return { jockeyName: sent.jockeyName, invStatus: 'SENT' };
+    if (accepted) return { jockeyName: accepted.jockeyName, invStatus: 'ACCEPTED', activeInvitationId: accepted.id };
+    const sent = regInvs.find((i) => i.status === 'SENT' || i.status === 'PENDING_RESPONSE');
+    if (sent) return { jockeyName: sent.jockeyName, invStatus: sent.status, activeInvitationId: sent.id };
     const declined = regInvs.filter((i) => i.status === 'DECLINED');
-    if (declined.length) return { jockeyName: declined[0].jockeyName, invStatus: 'DECLINED' };
+    if (declined.length) return { jockeyName: declined[0].jockeyName, invStatus: 'DECLINED', activeInvitationId: declined[0].id };
+    const cancelled = regInvs.find((i) => i.status === 'CANCELLED');
+    if (cancelled) return { jockeyName: null, invStatus: 'CANCELLED', activeInvitationId: cancelled.id };
     return { jockeyName: null, invStatus: null };
   };
 
@@ -80,6 +100,37 @@ export default function OwnerRegistrationsPage() {
   useEffect(() => { load(); }, []);
 
   const refetch = () => { setLoading(true); setError(''); load(); };
+
+  const handleWithdraw = async (registration) => {
+    if (!window.confirm(`Rút đơn đăng ký "${registration.raceName}" cho ngựa "${registration.horseName}"?`)) return;
+
+    setWithdrawingId(registration.id);
+    try {
+      await registrationService.cancel(registration.id);
+      setToast({ message: 'Đã rút đơn đăng ký.', variant: 'success' });
+      load();
+    } catch (err) {
+      setToast({ message: getApiErrorMessage(err, 'Rút đơn thất bại.'), variant: 'danger' });
+    } finally {
+      setWithdrawingId(null);
+    }
+  };
+
+  const handleCancelInvitation = async (registration) => {
+    if (!registration.activeInvitationId) return;
+    if (!window.confirm(`Hủy lời mời jockey "${registration.jockeyName}" cho race "${registration.raceName}"?`)) return;
+
+    setCancellingInvitationId(registration.activeInvitationId);
+    try {
+      await invitationService.cancel(registration.activeInvitationId);
+      setToast({ message: 'Đã hủy lời mời.', variant: 'success' });
+      load();
+    } catch (err) {
+      setToast({ message: getApiErrorMessage(err, 'Hủy lời mời thất bại.'), variant: 'danger' });
+    } finally {
+      setCancellingInvitationId(null);
+    }
+  };
 
   const columns = [
     {
@@ -119,9 +170,10 @@ export default function OwnerRegistrationsPage() {
       render: (r) => (
         <div>
           <StatusBadge status={r.status} />
-          {r.status === 'PENDING_REVIEW' && <div style={{ fontSize: '0.7rem', color: '#888', marginTop: 4 }}>Đang chờ Staff duyệt</div>}
+          {r.status === 'PENDING' && <div style={{ fontSize: '0.7rem', color: '#888', marginTop: 4 }}>Đang chờ Staff duyệt</div>}
           {r.status === 'APPROVED' && <div style={{ fontSize: '0.7rem', color: '#4caf7d', marginTop: 4 }}>Đã duyệt — có thể mời Jockey</div>}
           {r.status === 'REJECTED' && <div style={{ fontSize: '0.7rem', color: '#e57373', marginTop: 4 }}>Bị từ chối</div>}
+          {r.status === 'WITHDRAWN' && <div style={{ fontSize: '0.7rem', color: '#888', marginTop: 4 }}>Owner đã rút đơn</div>}
         </div>
       ) 
     },
@@ -129,9 +181,11 @@ export default function OwnerRegistrationsPage() {
       key: 'action',
       label: '',
       render: (r) => {
+        const actions = [];
         if (r.entryId) {
-          return (
+          actions.push(
             <button
+              key="results"
               className="btn-outline-gold-sm"
               onClick={() => navigate(`/race-results/${r.raceId}`)}
             >
@@ -140,8 +194,9 @@ export default function OwnerRegistrationsPage() {
           );
         }
         if (r.canInviteJockey && !r.jockeyName) {
-          return (
+          actions.push(
             <button
+              key="invite"
               className="btn-gold-sm"
               onClick={() => navigate(`/owner/invitations?regId=${r.id}`)}
             >
@@ -150,8 +205,9 @@ export default function OwnerRegistrationsPage() {
           );
         }
         if (r.invStatus === 'DECLINED') {
-          return (
+          actions.push(
             <button
+              key="reinvite"
               className="btn-outline-gold-sm"
               style={{ color: '#e57373', borderColor: '#e57373' }}
               onClick={() => navigate(`/owner/invitations?regId=${r.id}`)}
@@ -160,13 +216,44 @@ export default function OwnerRegistrationsPage() {
             </button>
           );
         }
-        return null;
+        if (CANCELLABLE_INVITATION_STATUSES.has(r.invStatus) && r.activeInvitationId) {
+          actions.push(
+            <button
+              key="cancel-invitation"
+              className="btn-outline-gold-sm"
+              style={{ color: '#e57373', borderColor: '#e57373' }}
+              disabled={cancellingInvitationId === r.activeInvitationId}
+              onClick={() => handleCancelInvitation(r)}
+            >
+              {cancellingInvitationId === r.activeInvitationId ? 'Đang hủy...' : 'Hủy lời mời'}
+            </button>
+          );
+        }
+        if (canWithdrawRegistration(r)) {
+          actions.push(
+            <button
+              key="withdraw"
+              className="btn-outline-gold-sm"
+              style={{ color: '#e57373', borderColor: '#e57373' }}
+              disabled={withdrawingId === r.id}
+              onClick={() => handleWithdraw(r)}
+            >
+              {withdrawingId === r.id ? 'Đang rút...' : 'Rút đơn'}
+            </button>
+          );
+        }
+
+        return actions.length ? (
+          <div className="d-flex gap-2 flex-wrap justify-content-end">
+            {actions}
+          </div>
+        ) : null;
       },
     },
   ];
 
   const active = rows.filter((r) => r.status === 'APPROVED').length;
-  const submitted = rows.filter((r) => r.status === 'PENDING_REVIEW' || r.status === 'SUBMITTED').length;
+  const submitted = rows.filter((r) => r.status === 'PENDING').length;
 
   if (loading) return <Loading />;
   if (error) return <ErrorState message={error} onRetry={refetch} />;

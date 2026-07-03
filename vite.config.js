@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://dakota-traveler-then-debut.trycloudflare.com',
+        target: 'https://collectibles-dividend-fully-acc.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://dakota-traveler-then-debut.trycloudflare.com',
+        target: 'https://collectibles-dividend-fully-acc.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
