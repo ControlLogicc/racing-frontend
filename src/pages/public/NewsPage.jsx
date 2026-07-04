@@ -1,53 +1,43 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Modal } from 'react-bootstrap';
+import { newsService } from '../../services/newsService';
+import { getApiErrorMessage } from '../../utils/apiError';
+import { formatDate } from '../../utils/formatDate';
+import Loading from '../../components/common/Loading';
+import ErrorState from '../../components/common/ErrorState';
+import Pagination from '../../components/common/Pagination';
 import './public-theme.css';
 
-const CATEGORIES = ['Tất cả', 'Kết quả đua', 'Thông báo', 'Ngựa & Jockey', 'Sự kiện'];
-
-const NEWS_ITEMS = [
-  {
-    id: 1, cat: 'Kết quả đua', emoji: '🏆',
-    title: 'Thần Mã vô địch Saigon Cup — chiến thắng với cách biệt 3 thân ngựa',
-    summary: 'Ngựa Thần Mã đã có màn trình diễn xuất sắc tại Race #9 mùa giải Spring 2026, về nhất ấn tượng trên cự ly 2000m.',
-    date: '20/06/2026', read: '2 phút đọc',
-  },
-  {
-    id: 2, cat: 'Thông báo', emoji: '📢',
-    title: 'Mở đăng ký mùa giải Summer 2026 — Hạn chót 30/07/2026',
-    summary: 'Ban tổ chức chính thức mở đăng ký cho mùa giải Summer 2026 với 12 cuộc đua trên 3 cự ly khác nhau.',
-    date: '18/06/2026', read: '3 phút đọc',
-  },
-  {
-    id: 3, cat: 'Ngựa & Jockey', emoji: '🐎',
-    title: 'Top 5 ngựa đua đáng chú ý nhất mùa giải Spring 2026',
-    summary: 'Cùng điểm qua những chú ngựa đã ghi dấu ấn mạnh mẽ — thành tích, chỉ số và tiềm năng cho mùa tới.',
-    date: '15/06/2026', read: '5 phút đọc',
-  },
-  {
-    id: 4, cat: 'Sự kiện', emoji: '🗓️',
-    title: 'Grand Prix FPT 2026 — Sự kiện đua ngựa lớn nhất năm sắp diễn ra',
-    summary: 'FPT Racing công bố lịch tổ chức Grand Prix thường niên vào tháng 9/2026 với tổng giải thưởng kỷ lục.',
-    date: '10/06/2026', read: '4 phút đọc',
-  },
-  {
-    id: 5, cat: 'Kết quả đua', emoji: '🥈',
-    title: 'Kết quả đầy đủ Race Meeting #4 — Phi Long lần đầu vào top 3',
-    summary: 'Race Meeting #4 kết thúc với nhiều bất ngờ. Phi Long lần đầu lọt top 3 sau 8 lần thi đấu.',
-    date: '05/06/2026', read: '3 phút đọc',
-  },
-  {
-    id: 6, cat: 'Thông báo', emoji: '⚙️',
-    title: 'Cập nhật hệ thống v2.4 — Cải thiện tốc độ và giao diện quản lý',
-    summary: 'Hệ thống FPT Racing v2.4 với nhiều cải tiến về hiệu suất, dashboard và tính năng xuất báo cáo.',
-    date: '01/06/2026', read: '2 phút đọc',
-  },
-];
+const PAGE_SIZE = 9;
 
 export default function NewsPage() {
-  const [active, setActive] = useState('Tất cả');
+  const [items, setItems] = useState([]);
+  const [totalElements, setTotalElements] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [page, setPage] = useState(1); // 1-indexed cho Pagination component
+  const [detailItem, setDetailItem] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
-  const filtered = active === 'Tất cả'
-    ? NEWS_ITEMS
-    : NEWS_ITEMS.filter((n) => n.cat === active);
+  const load = () => {
+    setLoading(true);
+    setError('');
+    newsService.getPublished(page - 1, PAGE_SIZE)
+      .then((res) => { setItems(res.items); setTotalElements(res.totalElements); })
+      .catch((err) => setError(getApiErrorMessage(err, 'Không tải được tin tức.')))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { load(); }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const openDetail = (item) => {
+    setDetailItem(item);
+    setDetailLoading(true);
+    newsService.getPublishedById(item.id)
+      .then(setDetailItem)
+      .catch(() => {})
+      .finally(() => setDetailLoading(false));
+  };
 
   return (
     <div className="pub-page">
@@ -61,49 +51,83 @@ export default function NewsPage() {
             Kết quả đua, thông báo sự kiện và tin tức mới nhất từ FPT Racing.
           </p>
 
-          <div className="pub-filter-bar">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c}
-                className={`pub-filter-btn${active === c ? ' active' : ''}`}
-                onClick={() => setActive(c)}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-
-          {filtered.length === 0 ? (
+          {loading && <Loading />}
+          {!loading && error && <ErrorState message={error} onRetry={load} />}
+          {!loading && !error && items.length === 0 && (
             <div className="pub-empty">
               <div className="pub-empty-icon">📭</div>
-              <h5>Không có bài viết nào</h5>
-              <p>Chưa có tin tức trong danh mục này.</p>
+              <h5>Chưa có tin tức nào</h5>
+              <p>Quay lại sau để xem cập nhật mới nhất.</p>
             </div>
-          ) : (
-            <div className="row g-4">
-              {filtered.map((item) => (
-                <div className="col-12 col-md-6 col-lg-4" key={item.id}>
-                  <div className="pub-news-card">
-                    <div className="pub-news-thumb">{item.emoji}</div>
-                    <div className="pub-news-body">
-                      <div className="pub-news-meta">
-                        <span className="pub-news-cat">{item.cat}</span>
-                        <span className="pub-news-date">{item.date}</span>
+          )}
+
+          {!loading && !error && items.length > 0 && (
+            <>
+              <div className="row g-4">
+                {items.map((item) => (
+                  <div className="col-12 col-md-6 col-lg-4" key={item.id}>
+                    <div className="pub-news-card" style={{ cursor: 'pointer' }} onClick={() => openDetail(item)}>
+                      <div className="pub-news-thumb" style={{ overflow: 'hidden', padding: item.thumbnailUrl ? 0 : undefined }}>
+                        {item.thumbnailUrl ? (
+                          <img
+                            src={item.thumbnailUrl}
+                            alt={item.title}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = ''; }}
+                          />
+                        ) : null}
+                        <span style={{ display: item.thumbnailUrl ? 'none' : '' }}>📰</span>
                       </div>
-                      <h5>{item.title}</h5>
-                      <p>{item.summary}</p>
-                      <div className="pub-news-read">
-                        <span>{item.read}</span>
-                        <span>→</span>
+                      <div className="pub-news-body">
+                        <div className="pub-news-meta">
+                          <span className="pub-news-date">{formatDate(item.publishDate)}</span>
+                        </div>
+                        <h5>{item.title}</h5>
+                        <p>{item.summary}</p>
+                        <div className="pub-news-read">
+                          <span>Xem thêm</span>
+                          <span>→</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              <Pagination page={page} pageSize={PAGE_SIZE} total={totalElements} onPageChange={setPage} />
+            </>
           )}
         </div>
       </section>
+
+      {/* Modal chi tiết tin tức */}
+      <Modal show={!!detailItem} onHide={() => setDetailItem(null)} centered size="lg">
+        <Modal.Header closeButton style={{ background: '#1a1510', borderColor: 'rgba(212,175,55,0.2)' }}>
+          <Modal.Title style={{ color: '#D4AF37', fontWeight: 800 }}>{detailItem?.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: '#110f0a', color: '#c8bea0', padding: '1.5rem' }}>
+          {detailLoading ? (
+            <Loading />
+          ) : detailItem ? (
+            <div>
+              {detailItem.thumbnailUrl && (
+                <img
+                  src={detailItem.thumbnailUrl}
+                  alt={detailItem.title}
+                  style={{ width: '100%', maxHeight: 320, objectFit: 'cover', borderRadius: 8, marginBottom: 16 }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              )}
+              <div style={{ fontSize: 12, color: '#8a8065', marginBottom: 12 }}>{formatDate(detailItem.publishDate)}</div>
+              <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>{detailItem.content || detailItem.summary}</div>
+              {detailItem.externalLink && (
+                <a href={detailItem.externalLink} target="_blank" rel="noopener noreferrer" className="d-inline-block mt-3" style={{ color: '#D4AF37' }}>
+                  Xem thêm liên kết ngoài →
+                </a>
+              )}
+            </div>
+          ) : null}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }

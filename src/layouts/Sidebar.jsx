@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { ROLES } from '../constants/roles';
-import { 
-  Speedometer2, PeopleFill, Calendar3, MapFill, Building, 
-  UiChecksGrid, FlagFill, TrophyFill, GraphUpArrow, 
+import {
+  Speedometer2, PeopleFill, Calendar3, MapFill, Building,
+  UiChecksGrid, FlagFill, TrophyFill, GraphUpArrow,
   EnvelopePaperFill, PencilSquare, CheckCircleFill, ExclamationTriangleFill,
-  LightningChargeFill, Search, ClipboardCheckFill
+  LightningChargeFill, Search, ClipboardCheckFill, Newspaper
 } from 'react-bootstrap-icons';
 
 // Cấu hình danh sách Menu, ánh xạ theo từng role (lấy UI từ file layout cũ của bạn)
@@ -22,6 +22,7 @@ const MENU_CONFIG = {
     { path: '/admin/prizes', label: 'Giải thưởng', icon: <TrophyFill /> },
     { path: '/admin/results', label: 'Kết quả đua', icon: <GraphUpArrow /> },
     { path: '/admin/reports', label: 'Báo cáo Referee', icon: <Search /> },
+    { path: '/admin/news', label: 'Tin tức', icon: <Newspaper /> },
   ],
   [ROLES.STAFF]: [
     { path: '/staff', label: 'Dashboard', icon: <Speedometer2 /> },
