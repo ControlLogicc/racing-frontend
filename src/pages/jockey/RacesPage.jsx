@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { jockeyService } from '../../services/jockeyService';
 import { prizeService } from '../../services/prizeService';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -7,9 +7,12 @@ import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import Toaster from '../../components/common/Toaster';
+import Pagination from '../../components/common/Pagination';
 import { Calendar3, GeoAltFill, PlusCircleFill, Search, CheckCircleFill, TrophyFill } from 'react-bootstrap-icons';
 import { Modal, Button, Form, Spinner, Badge } from 'react-bootstrap';
 import '../owner/owner-theme.css';
+
+const PAGE_SIZE = 9;
 
 function RegisterRaceModal({ show, onHide, onSuccess }) {
   const [availableRaces, setAvailableRaces] = useState([]);
@@ -221,6 +224,9 @@ export default function JockeyRacesPage() {
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState(null);
+  const [search, setSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [page, setPage] = useState(1);
 
   const load = () => {
     setLoading(true);
@@ -232,6 +238,22 @@ export default function JockeyRacesPage() {
   };
 
   useEffect(() => { load(); }, []);
+
+  const statusOptions = useMemo(
+    () => [...new Set(registrations.map((r) => r.status).filter(Boolean))].sort(),
+    [registrations]
+  );
+
+  const filteredRegistrations = useMemo(() => registrations.filter((r) => {
+    const term = search.trim().toLowerCase();
+    const matchSearch = !term || (r.raceName || '').toLowerCase().includes(term);
+    const matchStatus = !filterStatus || r.status === filterStatus;
+    return matchSearch && matchStatus;
+  }), [registrations, search, filterStatus]);
+
+  const pageRegistrations = filteredRegistrations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const handleFilterChange = (setter) => (e) => { setter(e.target.value); setPage(1); };
 
   if (loading) return <Loading />;
   if (error) return <ErrorState message={error} onRetry={load} />;
@@ -251,11 +273,40 @@ export default function JockeyRacesPage() {
       </div>
       {toast && <Toaster toast={toast} onClose={() => setToast(null)} />}
 
+      {registrations.length > 0 && (
+        <div className="dash-card mb-4">
+          <div className="row g-3 align-items-end">
+            <div className="col-md-7">
+              <Form.Group>
+                <Form.Label style={{ fontSize: 13 }}>Tìm theo tên race</Form.Label>
+                <Form.Control
+                  className="lux-input smooth-hover"
+                  placeholder="VD: Phú Thọ Grand Cup..."
+                  value={search}
+                  onChange={handleFilterChange(setSearch)}
+                />
+              </Form.Group>
+            </div>
+            <div className="col-md-5">
+              <Form.Group>
+                <Form.Label style={{ fontSize: 13 }}>Trạng thái</Form.Label>
+                <Form.Select className="lux-input smooth-hover" value={filterStatus} onChange={handleFilterChange(setFilterStatus)}>
+                  <option value="">Tất cả</option>
+                  {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+                </Form.Select>
+              </Form.Group>
+            </div>
+          </div>
+        </div>
+      )}
+
       {registrations.length === 0 ? (
         <EmptyState message="Bạn chưa đăng ký giải đua nào." />
+      ) : filteredRegistrations.length === 0 ? (
+        <EmptyState message="Không tìm thấy chặng đua nào khớp bộ lọc." />
       ) : (
         <div className="row g-4">
-          {registrations.map((reg) => {
+          {pageRegistrations.map((reg) => {
             const statusColor = reg.status === 'REGISTERED' ? '#22c55e'
               : reg.status === 'WITHDRAWN' ? '#ef4444' : '#D4AF37';
             return (
@@ -301,6 +352,8 @@ export default function JockeyRacesPage() {
           })}
         </div>
       )}
+
+      <Pagination page={page} pageSize={PAGE_SIZE} total={filteredRegistrations.length} onPageChange={setPage} />
 
       <RegisterRaceModal
         show={showModal}

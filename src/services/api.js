@@ -38,6 +38,15 @@ api.interceptors.response.use(
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
+
+    // JWT filter chặn user bị ban ngay giữa phiên (403 "Account is banned") — tự đăng xuất
+    // thay vì để mỗi trang tự hiện lỗi 403 rời rạc, khó hiểu cho người dùng.
+    if (error.response?.status === 403 && !isAuthCall && error.response?.data?.error === 'Account is banned') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login?banned=1';
+    }
+
     return Promise.reject(error);
   }
 );

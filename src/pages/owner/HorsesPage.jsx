@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { useAuth } from '../../hooks/useAuth';
@@ -9,8 +9,19 @@ import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import Toaster from '../../components/common/Toaster';
 import ImageDropzone from '../../components/common/ImageDropzone';
+import Pagination from '../../components/common/Pagination';
 import HorseProfileCard from '../../components/shared/HorseProfileCard';
 import './owner-theme.css';
+
+const PAGE_SIZE = 9;
+const STATUS_OPTIONS = [
+  { value: '', label: 'Tất cả trạng thái' },
+  { value: 'active', label: 'Đang hoạt động' },
+  { value: 'fail', label: 'Chờ duyệt rating' },
+  { value: 'injured', label: 'Chấn thương' },
+  { value: 'retired', label: 'Đã nghỉ hưu' },
+  { value: 'suspended', label: 'Tạm ngưng' },
+];
 
 export default function OwnerHorsesPage() {
   const { user } = useAuth();
@@ -19,6 +30,10 @@ export default function OwnerHorsesPage() {
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [search, setSearch] = useState('');
+  const [filterClass, setFilterClass] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [page, setPage] = useState(1);
 
   const { register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm({
     defaultValues: {
@@ -80,6 +95,17 @@ export default function OwnerHorsesPage() {
       setToast({ message: getApiErrorMessage(err, 'Đăng ký ngựa thất bại.'), variant: 'danger' });
     }
   };
+
+  const filteredHorses = useMemo(() => horses.filter((h) => {
+    const matchSearch = !search || (h.name || '').toLowerCase().includes(search.trim().toLowerCase());
+    const matchClass = !filterClass || String(h.horseClass ?? 5) === filterClass;
+    const matchStatus = !filterStatus || String(h.status || '').toLowerCase() === filterStatus;
+    return matchSearch && matchClass && matchStatus;
+  }), [horses, search, filterClass, filterStatus]);
+
+  const pageHorses = filteredHorses.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const handleFilterChange = (setter) => (e) => { setter(e.target.value); setPage(1); };
 
   return (
     <div className="owner-context">
@@ -302,24 +328,63 @@ export default function OwnerHorsesPage() {
         </div>
       )}
 
+      {/* Tìm kiếm / lọc */}
+      {!loading && !error && horses.length > 0 && (
+        <div className="lux-panel mb-3">
+          <Row className="g-3 align-items-end">
+            <Col md={5}>
+              <Form.Group>
+                <Form.Label style={{ fontSize: 13 }}>Tìm theo tên ngựa</Form.Label>
+                <Form.Control
+                  placeholder="VD: Thần Mã..."
+                  value={search}
+                  onChange={handleFilterChange(setSearch)}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={3}>
+              <Form.Group>
+                <Form.Label style={{ fontSize: 13 }}>Hạng (Class)</Form.Label>
+                <Form.Select value={filterClass} onChange={handleFilterChange(setFilterClass)}>
+                  <option value="">Tất cả hạng</option>
+                  {[1, 2, 3, 4, 5].map((c) => <option key={c} value={c}>Class {c}</option>)}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label style={{ fontSize: 13 }}>Trạng thái</Form.Label>
+                <Form.Select value={filterStatus} onChange={handleFilterChange(setFilterStatus)}>
+                  {STATUS_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+        </div>
+      )}
+
       {/* Horse grid */}
       {loading && <Loading />}
       {!loading && error && <ErrorState message={error} onRetry={refetch} />}
       {!loading && !error && horses.length === 0 && (
         <EmptyState message="Bạn chưa có ngựa nào trong chuồng." />
       )}
-      {!loading && !error && horses.length > 0 && (
+      {!loading && !error && horses.length > 0 && filteredHorses.length === 0 && (
+        <EmptyState message="Không tìm thấy ngựa nào khớp bộ lọc." />
+      )}
+      {!loading && !error && filteredHorses.length > 0 && (
         <>
           <div className="owner-section-label">
-            <h5>{horses.length} con ngựa</h5>
+            <h5>{filteredHorses.length} con ngựa</h5>
           </div>
           <div className="row g-3">
-            {horses.map((h) => (
+            {pageHorses.map((h) => (
               <div className="col-12 col-sm-6 col-xl-4" key={h.id}>
                 <HorseProfileCard horse={h} showHistory />
               </div>
             ))}
           </div>
+          <Pagination page={page} pageSize={PAGE_SIZE} total={filteredHorses.length} onPageChange={setPage} />
         </>
       )}
 
