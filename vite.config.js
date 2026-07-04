@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://collectibles-dividend-fully-acc.trycloudflare.com',
+        target: 'https://convertible-sciences-ways-ventures.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://collectibles-dividend-fully-acc.trycloudflare.com',
+        target: 'https://convertible-sciences-ways-ventures.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
