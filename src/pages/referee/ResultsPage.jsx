@@ -44,10 +44,21 @@ export default function RefereeResultsPage() {
 
   const refetch = () => { setLoading(true); setError(''); load(); };
 
+  // BE chỉ chấp nhận entry đã qua weight-check PASSED (entryStatus=ready/passed) — xem RaceEntryService.isResultEligibleEntry.
+  // Lọc trước ở FE để referee không nhập nhầm rồi bị 400 sau khi bấm lưu.
+  const isWeightCheckPassed = (e) => e.status === 'PASSED';
+
   const enterableEntries = entries.filter((e) => {
     const race = races.find((r) => r.id === e.raceId);
     const alreadyHasResult = results.some((res) => res.entryId === e.id);
-    return race && canEnterResult(race.status) && !alreadyHasResult;
+    return race && canEnterResult(race.status) && !alreadyHasResult && isWeightCheckPassed(e);
+  });
+
+  // Entry thuộc race đang RESULT_PENDING nhưng CHƯA qua kiểm tra cân nặng — không cho nhập, chỉ để cảnh báo.
+  const notReadyEntries = entries.filter((e) => {
+    const race = races.find((r) => r.id === e.raceId);
+    const alreadyHasResult = results.some((res) => res.entryId === e.id);
+    return race && canEnterResult(race.status) && !alreadyHasResult && !isWeightCheckPassed(e);
   });
 
   const setField = (entryId, field, value) => {
@@ -158,6 +169,22 @@ export default function RefereeResultsPage() {
           <p className="mb-0">&gt; SYSTEM: RECORDING OFFICIAL RACE POSITIONS AND TIMES</p>
         </div>
       </div>
+
+      {notReadyEntries.length > 0 && (
+        <div className="cyber-panel mb-4" style={{ borderColor: 'rgba(245,158,11,0.4)' }}>
+          <div style={{ color: '#f59e0b', fontWeight: 700, marginBottom: 8 }}>
+            ⚠️ {notReadyEntries.length} entry chưa qua Kiểm tra trước đua
+          </div>
+          <div style={{ color: '#c8bea0', fontSize: 13, marginBottom: 8 }}>
+            Entry phải kiểm tra cân nặng (PASSED) ở trang "Kiểm tra trước đua" trước khi nhập được kết quả:
+          </div>
+          <ul style={{ margin: 0, paddingLeft: 20, color: '#aaa', fontSize: 13 }}>
+            {notReadyEntries.map((e) => (
+              <li key={e.id}>🐎 {e.horseName} — {e.raceName} ({e.status || 'chưa kiểm tra'})</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {enterableEntries.length === 0 ? (
         <EmptyState message="Không có entry nào thuộc race RESULT_PENDING đang chờ nhập kết quả." />

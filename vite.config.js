@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://style-burning-told-basin.trycloudflare.com',
+        target: 'https://replies-wales-simon-producing.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://style-burning-told-basin.trycloudflare.com',
+        target: 'https://replies-wales-simon-producing.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

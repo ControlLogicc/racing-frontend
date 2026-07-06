@@ -164,6 +164,8 @@ const mapEntry = (e) => ({
   jockeyActualWeight: e.jockeyActualWeight ?? e.actualWeight,
   leadWeight: e.leadWeight,
   carriedWeight: e.carriedWeight,
+  // BE mới (PreRaceWeightCheck): overweightAmount = carriedWeight - handicapWeight (đã clamp >= 0), dung sai 0.91kg.
+  overweightAmount: e.overweightAmount,
   weightCheckStatus: normalizeWeightCheckStatus(e.weightCheckStatus),
   preCheckNote: e.preCheckNote,
   status: normalizeEntryStatus(e.entryStatus),              // entryStatus → status
@@ -266,13 +268,12 @@ const realService = {
 
   create: (payload) => api.post('/entries', payload).then((r) => mapEntry(r.data)),
   updateWeight: (id, payload) => api.put(`/entries/${id}/weight`, payload).then((r) => mapEntry(r.data)),
+  // BE (RaceEntryService.applyWeightValues) giờ chỉ dùng actualWeight + note — handicapWeight lấy từ entry đã lưu
+  // (không cho sửa qua endpoint này), leadWeight luôn ép về 0, carriedWeight/weightCheckStatus BE tự tính lại
+  // (PreRaceWeightCheck, dung sai 0.91kg) — gửi thừa các field cũ không còn tác dụng.
   preCheck: (id, data) =>
     api.put(`/entries/${id}/pre-check`, {
-      handicapWeight: data.handicapWeight,
       actualWeight: data.actualWeight,
-      leadWeight: data.leadWeight ?? null,
-      carriedWeight: data.carriedWeight ?? null,
-      weightCheckStatus: data.weightCheckStatus ?? null,
       note: data.note || null,
     }).then((r) => mapEntry(r.data)),
   submitPreCheck: (id, data) =>

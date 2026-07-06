@@ -208,12 +208,16 @@ export default function StaffRaceDetailPage() {
     const isClosedOrLater = race.status !== 'DRAFT' && race.status !== 'SCHEDULED' && race.status !== 'OPEN_FOR_ENTRY';
     const isGateDrawDone = entries.length > 0 && entries.every(e => e.gateNumber !== null);
 
+    // Khớp PreRaceWeightCheck bên BE: thiếu cân (dù ít) bị chặn cứng không cho lưu — chỉ còn thấy ở data cũ.
+    // Thừa cân trong 0.91kg (~2 lbs) vẫn PASSED, thừa hơn mức đó BE lưu FAILED/scratched. BE không còn dùng
+    // leadWeight riêng nữa (luôn = 0, carriedWeight = actualWeight) — đồng bộ với referee/ChecksPage.jsx.
+    const OVERWEIGHT_TOLERANCE_KG = 0.91;
     const getWeightResult = (row) => {
       if (row.actualWeight === null || row.actualWeight === undefined) return 'PENDING';
       const carried = Number(row.actualWeight) + Number(row.leadWeight || 0);
       const handicap = Number(row.handicapWeight || 0);
       if (carried < handicap) return 'FAILED';
-      if (carried > handicap + 0.5) return 'OVERWEIGHT';
+      if (carried > handicap + OVERWEIGHT_TOLERANCE_KG) return 'OVERWEIGHT';
       return 'PASSED';
     };
 
@@ -245,21 +249,18 @@ export default function StaffRaceDetailPage() {
             return <Badge bg="danger">Thiếu {shortage.toFixed(1)} kg</Badge>;
           }
           if (result === 'OVERWEIGHT') {
-            const over = (Number(row.actualWeight) + Number(row.leadWeight || 0)) - Number(row.handicapWeight || 0);
-            return <Badge bg="warning" text="dark">+{over.toFixed(1)} kg</Badge>;
+            const over = row.overweightAmount ?? ((Number(row.actualWeight) + Number(row.leadWeight || 0)) - Number(row.handicapWeight || 0));
+            return <Badge bg="warning" text="dark">+{Number(over).toFixed(2)} kg</Badge>;
           }
           return <Badge bg="success">✓ Đạt</Badge>;
         }
       },
       {
+        // Trạng thái thật của entry (entryStatus từ BE) — KHÔNG tự suy từ số cân đo được ở FE, vì BE mới là nơi
+        // quyết định entry có READY/PASSED hay bị SCRATCHED (VD: hiện BE vẫn loại cả entry thừa cân, xem ChecksPage.jsx).
         key: 'status',
         label: 'Trạng thái',
-        render: (row) => {
-          const result = getWeightResult(row);
-          if (result === 'PENDING') return <StatusBadge status={row.status} />;
-          if (result === 'FAILED') return <StatusBadge status="FAILED" />;
-          return <StatusBadge status="PASSED" />;
-        }
+        render: (row) => <StatusBadge status={row.status} />,
       },
     ];
 

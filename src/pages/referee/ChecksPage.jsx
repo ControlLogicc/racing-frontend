@@ -19,18 +19,18 @@ const CHECKABLE_STATUSES = new Set([
   RACE_ENTRY_STATUS.FAILED,
 ]);
 
-const getWeightStatus = (actualWeight, leadWeight, handicapWeight) => {
-  if (!actualWeight || !handicapWeight) return 'PENDING';
-  const carried = Number(actualWeight) + Number(leadWeight || 0);
-  const handicap = Number(handicapWeight);
-  if (carried < handicap) return 'FAILED';            // không đủ chì hoặc thiếu cân
-  if (carried > handicap + 0.5) return 'OVERWEIGHT';  // vượt quá 0.5kg, phải công bố
-  return 'PASSED';
-};
+// Khớp đúng PreRaceWeightCheck bên BE: thiếu cân (dù chỉ 0.01kg) bị chặn cứng — không lưu được luôn,
+// không phải "FAILED" như 1 trạng thái có thể lưu. Thừa cân trong khoảng 0.91kg (~2 lbs) vẫn PASSED,
+// thừa quá mức đó mới bị BE lưu thành FAILED/scratched.
+const OVERWEIGHT_TOLERANCE_KG = 0.91;
 
-const getCarriedWeight = (actualWeight, leadWeight) => {
-  if (!actualWeight) return null;
-  return Number(actualWeight) + Number(leadWeight || 0);
+const getWeightStatus = (actualWeight, handicapWeight) => {
+  if (!actualWeight || !handicapWeight) return 'PENDING';
+  const actual = Number(actualWeight);
+  const handicap = Number(handicapWeight);
+  if (actual < handicap) return 'FAILED'; // chỉ còn thấy được ở data cũ — check mới BE chặn không cho lưu
+  if (actual > handicap + OVERWEIGHT_TOLERANCE_KG) return 'OVERWEIGHT'; // vượt dung sai — BE lưu FAILED/scratched
+  return 'PASSED';
 };
 
 const formatWeight = (weight) => (
@@ -47,8 +47,13 @@ const WEIGHT_BADGE = {
 const WEIGHT_LABEL = {
   PENDING: 'Chưa cân',
   PASSED: 'Đạt',
-  OVERWEIGHT: 'Overweight',
+  OVERWEIGHT: 'Thừa cân (vượt dung sai)',
   FAILED: 'Không đạt',
+};
+
+const getCarriedWeight = (actualWeight, leadWeight) => {
+  if (!actualWeight) return null;
+  return Number(actualWeight) + Number(leadWeight || 0);
 };
 
 export default function RefereeChecksPage() {
@@ -57,9 +62,8 @@ export default function RefereeChecksPage() {
   const [entries, setEntries] = useState([]);
   const [selectedRaceId, setSelectedRaceId] = useState('');
   const [weightRow, setWeightRow] = useState(null);
-  const [handicapWeight, setHandicapWeight] = useState('');
   const [actualWeight, setActualWeight] = useState('');
-  const [leadWeight, setLeadWeight] = useState('');
+  const [leadWeight, setLeadWeight] = useState('0');
   const [preCheckNote, setPreCheckNote] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -106,8 +110,8 @@ export default function RefereeChecksPage() {
   const stats = {
     total: visibleEntries.length,
     pending: visibleEntries.filter((entry) => !entry.actualWeight).length,
-    failed: visibleEntries.filter((entry) => entry.actualWeight && getWeightStatus(entry.actualWeight, entry.leadWeight, entry.handicapWeight) === 'FAILED').length,
-    ready: visibleEntries.filter((entry) => ['PASSED', 'OVERWEIGHT'].includes(getWeightStatus(entry.actualWeight, entry.leadWeight, entry.handicapWeight))).length,
+    failed: visibleEntries.filter((entry) => entry.actualWeight && getWeightStatus(entry.actualWeight, entry.handicapWeight) === 'FAILED').length,
+    ready: visibleEntries.filter((entry) => ['PASSED', 'OVERWEIGHT'].includes(getWeightStatus(entry.actualWeight, entry.handicapWeight))).length,
   };
 
   const refetch = () => load();
@@ -115,33 +119,32 @@ export default function RefereeChecksPage() {
 
   const openWeight = (entry) => {
     setWeightRow(entry);
-    setHandicapWeight(entry.handicapWeight ? String(entry.handicapWeight) : '');
+    // entry.actualWeight (đã lưu) = tổng cuối cùng (BE không tách lead nữa) — mở lại để sửa thì đưa hết vào ô "cân jockey",
+    // để trống ô chì; referee có thể phân bổ lại 2 ô cho đúng thực tế lúc cân lại.
     setActualWeight(entry.actualWeight ? String(entry.actualWeight) : '');
-    setLeadWeight(entry.leadWeight != null ? String(entry.leadWeight) : '0');
+    setLeadWeight('0');
     setPreCheckNote(entry.preCheckNote || '');
   };
 
+  // Cảnh báo ngay trên FE trước khi gửi — khớp đúng lý do BE sẽ từ chối (PreRaceWeightCheck.evaluate),
+  // check trên TỔNG (jockey + chì), vì BE chỉ nhận đúng 1 con số cuối cùng.
+  const underweightWarning = weightRow && modalCarriedWeight && weightRow.handicapWeight
+    && Number(modalCarriedWeight) < Number(weightRow.handicapWeight)
+    ? `Tổng cân (${formatWeight(modalCarriedWeight)}) vẫn thiếu so với handicap (${formatWeight(weightRow.handicapWeight)}). Thêm chì cho đủ rồi cân lại trước khi lưu.`
+    : null;
+
   const handleSaveWeight = async (e) => {
     e.preventDefault();
-    if (!weightRow || !handicapWeight || !actualWeight) return;
-
-    const savedLead = Number(leadWeight || 0);
-    const savedActual = Number(actualWeight);
-    const savedHandicap = Number(handicapWeight);
-    const savedCarried = Number(modalCarriedWeight);
-    const status = getWeightStatus(actualWeight, leadWeight, handicapWeight);
+    if (!weightRow || !modalCarriedWeight || underweightWarning) return;
 
     setSaving(true);
     try {
       const updatedEntry = await entryService.preCheck(weightRow.id, {
-        handicapWeight: savedHandicap,
-        actualWeight: savedActual,
-        leadWeight: savedLead,
-        carriedWeight: savedCarried,
-        weightCheckStatus: status,
+        // BE chỉ nhận 1 số tổng — cộng sẵn cân jockey + chì trước khi gửi.
+        actualWeight: Number(modalCarriedWeight),
         note: preCheckNote,
       });
-      // Cập nhật local state bằng dữ liệu trả về từ backend (chứa weightCheckStatus và entryStatus)
+      // Cập nhật local state bằng dữ liệu trả về từ backend (chứa weightCheckStatus và entryStatus thật)
       setEntries((prev) => prev.map((en) =>
         en.id === weightRow.id
           ? { ...en, ...updatedEntry }
@@ -224,9 +227,8 @@ export default function RefereeChecksPage() {
                   <th>Entry</th>
                   <th>Cổng</th>
                   <th>Handicap</th>
-                  <th>Lead Weight</th>
-                  <th>Carried Weight</th>
                   <th>Cân thực tế</th>
+                  <th>Thừa cân</th>
                   <th>Check cân</th>
                   <th>Trạng thái</th>
                   <th>Hành động</th>
@@ -234,7 +236,7 @@ export default function RefereeChecksPage() {
               </thead>
               <tbody>
                 {visibleEntries.map((entry) => {
-                  const weightStatus = getWeightStatus(entry.actualWeight, entry.leadWeight, entry.handicapWeight);
+                  const weightStatus = getWeightStatus(entry.actualWeight, entry.handicapWeight);
                   const race = raceMap.get(Number(entry.raceId));
                   return (
                     <tr key={entry.id}>
@@ -248,15 +250,10 @@ export default function RefereeChecksPage() {
                       </td>
                       <td className="fw-bold">{entry.gateNumber || entry.drawNumber || '—'}</td>
                       <td>{formatWeight(entry.handicapWeight)}</td>
-                      <td>{formatWeight(entry.leadWeight)}</td>
-                      <td>{formatWeight(entry.carriedWeight ?? getCarriedWeight(entry.actualWeight, entry.leadWeight))}</td>
-                      <td>{formatWeight(entry.actualWeight)}</td>
+                      <td>{formatWeight(entry.actualWeight ?? entry.carriedWeight)}</td>
+                      <td>{entry.overweightAmount != null ? `+${Number(entry.overweightAmount).toFixed(2)} kg` : '—'}</td>
                       <td><span className={`cyber-badge cyber-badge-${WEIGHT_BADGE[weightStatus]}`}>{WEIGHT_LABEL[weightStatus]}</span></td>
-                      <td><StatusBadge status={
-                        !entry.actualWeight
-                          ? (entry.status || RACE_ENTRY_STATUS.DECLARED)
-                          : weightStatus === 'FAILED' ? RACE_ENTRY_STATUS.FAILED : RACE_ENTRY_STATUS.PASSED
-                      } /></td>
+                      <td><StatusBadge status={entry.status || RACE_ENTRY_STATUS.DECLARED} /></td>
                       <td>
                         <Button className="btn-cyber btn-cyber-sm" onClick={() => openWeight(entry)}>Check Cân</Button>
                       </td>
@@ -281,18 +278,10 @@ export default function RefereeChecksPage() {
                 <strong className="fs-5 text-white">{weightRow.horseName}</strong>
                 <div className="text-info">{weightRow.raceName}</div>
               </div>
-              <Form.Group>
-                <Form.Label className="cyber-form-label">Handicap weight (kg)</Form.Label>
-                <Form.Control
-                  className="cyber-input"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={handicapWeight}
-                  onChange={(e) => setHandicapWeight(e.target.value)}
-                  required
-                />
-              </Form.Group>
+              <div className="cyber-weight-preview">
+                <span>Handicap weight (đã gán, không sửa được ở đây)</span>
+                <strong>{formatWeight(weightRow.handicapWeight)}</strong>
+              </div>
               <Form.Group>
                 <Form.Label className="cyber-form-label text-warning">Cân thực tế của jockey (kg)</Form.Label>
                 <Form.Control
@@ -313,8 +302,8 @@ export default function RefereeChecksPage() {
                     <Form.Control
                       className="cyber-input"
                       type="number"
-                      value={handicapWeight && actualWeight
-                        ? Math.max(Number(handicapWeight) - Number(actualWeight), 0).toFixed(1)
+                      value={weightRow.handicapWeight && actualWeight
+                        ? Math.max(Number(weightRow.handicapWeight) - Number(actualWeight), 0).toFixed(1)
                         : '0.0'}
                       readOnly
                       style={{ opacity: 0.6, cursor: 'not-allowed' }}
@@ -335,18 +324,23 @@ export default function RefereeChecksPage() {
                   </Form.Group>
                 </div>
               </div>
+              {underweightWarning && (
+                <div style={{ color: '#ef4444', fontSize: 13, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 6, padding: '8px 12px' }}>
+                  ⚠️ {underweightWarning}
+                </div>
+              )}
               <div className="row g-3">
                 <div className="col-12 col-sm-6">
                   <div className="cyber-weight-preview">
-                    <span>Carried Weight</span>
+                    <span>Carried Weight (gửi lên BE)</span>
                     <strong>{formatWeight(modalCarriedWeight)}</strong>
                   </div>
                 </div>
                 <div className="col-12 col-sm-6">
                   <div className="cyber-weight-preview">
                     <span>Kết quả</span>
-                    <strong style={{ color: getWeightStatus(actualWeight, leadWeight, handicapWeight) === 'PASSED' ? '#10b981' : getWeightStatus(actualWeight, leadWeight, handicapWeight) === 'OVERWEIGHT' ? '#f59e0b' : '#ef4444' }}>
-                      {WEIGHT_LABEL[getWeightStatus(actualWeight, leadWeight, handicapWeight)]}
+                    <strong style={{ color: getWeightStatus(modalCarriedWeight, weightRow.handicapWeight) === 'PASSED' ? '#10b981' : getWeightStatus(modalCarriedWeight, weightRow.handicapWeight) === 'OVERWEIGHT' ? '#f59e0b' : '#ef4444' }}>
+                      {WEIGHT_LABEL[getWeightStatus(modalCarriedWeight, weightRow.handicapWeight)]}
                     </strong>
                   </div>
                 </div>
@@ -365,7 +359,7 @@ export default function RefereeChecksPage() {
               </Form.Group>
               <div className="d-flex justify-content-end gap-3 mt-3">
                 <Button variant="link" style={{ color: '#64748b', textDecoration: 'none' }} onClick={() => setWeightRow(null)}>HỦY BỎ</Button>
-                <Button type="submit" className="btn-cyber btn-cyber-primary" disabled={saving}>
+                <Button type="submit" className="btn-cyber btn-cyber-primary" disabled={saving || !!underweightWarning}>
                   {saving ? 'ĐANG XỬ LÝ...' : 'LƯU HỒ SƠ KIỂM TRA'}
                 </Button>
               </div>
