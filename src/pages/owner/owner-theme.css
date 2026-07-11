@@ -1,0 +1,706 @@
+/* ============================================================
+   OWNER PREMIUM LUXURY THEME
+   Font: Outfit
+   Colors: Deep Obsidian (#0B0C10), Gold/Amber (#D4AF37, #F9A826)
+   Effects: Glassmorphism, Neon Glow, Micro-animations
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+body:has(.owner-context) {
+  background-color: #050505;
+  color: #E0E6ED;
+}
+
+.owner-context {
+  min-height: 100vh;
+  font-family: 'Outfit', sans-serif;
+}
+
+.owner-context h1,
+.owner-context h2,
+.owner-context h3,
+.owner-context h4,
+.owner-context h5,
+.owner-context h6 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* ── Hero welcome banner ───────────────────────────────────── */
+.owner-hero {
+  position: relative;
+  overflow: hidden;
+  background: rgba(15, 15, 17, 0.7);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 24px;
+  padding: 3rem 3.5rem;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.owner-hero::before {
+  content: '';
+  position: absolute;
+  top: -150px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(40px);
+  animation: pulseGlow 10s ease-in-out infinite alternate;
+}
+@keyframes pulseGlow {
+  0% { transform: scale(0.85); opacity: 0.6; }
+  100% { transform: scale(1.15); opacity: 1; }
+}
+.owner-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.05));
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 30px;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  color: #F9A826;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+}
+.owner-hero-name {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-top: 1rem;
+}
+.owner-hero-name em {
+  color: transparent;
+  background: linear-gradient(90deg, #D4AF37, #F9A826, #FFDF73);
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-style: normal;
+  text-shadow: 0 2px 15px rgba(212, 175, 55, 0.2);
+}
+.owner-hero-sub {
+  color: #A0AAB5;
+  font-size: 1.1rem;
+  margin-top: 12px;
+  font-weight: 300;
+}
+
+/* ── Section heading with gold line ───────────────────────── */
+.owner-section-label h5 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #E0E6ED;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.owner-section-label h5::before {
+  content: '';
+  display: inline-block;
+  width: 5px; height: 20px;
+  background: linear-gradient(180deg, #F9A826, #D4AF37);
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+/* ── Lux panel (sections on pages) ───────────────────────── */
+.lux-panel {
+  background: rgba(20, 20, 25, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ── Dash card (content panels in detail pages) ───────────── */
+.dash-card {
+  background: rgba(25, 25, 30, 0.6);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  padding: 1.8rem;
+}
+
+/* ── Luxury stat cards ─────────────────────────────────────── */
+.lux-stat-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, rgba(30, 30, 35, 0.6) 0%, rgba(15, 15, 18, 0.8) 100%);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+.lux-stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transform: skewX(-25deg);
+  transition: 0.6s;
+}
+.lux-stat-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 175, 55, 0.15);
+}
+.lux-stat-card:hover::after {
+  left: 150%;
+}
+.lux-stat-icon {
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: 1.2rem;
+  color: #D4AF37;
+  box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.1);
+}
+.lux-stat-value {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.lux-stat-label {
+  font-size: 1rem;
+  color: #A0AAB5;
+  font-weight: 600;
+}
+.lux-stat-hint {
+  font-size: 0.8rem;
+  color: #7A8490;
+  margin-top: 10px;
+}
+
+/* ── Activity timeline ────────────────────────────────────── */
+.activity-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  padding: 1.2rem;
+  background: rgba(30, 30, 35, 0.4);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.3s ease;
+}
+.activity-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateX(5px);
+  border-color: rgba(212, 175, 55, 0.2);
+}
+.activity-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #F9A826, #D4AF37);
+  margin-top: 4px;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+}
+.activity-text {
+  flex: 1;
+  font-size: 0.95rem;
+  color: #C0C8D0;
+  line-height: 1.5;
+}
+.activity-time {
+  font-size: 0.85rem;
+  color: #7A8490;
+  white-space: nowrap;
+}
+
+/* ── Quick action cards ───────────────────────────────────── */
+.quick-action-card {
+  display: flex;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  background: linear-gradient(90deg, rgba(30, 30, 35, 0.5), rgba(20, 20, 25, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-bottom: 0.8rem;
+}
+.quick-action-card:hover {
+  background: linear-gradient(90deg, rgba(40, 40, 45, 0.7), rgba(212, 175, 55, 0.15));
+  border-color: rgba(212, 175, 55, 0.4);
+  transform: translateX(8px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+.quick-action-icon {
+  width: 44px; height: 44px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.2rem;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.quick-action-label {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #E0E6ED;
+}
+.quick-action-arrow {
+  font-size: 1.5rem;
+  color: #7A8490;
+  transition: transform 0.3s, color 0.3s;
+}
+.quick-action-card:hover .quick-action-arrow {
+  transform: translateX(6px);
+  color: #F9A826;
+}
+
+/* ── Horse card (redesigned) ──────────────────────────────── */
+.horse-card {
+  background: rgba(22, 22, 26, 0.8);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+.horse-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(212, 175, 55, 0.2);
+}
+.horse-card-header {
+  padding: 1.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
+}
+.horse-card-avatar {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(212, 175, 55, 0.05));
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+.horse-card-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+.horse-card-owner {
+  font-size: 0.9rem;
+  color: #A0AAB5;
+  margin-top: 4px;
+}
+.horse-class-badge {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.horse-class-1 { background: rgba(212, 175, 55, 0.2); color: #F9A826; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 0 10px rgba(212,175,55,0.2); }
+.horse-class-2 { background: rgba(192, 192, 192, 0.2); color: #E0E0E0; border: 1px solid rgba(192, 192, 192, 0.4); }
+.horse-class-3 { background: rgba(205, 127, 50, 0.2); color: #CD7F32; border: 1px solid rgba(205, 127, 50, 0.4); }
+.horse-class-other { background: rgba(255, 255, 255, 0.08); color: #A0AAB5; border: 1px solid rgba(255, 255, 255, 0.15); }
+.horse-card-body {
+  padding: 1.8rem;
+  flex: 1;
+}
+.horse-stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+.horse-stat-label { color: #8A94A0; }
+.horse-stat-value { color: #E0E6ED; font-weight: 600; }
+.horse-rating-wrap {
+  margin-top: 1.8rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1.2rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.horse-rating-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #A0AAB5;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.horse-rating-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.horse-rating-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #D4AF37, #F9A826, #FFDF73);
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(249, 168, 38, 0.6);
+  animation: loadProgress 1.5s ease-out forwards;
+}
+@keyframes loadProgress {
+  from { width: 0; }
+}
+.horse-card-footer {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.btn-gold {
+  background: linear-gradient(135deg, #D4AF37 0%, #F9A826 100%);
+  color: #000 !important;
+  border: none;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(212, 175, 55, 0.35);
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.5px;
+}
+.btn-gold:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.55);
+  background: linear-gradient(135deg, #F9A826 0%, #FFDF73 100%);
+}
+.btn-gold-sm {
+  padding: 8px 20px;
+  font-size: 0.9rem;
+}
+.btn-outline-gold {
+  background: rgba(212, 175, 55, 0.05);
+  color: #D4AF37 !important;
+  border: 1.5px solid #D4AF37;
+  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-family: 'Outfit', sans-serif;
+}
+.btn-outline-gold:hover {
+  background: rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+  transform: translateY(-2px);
+}
+.btn-outline-gold-sm {
+  padding: 8px 18px;
+  font-size: 0.9rem;
+}
+.btn-danger-lux {
+  background: linear-gradient(135deg, #FF4B4B 0%, #DC3545 100%);
+  color: #FFF !important;
+  border: none;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(220, 53, 69, 0.3);
+}
+.btn-danger-lux:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.5);
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF4B4B 100%);
+}
+
+/* ── Tables ────────────────────────────────────────────────── */
+.table-responsive {
+  border-radius: 16px;
+}
+.table-dark-lux {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  color: #E0E6ED;
+}
+.table-dark-lux th {
+  padding: 15px 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #8A94A0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: none;
+  background: transparent;
+}
+.table-dark-lux td {
+  padding: 18px 20px;
+  background: rgba(30, 30, 35, 0.5);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+  transition: all 0.3s ease;
+}
+.table-dark-lux tr:hover td {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.01);
+  border-color: rgba(212, 175, 55, 0.2);
+}
+.table-dark-lux td:first-child {
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+.table-dark-lux td:last-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+/* ── Forms ─────────────────────────────────────────────────── */
+.lux-form-control,
+.owner-context .form-control,
+.owner-context .form-select {
+  background-color: rgba(30, 30, 35, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #FFFFFF !important;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+.lux-form-control:focus,
+.owner-context .form-control:focus,
+.owner-context .form-select:focus {
+  background-color: rgba(40, 40, 45, 0.8) !important;
+  border-color: #D4AF37 !important;
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2) !important;
+  transform: translateY(-2px);
+}
+.owner-context .form-label {
+  color: #C0C8D0;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+.owner-context .form-text {
+  color: #7A8490;
+  font-size: 0.85rem;
+}
+
+/* ── Status Badges ─────────────────────────────────────────── */
+.badge-lux {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+}
+.badge-active { background: rgba(40, 167, 69, 0.15); color: #28A745; border-color: rgba(40, 167, 69, 0.3); }
+.badge-pending { background: rgba(255, 193, 7, 0.15); color: #FFC107; border-color: rgba(255, 193, 7, 0.3); }
+.badge-rejected { background: rgba(220, 53, 69, 0.15); color: #DC3545; border-color: rgba(220, 53, 69, 0.3); }
+
+/* ── Modals ────────────────────────────────────────────────── */
+.modal-content {
+  background: rgba(20, 20, 25, 0.95);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+.modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1.5rem 2rem;
+}
+.modal-title {
+  color: #F9A826;
+  font-weight: 800;
+}
+.modal-body {
+  padding: 2rem;
+}
+.modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1.5rem 2rem;
+}
+.btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* ── Smooth Hover Effects ──────────────────────────────────── */
+.smooth-hover {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.smooth-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15) !important;
+  border-color: rgba(212, 175, 55, 0.4) !important;
+}
+
+.smooth-hover-btn {
+  transition: all 0.3s ease !important;
+}
+
+.smooth-hover-btn:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+}
+
+/* Jockey race registration detail reveal */
+.jockey-race-detail-panel {
+  position: relative;
+  overflow: hidden;
+  animation: raceDetailReveal 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+
+.jockey-race-detail-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 0%, rgba(255, 223, 115, 0.09) 38%, transparent 70%);
+  transform: translateX(-115%);
+  animation: raceDetailSweep 760ms ease-out 120ms both;
+  pointer-events: none;
+}
+
+.jockey-race-detail-panel:hover {
+  border-color: rgba(212, 175, 55, 0.44) !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.34), 0 0 24px rgba(212, 175, 55, 0.13);
+  transform: translateY(-2px);
+}
+
+.jockey-race-status-badge {
+  animation: raceStatusPulse 1.9s ease-in-out infinite;
+  letter-spacing: 0.3px;
+}
+
+.jockey-prize-pool {
+  color: #f8fafc !important;
+  text-shadow: 0 0 14px rgba(249, 168, 38, 0.28);
+  animation: prizePoolGlow 1.8s ease-in-out infinite alternate;
+}
+
+.jockey-prize-row {
+  display: grid;
+  grid-template-columns: 44px minmax(110px, 1fr) 72px;
+  align-items: center;
+  column-gap: 12px;
+  border: 1px solid transparent;
+  animation: prizeRowIn 320ms ease both;
+  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.jockey-prize-row strong {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.jockey-prize-row span:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.jockey-prize-row:nth-child(1) { animation-delay: 70ms; }
+.jockey-prize-row:nth-child(2) { animation-delay: 130ms; }
+.jockey-prize-row:nth-child(3) { animation-delay: 190ms; }
+.jockey-prize-row:nth-child(n + 4) { animation-delay: 240ms; }
+
+.jockey-prize-row:hover {
+  background: rgba(212, 175, 55, 0.10) !important;
+  border-color: rgba(212, 175, 55, 0.28);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+  transform: translateX(4px);
+}
+
+@keyframes raceDetailReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes raceDetailSweep {
+  to {
+    transform: translateX(115%);
+  }
+}
+
+@keyframes raceStatusPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(34, 197, 94, 0.26);
+  }
+}
+
+@keyframes prizePoolGlow {
+  from {
+    filter: brightness(1);
+  }
+  to {
+    filter: brightness(1.12);
+  }
+}
+
+@keyframes prizeRowIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jockey-race-detail-panel,
+  .jockey-race-detail-panel::before,
+  .jockey-race-status-badge,
+  .jockey-prize-pool,
+  .jockey-prize-row {
+    animation: none !important;
+    transition: none !important;
+  }
+}
