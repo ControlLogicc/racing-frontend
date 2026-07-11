@@ -58,6 +58,8 @@ import CreatePrizePage from '../pages/admin/CreatePrizePage';
 import EditPrizePage from '../pages/admin/EditPrizePage';
 import AdminRefereeReportsPage from '../pages/admin/RefereeReportsPage';
 import AdminResultsPage from '../pages/admin/ResultsPage';
+import AdminNewsPage from '../pages/admin/NewsPage';
+import CreateNewsPage from '../pages/admin/CreateNewsPage';
 
 // Owner
 import OwnerDashboardOverview from '../pages/owner/Dashboard';
@@ -171,6 +173,12 @@ export default function AppRoutes() {
           } />
           <Route path="admin/results" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminResultsPage /></ProtectedRoute>
+          } />
+          <Route path="admin/news" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminNewsPage /></ProtectedRoute>
+          } />
+          <Route path="admin/news/create" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}><CreateNewsPage /></ProtectedRoute>
           } />
           {/* Staff: vận hành race — theo dõi invitation, remove entry nếu cần (D11) */}
           <Route path="staff" element={

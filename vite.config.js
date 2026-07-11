@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://convertible-sciences-ways-ventures.trycloudflare.com',
+        target: 'https://style-burning-told-basin.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://convertible-sciences-ways-ventures.trycloudflare.com',
+        target: 'https://style-burning-told-basin.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
