@@ -290,7 +290,7 @@ export default function SpectatorSchedulePage() {
                   <article
                     key={race.id}
                     className={`schedule-race-card ${isRunning ? 'schedule-race-card--live' : ''} ${isCancelled ? 'schedule-race-card--cancelled' : ''}`}
-                    onClick={() => navigate(`/spectator/race/${race.id}`)}
+                    onClick={() => navigate(`/race/${race.id}`)}
                   >
                     <div className="schedule-race-number">
                       <span>Race</span>
@@ -330,7 +330,7 @@ export default function SpectatorSchedulePage() {
                             <button
                               type="button"
                               className="schedule-result-btn"
-                              onClick={() => navigate(`/spectator/results/${race.id}`)}
+                              onClick={() => navigate(`/race-results/${race.id}`)}
                             >
                               <TrophyFill /> Kết quả
                             </button>
@@ -338,7 +338,7 @@ export default function SpectatorSchedulePage() {
                           <button
                             type="button"
                             className="schedule-detail-btn"
-                            onClick={() => navigate(`/spectator/race/${race.id}`)}
+                            onClick={() => navigate(`/race/${race.id}`)}
                           >
                             Chi tiết <ArrowRight />
                           </button>

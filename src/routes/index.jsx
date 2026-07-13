@@ -95,6 +95,7 @@ export default function AppRoutes() {
         <Route path="schedule" element={<SchedulePage />} />
         <Route path="ranking" element={<RankingPage />} />
         <Route path="horses" element={<SpectatorHorsesPage />} />
+        <Route path="race/:raceId" element={<SpectatorRaceDetailPage />} />
         <Route path="race-results/:raceId" element={<RaceResultPage />} />
         <Route path="forbidden" element={<ForbiddenPage />} />
         <Route path="*" element={<NotFoundPage />} />
