@@ -182,6 +182,8 @@ const mapEntries = (list) => (Array.isArray(list) ? list.map(mapEntry) : []);
 const realService = {
   // GET /entries/race/{raceId}
   getByRace: (raceId) => api.get(`/entries/race/${raceId}`).then((r) => mapEntries(r.data)),
+  getPublicByRace: (raceId) =>
+    api.get(`/entries/race/${raceId}`, { skipAuthRedirect: true }).then((r) => mapEntries(r.data)),
   getById: (id) => api.get(`/entries/${id}`).then((r) => mapEntry(r.data)),
 
   // Backend không có GET /entries — load từng race của staff rồi fetch entries theo race

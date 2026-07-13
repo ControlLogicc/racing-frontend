@@ -107,8 +107,8 @@ const realService = {
   remove: (id) => api.delete(`/owner/horses/${id}`).then((r) => r.data),
 
   // Spectator / public: thử /horses (nếu có), fallback []
-  getPublicAll: () => api.get('/admin/horses').then((r) => mapHorses(r.data)).catch(() => []),
-  getPublicById: (id) => api.get(`/admin/horses/${id}`).then((r) => mapHorse(r.data)),
+  getPublicAll: () => api.get('/admin/horses', { skipAuthRedirect: true }).then((r) => mapHorses(r.data)).catch(() => []),
+  getPublicById: (id) => api.get(`/admin/horses/${id}`, { skipAuthRedirect: true }).then((r) => mapHorse(r.data)),
 
   // Admin/Staff: quản lý toàn bộ ngựa
   adminGetAll: (params) => api.get('/admin/horses', { params }).then((r) => mapHorses(r.data)),

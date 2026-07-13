@@ -32,8 +32,9 @@ api.interceptors.response.use(
   (error) => {
     const url = error.config?.url || '';
     const isAuthCall = url.includes('/auth/login') || url.includes('/auth/register');
+    const skipAuthRedirect = error.config?.skipAuthRedirect === true;
 
-    if (error.response?.status === 401 && !isAuthCall) {
+    if (error.response?.status === 401 && !isAuthCall && !skipAuthRedirect) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';

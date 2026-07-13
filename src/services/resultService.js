@@ -75,14 +75,17 @@ const realService = {
   // Backend không có GET /results — load qua races rồi lấy từng race
   getAll: async () => {
     try {
-      const races = await api.get('/admin/races').then((r) => Array.isArray(r.data) ? r.data : []);
+      const races = await api.get('/races', { skipAuthRedirect: true })
+        .then((r) => Array.isArray(r.data) ? r.data : []);
       const withResults = races.filter((r) =>
         ['RESULT_PENDING', 'OFFICIAL', 'COMPLETED', 'RUNNING'].includes(r.status)
       );
       if (!withResults.length) return [];
       const sets = await Promise.all(
         withResults.map((r) =>
-          api.get(`/results/${r.raceId}`).then((res) => mapResults(res.data)).catch(() => [])
+          api.get(`/results/${r.raceId}`, { skipAuthRedirect: true })
+            .then((res) => mapResults(res.data))
+            .catch(() => [])
         )
       );
       return sets.flat();
@@ -92,10 +95,12 @@ const realService = {
   },
 
   // GET /results/{raceId} (NOT /races/{raceId}/results)
-  getByRace: (raceId) => api.get(`/results/${raceId}`).then((r) => mapResults(r.data)),
+  getByRace: (raceId) =>
+    api.get(`/results/${raceId}`, { skipAuthRedirect: true }).then((r) => mapResults(r.data)),
   getByHorse: async (horseId) => {
     try {
-      return await api.get(`/results/horse/${horseId}`).then((r) => mapResults(r.data));
+      return await api.get(`/results/horse/${horseId}`, { skipAuthRedirect: true })
+        .then((r) => mapResults(r.data));
     } catch {
       const allResults = await realService.getAll();
       return allResults.filter((r) => String(r.horseId) === String(horseId));
