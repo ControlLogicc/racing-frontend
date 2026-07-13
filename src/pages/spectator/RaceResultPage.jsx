@@ -45,7 +45,7 @@ export default function SpectatorRaceResultPage() {
   const load = () => {
     Promise.all([
       resultService.getByRace(numericId),
-      raceService.getById(numericId),
+      raceService.getPublicById(numericId),
     ])
       .then(([res, r]) => { setResults(res); setRace(r); })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được kết quả.')))

@@ -180,7 +180,7 @@ const realService = {
     }
   },
 
-  getPublicById: (id) => api.get(`/races/${id}`).then((r) => mapRace(r.data)),
+  getPublicById: (id) => api.get(`/races/${id}`, { skipAuthRedirect: true }).then((r) => mapRace(r.data)),
 
   // Spectator / jockey — thử /races (nếu có), fallback /races/open
   getPublic: async () => {

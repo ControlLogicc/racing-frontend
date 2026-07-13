@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Calendar3, CalendarCheck, FlagFill, LayersFill, 
 import { prizeService } from '../../services/prizeService';
 import { raceService } from '../../services/raceService';
 import { getApiErrorMessage } from '../../utils/apiError';
+import { getPrizeOrderError } from '../../utils/prizeValidation';
 import Loading from '../../components/common/Loading';
 import ErrorState from '../../components/common/ErrorState';
 import Toaster from '../../components/common/Toaster';
@@ -55,6 +56,14 @@ export default function CreatePrizePage() {
       .sort((a, b) => Number(a.position) - Number(b.position));
   }, [form.raceId, prizes]);
 
+  const orderError = useMemo(() => getPrizeOrderError({
+    prizes,
+    raceId: form.raceId,
+    position: form.position,
+    amount: form.amount,
+    score: form.score,
+  }), [form.amount, form.position, form.raceId, form.score, prizes]);
+
   const updateForm = (patch) => setForm((current) => ({ ...current, ...patch }));
 
   const handleCreate = async (e) => {
@@ -65,6 +74,10 @@ export default function CreatePrizePage() {
     }
     if (duplicatePosition) {
       setToast({ message: 'Race này đã có giải cho hạng đã chọn.', variant: 'warning' });
+      return;
+    }
+    if (orderError) {
+      setToast({ message: orderError, variant: 'warning' });
       return;
     }
 
@@ -91,6 +104,10 @@ export default function CreatePrizePage() {
     }
     if (duplicatePosition) {
       setToast({ message: 'Race này đã có giải cho hạng đã chọn.', variant: 'warning' });
+      return;
+    }
+    if (orderError) {
+      setToast({ message: orderError, variant: 'warning' });
       return;
     }
 
@@ -161,6 +178,7 @@ export default function CreatePrizePage() {
             <Form.Group className="season-field">
               <Form.Label>Prize Amount <span>*</span></Form.Label>
               <Form.Control type="number" value={form.amount} onChange={(e) => updateForm({ amount: e.target.value })} required min="0" step="1000" placeholder="50000000" />
+              {orderError && <Form.Text style={{ color: '#ffc400' }}>{orderError}</Form.Text>}
             </Form.Group>
 
           </section>

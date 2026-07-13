@@ -13,6 +13,7 @@ import {
 import { prizeService } from '../../services/prizeService';
 import { raceService } from '../../services/raceService';
 import { getApiErrorMessage } from '../../utils/apiError';
+import { getPrizeOrderError } from '../../utils/prizeValidation';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
@@ -197,6 +198,7 @@ function PrizeForm({
   selectedRaceName,
   isEdit = false,
   duplicatePosition = false,
+  orderError = '',
   onChange,
   onSubmit,
   onCancel,
@@ -262,6 +264,8 @@ function PrizeForm({
           />
         </Form.Group>
       </div>
+
+      {orderError && <Form.Text className="prize-form-warning">{orderError}</Form.Text>}
 
       <div className="prize-form-actions">
         <Button variant="secondary" onClick={onCancel}>Huỷ</Button>
@@ -362,6 +366,21 @@ export default function PrizesPage() {
   const editHasDuplicate = editRow && editForm.position
     ? hasDuplicatePosition(editRow.raceId, editForm.position, editRow.id)
     : false;
+  const createOrderError = getPrizeOrderError({
+    prizes: normalizedPrizes,
+    raceId: form.raceId,
+    position: form.position,
+    amount: form.amount,
+    score: form.score,
+  });
+  const editOrderError = editRow ? getPrizeOrderError({
+    prizes: normalizedPrizes,
+    raceId: editRow.raceId,
+    position: editForm.position,
+    amount: editForm.amount,
+    score: editForm.score,
+    ignoredPrizeId: editRow.id,
+  }) : '';
 
   const openCreate = (raceId = filterRaceId) => {
     setForm({ ...EMPTY_FORM, raceId: raceId ? String(raceId) : '' });
@@ -380,6 +399,10 @@ export default function PrizesPage() {
     e.preventDefault();
     if (createHasDuplicate) {
       setToast({ message: 'Race này đã có giải cho hạng đã chọn.', variant: 'warning' });
+      return;
+    }
+    if (createOrderError) {
+      setToast({ message: createOrderError, variant: 'warning' });
       return;
     }
 
@@ -415,6 +438,10 @@ export default function PrizesPage() {
     }
     if (editHasDuplicate) {
       setToast({ message: 'Race này đã có giải cho hạng đã chọn.', variant: 'warning' });
+      return;
+    }
+    if (editOrderError) {
+      setToast({ message: editOrderError, variant: 'warning' });
       return;
     }
 
@@ -522,6 +549,7 @@ export default function PrizesPage() {
             form={form}
             races={races}
             duplicatePosition={createHasDuplicate}
+            orderError={createOrderError}
             onChange={updateCreateForm}
             onSubmit={handleCreate}
             onCancel={closeCreate}
@@ -541,6 +569,7 @@ export default function PrizesPage() {
               selectedRaceName={getRaceName(raceMap.get(editRow.raceId), editRow.raceId)}
               isEdit
               duplicatePosition={editHasDuplicate}
+              orderError={editOrderError}
               onChange={updateEditForm}
               onSubmit={handleUpdate}
               onCancel={() => setEditRow(null)}

@@ -5,6 +5,7 @@ import { ArrowLeft, TrophyFill } from 'react-bootstrap-icons';
 import { prizeService } from '../../services/prizeService';
 import { raceService } from '../../services/raceService';
 import { getApiErrorMessage } from '../../utils/apiError';
+import { getPrizeOrderError } from '../../utils/prizeValidation';
 import Loading from '../../components/common/Loading';
 import ErrorState from '../../components/common/ErrorState';
 import Toaster from '../../components/common/Toaster';
@@ -38,6 +39,14 @@ export default function EditPrizePage() {
     && Number(prize.raceId) === Number(form.raceId)
     && Number(prize.position) === Number(form.position)
   ));
+  const orderError = getPrizeOrderError({
+    prizes: normalizedPrizes,
+    raceId: form.raceId,
+    position: form.position,
+    amount: form.amount,
+    score: form.score,
+    ignoredPrizeId: id,
+  });
 
   useEffect(() => {
     Promise.all([prizeService.getAll(), raceService.getAll()])
@@ -66,6 +75,10 @@ export default function EditPrizePage() {
     }
     if (duplicatePosition) {
       setToast({ message: 'Race nay da co giai cho hang da chon.', variant: 'warning' });
+      return;
+    }
+    if (orderError) {
+      setToast({ message: orderError, variant: 'warning' });
       return;
     }
     try {
@@ -115,6 +128,7 @@ export default function EditPrizePage() {
             <Form.Group className="season-field">
               <Form.Label>Prize Amount <span>*</span></Form.Label>
               <Form.Control type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required min="0" step="1000" />
+              {orderError && <Form.Text style={{ color: '#ffc400' }}>{orderError}</Form.Text>}
             </Form.Group>
           </section>
           <aside className="season-panel season-summary-panel">
