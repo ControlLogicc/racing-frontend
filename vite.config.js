@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://style-burning-told-basin.trycloudflare.com',
+        target: 'https://gnome-member-novel-monitoring.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://style-burning-told-basin.trycloudflare.com',
+        target: 'https://gnome-member-novel-monitoring.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
