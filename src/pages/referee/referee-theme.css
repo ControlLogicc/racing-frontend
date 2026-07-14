@@ -273,6 +273,11 @@ body:has(.referee-context) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.02);
 }
 
+/* Bootstrap .text-muted (#6c757d) is near-invisible on this theme's near-black rows */
+.referee-context .text-muted {
+  color: #8b96a8 !important;
+}
+
 .table-cyber tbody tr td:first-child {
   border-left: 1px solid rgba(255, 255, 255, 0.02);
   border-top-left-radius: 4px;

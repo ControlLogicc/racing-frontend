@@ -5,7 +5,10 @@ import { resultService } from '../../services/resultService';
 import { entryService } from '../../services/entryService';
 import { raceService } from '../../services/raceService';
 import { getApiErrorMessage } from '../../utils/apiError';
-import { canEnterResult } from '../../constants/status';
+import { canEnterResult, STATUS_LABEL } from '../../constants/status';
+
+// Entry đã bị referee xử lý (loại/DNF/rút) trước đó — không cần nhập hạng bình thường nữa, chỉ hiện để lưu ý.
+const TERMINAL_ENTRY_STATUSES = new Set(['disqualified', 'dnf', 'scratched']);
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
@@ -28,6 +31,7 @@ export default function RefereeResultsPage() {
   const [rowInputs, setRowInputs] = useState({});
   // savingGroup: { [raceId]: boolean }
   const [savingGroup, setSavingGroup] = useState({});
+  const [filterRaceId, setFilterRaceId] = useState('');
 
   const load = () => {
     Promise.all([
@@ -181,34 +185,49 @@ export default function RefereeResultsPage() {
                     const inp = rowInputs[en.id] || {};
                     return (
                       <tr key={en.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                        <td style={{ padding: '10px 12px', color: '#f0e8d0', fontWeight: 700 }}>🐎 {en.horseName}</td>
+                        <td style={{ padding: '10px 12px', color: '#f0e8d0', fontWeight: 700 }}>
+                          🐎 {en.horseName}
+                          {TERMINAL_ENTRY_STATUSES.has(en.rawStatus) && (
+                            <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: '#ff3366', border: '1px solid #ff336655', borderRadius: 4, padding: '1px 6px' }}>
+                              {STATUS_LABEL[en.rawStatus] ?? en.rawStatus}
+                            </span>
+                          )}
+                        </td>
                         <td style={{ padding: '10px 12px', color: '#aaa' }}>{en.jockeyName}</td>
                         <td style={{ padding: '10px 12px', color: '#D4AF37' }}>{en.gateNumber ?? '—'}</td>
                         <td style={{ padding: '10px 12px', color: '#aaa' }}>{en.handicapWeight != null ? `${en.handicapWeight} kg` : '—'}</td>
                         <td style={{ padding: '10px 12px', width: 90 }}>
-                          <input
-                            type="number"
-                            min={1}
-                            value={inp.position ?? ''}
-                            onChange={(e) => setField(en.id, 'position', e.target.value)}
-                            placeholder="Hạng"
-                            style={{
-                              width: '100%', background: '#0a0f1a', border: '1px solid #00c8ff44',
-                              color: '#fff', borderRadius: 6, padding: '5px 8px', fontSize: 14,
-                            }}
-                          />
+                          {TERMINAL_ENTRY_STATUSES.has(en.rawStatus) ? (
+                            <span style={{ color: '#aaa' }}>—</span>
+                          ) : (
+                            <input
+                              type="number"
+                              min={1}
+                              value={inp.position ?? ''}
+                              onChange={(e) => setField(en.id, 'position', e.target.value)}
+                              placeholder="Hạng"
+                              style={{
+                                width: '100%', background: '#0a0f1a', border: '1px solid #00c8ff44',
+                                color: '#fff', borderRadius: 6, padding: '5px 8px', fontSize: 14,
+                              }}
+                            />
+                          )}
                         </td>
                         <td style={{ padding: '10px 12px', width: 150 }}>
-                          <input
-                            type="text"
-                            value={inp.finishTime ?? ''}
-                            onChange={(e) => setField(en.id, 'finishTime', e.target.value)}
-                            placeholder="00:01:10.250"
-                            style={{
-                              width: '100%', background: '#0a0f1a', border: '1px solid #00c8ff44',
-                              color: '#fff', borderRadius: 6, padding: '5px 8px', fontSize: 13,
-                            }}
-                          />
+                          {TERMINAL_ENTRY_STATUSES.has(en.rawStatus) ? (
+                            <span style={{ color: '#aaa' }}>—</span>
+                          ) : (
+                            <input
+                              type="text"
+                              value={inp.finishTime ?? ''}
+                              onChange={(e) => setField(en.id, 'finishTime', e.target.value)}
+                              placeholder="00:01:10.250"
+                              style={{
+                                width: '100%', background: '#0a0f1a', border: '1px solid #00c8ff44',
+                                color: '#fff', borderRadius: 6, padding: '5px 8px', fontSize: 13,
+                              }}
+                            />
+                          )}
                         </td>
                       </tr>
                     );
@@ -231,8 +250,23 @@ export default function RefereeResultsPage() {
       )}
 
       <div className="cyber-panel">
-        <h5 className="mb-4 text-info fw-bold" style={{ letterSpacing: '1px' }}>RECORDED RESULTS LOG</h5>
-        {results.length === 0 ? (
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h5 className="mb-0 text-info fw-bold" style={{ letterSpacing: '1px' }}>RECORDED RESULTS LOG</h5>
+          {results.length > 0 && (
+            <select
+              className="cyber-input"
+              style={{ width: '250px', padding: '6px 12px', fontSize: '13px' }}
+              value={filterRaceId}
+              onChange={(e) => setFilterRaceId(e.target.value)}
+            >
+              <option value="">-- Tất cả Race --</option>
+              {races.filter(race => results.some(r => Number(r.raceId) === Number(race.id))).map((race) => (
+                <option key={race.id} value={race.id}>{race.name}</option>
+              ))}
+            </select>
+          )}
+        </div>
+        {results.filter(r => !filterRaceId || Number(r.raceId) === Number(filterRaceId)).length === 0 ? (
           <EmptyState message="Chưa có kết quả nào được ghi nhận." />
         ) : (
           <div className="table-responsive">
@@ -245,7 +279,7 @@ export default function RefereeResultsPage() {
                 </tr>
               </thead>
               <tbody>
-                {results.map((r) => {
+                {results.filter(r => !filterRaceId || Number(r.raceId) === Number(filterRaceId)).map((r) => {
                   // Race đã "Công bố chính thức" (Staff set race.status = OFFICIAL) → chỉ xem, không cho sửa/xóa nữa.
                   const race = races.find((item) => Number(item.id) === Number(r.raceId));
                   const isRacePublished = race?.status === 'OFFICIAL';

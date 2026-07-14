@@ -208,12 +208,16 @@ export default function StaffRaceDetailPage() {
     const isClosedOrLater = race.status !== 'DRAFT' && race.status !== 'SCHEDULED' && race.status !== 'OPEN_FOR_ENTRY';
     const isGateDrawDone = entries.length > 0 && entries.every(e => e.gateNumber !== null);
 
+    // Khớp PreRaceWeightCheck.OVERWEIGHT_TOLERANCE_KG bên BE — vượt ngưỡng này thì entry bị tự động scratch
+    const OVERWEIGHT_TOLERANCE_KG = 0.91;
+
     const getWeightResult = (row) => {
       if (row.actualWeight === null || row.actualWeight === undefined) return 'PENDING';
       const carried = Number(row.actualWeight) + Number(row.leadWeight || 0);
       const handicap = Number(row.handicapWeight || 0);
       if (carried < handicap) return 'FAILED';
-      if (carried > handicap + 0.5) return 'OVERWEIGHT';
+      if (carried > handicap + OVERWEIGHT_TOLERANCE_KG) return 'SCRATCHED';
+      if (carried > handicap) return 'OVERWEIGHT';
       return 'PASSED';
     };
 
@@ -244,22 +248,19 @@ export default function StaffRaceDetailPage() {
             const shortage = Number(row.handicapWeight || 0) - (Number(row.actualWeight) + Number(row.leadWeight || 0));
             return <Badge bg="danger">Thiếu {shortage.toFixed(1)} kg</Badge>;
           }
-          if (result === 'OVERWEIGHT') {
-            const over = (Number(row.actualWeight) + Number(row.leadWeight || 0)) - Number(row.handicapWeight || 0);
-            return <Badge bg="warning" text="dark">+{over.toFixed(1)} kg</Badge>;
-          }
+          const over = (Number(row.actualWeight) + Number(row.leadWeight || 0)) - Number(row.handicapWeight || 0);
+          if (result === 'SCRATCHED') return <Badge bg="danger">+{over.toFixed(1)} kg (quá {OVERWEIGHT_TOLERANCE_KG}kg)</Badge>;
+          if (result === 'OVERWEIGHT') return <Badge bg="warning" text="dark">+{over.toFixed(1)} kg</Badge>;
           return <Badge bg="success">✓ Đạt</Badge>;
         }
       },
       {
         key: 'status',
         label: 'Trạng thái',
-        render: (row) => {
-          const result = getWeightResult(row);
-          if (result === 'PENDING') return <StatusBadge status={row.status} />;
-          if (result === 'FAILED') return <StatusBadge status="FAILED" />;
-          return <StatusBadge status="PASSED" />;
-        }
+        // Dùng rawStatus (giá trị gốc từ BE: disqualified/penalized/dnf/scratched/ready...) thay vì status đã gộp nhóm
+        // (FAILED/WITHDRAWN...) — nếu không sẽ hiện "Không đạt" chung chung cho cả entry bị referee truất quyền,
+        // gây mâu thuẫn với cột Weight check (vốn có thể vẫn "Đạt" vì lý do loại không liên quan tới cân nặng).
+        render: (row) => <StatusBadge status={row.rawStatus || row.status} />,
       },
     ];
 

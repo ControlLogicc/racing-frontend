@@ -187,7 +187,7 @@ export default function StaffEntriesPage() {
                       </td>
                       <td style={{ color: '#aaa' }}>{e.gateNumber || '—'}</td>
                       <td style={{ color: '#aaa' }}>{e.handicapWeight ? `${e.handicapWeight} kg` : '—'}</td>
-                      <td><StatusBadge status={e.status} /></td>
+                      <td><StatusBadge status={e.rawStatus || e.status} /></td>
                       <td style={{ color: '#666', whiteSpace: 'nowrap' }}>{formatDate(e.createdAt)}</td>
                     </tr>
                   ))}
@@ -217,7 +217,7 @@ export default function StaffEntriesPage() {
                     <td style={{ color: '#aaa' }}>{e.raceName}</td>
                     <td style={{ color: '#aaa' }}>{e.horseName}</td>
                     <td style={{ color: '#aaa' }}>{e.jockeyName || '—'}</td>
-                    <td><StatusBadge status={e.status} /></td>
+                    <td><StatusBadge status={e.rawStatus || e.status} /></td>
                   </tr>
                 ))}
               </tbody>

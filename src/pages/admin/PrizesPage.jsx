@@ -228,7 +228,15 @@ function PrizeForm({
           <Form.Control
             type="number"
             value={form.position}
-            onChange={(e) => onChange({ position: e.target.value })}
+            onChange={(e) => {
+              const pos = e.target.value;
+              const posNum = Number(pos);
+              if (posNum >= 4 && posNum <= 6) {
+                onChange({ position: pos, score: '0' });
+              } else {
+                onChange({ position: pos });
+              }
+            }}
             required
             min="1"
             step="1"
@@ -240,12 +248,11 @@ function PrizeForm({
         </Form.Group>
 
         <Form.Group>
-          <Form.Label>Tiền thưởng <span>*</span></Form.Label>
+          <Form.Label>Tiền thưởng</Form.Label>
           <Form.Control
             type="number"
             value={form.amount}
             onChange={(e) => onChange({ amount: e.target.value })}
-            required
             min="0"
             step="1000"
             placeholder="50000000"
@@ -258,7 +265,6 @@ function PrizeForm({
             type="number"
             value={form.score}
             onChange={(e) => onChange({ score: e.target.value })}
-            min="0"
             step="0.5"
             placeholder="10"
           />
@@ -410,7 +416,7 @@ export default function PrizesPage() {
       await prizeService.create({
         raceId: Number(form.raceId),
         position: Number(form.position),
-        amount: parseFloat(form.amount),
+        amount: form.amount ? parseFloat(form.amount) : 0,
         score: form.score ? parseFloat(form.score) : 0,
       });
       setToast({ message: 'Tạo giải thưởng thành công.', variant: 'success' });
@@ -432,8 +438,8 @@ export default function PrizesPage() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    if (!editForm.position || !editForm.amount) {
-      setToast({ message: 'Vui lòng nhập hạng và tiền thưởng.', variant: 'warning' });
+    if (!editForm.position) {
+      setToast({ message: 'Vui lòng nhập hạng.', variant: 'warning' });
       return;
     }
     if (editHasDuplicate) {
@@ -449,7 +455,7 @@ export default function PrizesPage() {
       await prizeService.update(editRow.id, {
         raceId: editRow.raceId,
         position: Number(editForm.position),
-        amount: parseFloat(editForm.amount),
+        amount: editForm.amount ? parseFloat(editForm.amount) : 0,
         score: parseFloat(editForm.score) || 0,
       });
       setToast({ message: 'Cập nhật thành công.', variant: 'success' });

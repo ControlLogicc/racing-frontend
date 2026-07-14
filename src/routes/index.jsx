@@ -36,6 +36,7 @@ import StaffCreateEntryPage from '../pages/staff/CreateEntryPage';
 import StaffResultsPage from '../pages/staff/ResultsPage';
 import StaffRacesPage from '../pages/staff/RacesPage';
 import StaffRaceDetailPage from '../pages/staff/RaceDetailPage';
+import StaffReportsPage from '../pages/staff/ReportsPage';
 
 // Admin — cấu hình hệ thống (D11: Admin tạo Season/Meeting/Race, không phải Staff)
 import SeasonsPage from '../pages/admin/SeasonsPage';
@@ -208,6 +209,9 @@ export default function AppRoutes() {
           } />
           <Route path="staff/results" element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}><StaffResultsPage /></ProtectedRoute>
+          } />
+          <Route path="staff/reports" element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}><StaffReportsPage /></ProtectedRoute>
           } />
           {/* Owner: quản lý ngựa, nộp đăng ký đua, gửi lời mời jockey */}
           <Route path="owner" element={

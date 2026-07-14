@@ -21,8 +21,8 @@ const mockService = {
   },
 };
 
-// RefereeReportResponse: { reportId, raceId, raceName, refereeId, refereeName,
-//   reportType, content, violations, decisions, createdAt, updatedAt }
+// RefereeReportResponse: { reportId, raceId, raceName, entryId, horseId, horseName, jockeyId, jockeyName,
+//   refereeId, refereeName, reportType, content, violations, decisions, createdAt, updatedAt }
 const mapReport = (r) => ({
   id: r.reportId,
   reportId: r.reportId,
@@ -36,6 +36,10 @@ const mapReport = (r) => ({
   penalty: r.penalty,
   reportStatus: r.reportStatus,
   entryId: r.entryId,
+  horseId: r.horseId,
+  horseName: r.horseName,
+  jockeyId: r.jockeyId,
+  jockeyName: r.jockeyName,
   createdAt: r.createdAt,
   updatedAt: r.updatedAt,
 });

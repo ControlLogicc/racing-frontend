@@ -67,10 +67,20 @@ export default function EditPrizePage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const handlePositionChange = (e) => {
+    const pos = e.target.value;
+    const posNum = Number(pos);
+    if (posNum >= 4 && posNum <= 6) {
+      setForm({ ...form, position: pos, score: '0' });
+    } else {
+      setForm({ ...form, position: pos });
+    }
+  };
+
   const handleUpdate = async (e) => {
     e.preventDefault();
-    if (!form.raceId || !form.position || !form.amount) {
-      setToast({ message: 'Vui long nhap race, hang va tien thuong.', variant: 'warning' });
+    if (!form.raceId || !form.position) {
+      setToast({ message: 'Vui long nhap race va hang.', variant: 'warning' });
       return;
     }
     if (duplicatePosition) {
@@ -85,7 +95,7 @@ export default function EditPrizePage() {
       await prizeService.update(id, {
         raceId: Number(form.raceId),
         position: Number(form.position),
-        amount: parseFloat(form.amount),
+        amount: form.amount ? parseFloat(form.amount) : 0,
         score: parseFloat(form.score) || 0,
       });
       setToast({ message: 'Cap nhat giai thuong thanh cong.', variant: 'success' });
@@ -117,17 +127,17 @@ export default function EditPrizePage() {
             <div className="season-form-duo">
               <Form.Group className="season-field">
                 <Form.Label>Position <span>*</span></Form.Label>
-                <Form.Control type="number" value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} required min="1" />
+                <Form.Control type="number" value={form.position} onChange={handlePositionChange} required min="1" />
                 {duplicatePosition && <Form.Text style={{ color: '#ffc400' }}>Race nay da co hang nay.</Form.Text>}
               </Form.Group>
               <Form.Group className="season-field">
                 <Form.Label>Score</Form.Label>
-                <Form.Control type="number" value={form.score} onChange={(e) => setForm({ ...form, score: e.target.value })} min="0" step="0.5" />
+                <Form.Control type="number" value={form.score} onChange={(e) => setForm({ ...form, score: e.target.value })} step="0.5" />
               </Form.Group>
             </div>
             <Form.Group className="season-field">
-              <Form.Label>Prize Amount <span>*</span></Form.Label>
-              <Form.Control type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required min="0" step="1000" />
+              <Form.Label>Prize Amount</Form.Label>
+              <Form.Control type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} min="0" step="1000" />
               {orderError && <Form.Text style={{ color: '#ffc400' }}>{orderError}</Form.Text>}
             </Form.Group>
           </section>

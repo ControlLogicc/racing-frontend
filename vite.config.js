@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://gnome-member-novel-monitoring.trycloudflare.com',
+        target: 'https://optics-opened-lean-munich.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://gnome-member-novel-monitoring.trycloudflare.com',
+        target: 'https://optics-opened-lean-munich.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

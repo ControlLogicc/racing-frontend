@@ -182,7 +182,7 @@ export default function StaffDashboard() {
                           <td style={{ color: '#aaa' }}>{e.raceName}</td>
                           <td style={{ fontWeight: 600, color: '#fff' }}>{e.horseName}</td>
                           <td style={{ color: '#aaa' }}>{e.jockeyName}</td>
-                          <td><StatusBadge status={e.status} /></td>
+                          <td><StatusBadge status={e.rawStatus || e.status} /></td>
                         </tr>
                       ))}
                     </tbody>
