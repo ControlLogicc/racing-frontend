@@ -1,34 +1,70 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  ArrowRight,
+  Calendar3,
+  ChevronLeft,
+  ChevronRight,
+  FlagFill,
+  Newspaper,
+  PersonBadgeFill,
+  TrophyFill,
+} from 'react-bootstrap-icons';
+import AmbientGoldParticles from '../../components/public/AmbientGoldParticles';
 import { useAuth } from '../../hooks/useAuth';
-import './public-theme.css';
+import './home-theme.css';
 
 const FEATURES = [
   {
-    id: 'f1', icon: '🏁', title: 'Race Schedule',
-    desc: 'Theo dõi lịch đua mới nhất theo từng mùa giải và cuộc đua sắp diễn ra.',
+    id: 'schedule',
+    icon: Calendar3,
+    eyebrow: 'Lịch thi đấu',
+    title: 'Race Schedule',
+    desc: 'Theo dõi lịch đua mới nhất theo từng mùa giải và những cuộc đua sắp diễn ra.',
     to: '/schedule',
   },
   {
-    id: 'f2', icon: '🏆', title: 'Rankings',
-    desc: 'Bảng xếp hạng ngựa và nài ngựa được cập nhật theo kết quả thi đấu thực tế.',
+    id: 'ranking',
+    icon: TrophyFill,
+    eyebrow: 'Thành tích',
+    title: 'Rankings',
+    desc: 'Bảng xếp hạng ngựa và nài ngựa được cập nhật từ kết quả thi đấu chính thức.',
     to: '/ranking',
   },
   {
-    id: 'f3', icon: '🐎', title: 'Horse Profiles',
-    desc: 'Hồ sơ chi tiết ngựa đua — chủ sở hữu, lịch sử thi đấu và thành tích.',
+    id: 'horses',
+    icon: PersonBadgeFill,
+    eyebrow: 'Chiến mã',
+    title: 'Horse Profiles',
+    desc: 'Khám phá hồ sơ ngựa đua, chủ sở hữu, lịch sử thi đấu và thành tích nổi bật.',
     to: '/horses',
   },
   {
-    id: 'f4', icon: '📰', title: 'News & Updates',
-    desc: 'Tin tức, kết quả đua và thông báo mới nhất từ hệ thống FPT Racing.',
+    id: 'news',
+    icon: Newspaper,
+    eyebrow: 'Tin mới',
+    title: 'News & Updates',
+    desc: 'Tin tức, kết quả đua và những thông báo mới nhất từ hệ thống FPT Racing.',
     to: '/news',
   },
 ];
 
 const HOW_IT_WORKS = [
-  { num: '01', title: 'Đăng ký tài khoản', desc: 'Tạo tài khoản chủ ngựa, jockey hoặc quản trị viên trong vài phút.' },
-  { num: '02', title: 'Đăng ký ngựa & race', desc: 'Chủ ngựa đăng ký ngựa tham dự race, mời jockey phù hợp.' },
-  { num: '03', title: 'Thi đấu & kết quả', desc: 'Referee xác nhận kết quả, hệ thống tự động cập nhật bảng xếp hạng.' },
+  {
+    num: '01',
+    title: 'Đăng ký tài khoản',
+    desc: 'Tạo tài khoản chủ ngựa, jockey hoặc thành viên chỉ trong vài phút.',
+  },
+  {
+    num: '02',
+    title: 'Đăng ký ngựa & race',
+    desc: 'Chủ ngựa đăng ký ngựa tham dự race và mời jockey phù hợp.',
+  },
+  {
+    num: '03',
+    title: 'Thi đấu & kết quả',
+    desc: 'Kết quả được xác nhận và tự động cập nhật vào bảng xếp hạng.',
+  },
 ];
 
 const STATS = [
@@ -38,134 +74,178 @@ const STATS = [
   { value: '6', label: 'Mùa giải' },
 ];
 
+function getCardPosition(index, activeIndex) {
+  const offset = (index - activeIndex + FEATURES.length) % FEATURES.length;
+  if (offset === 0) return 'center';
+  if (offset === 1) return 'right';
+  if (offset === FEATURES.length - 1) return 'left';
+  return 'hidden';
+}
+
 export default function HomePage() {
   const { user } = useAuth();
+  const [activeFeature, setActiveFeature] = useState(0);
+
+  const showPrevious = () => {
+    setActiveFeature((current) => (current - 1 + FEATURES.length) % FEATURES.length);
+  };
+
+  const showNext = () => {
+    setActiveFeature((current) => (current + 1) % FEATURES.length);
+  };
+
+  const focusCard = (index, position) => {
+    if (position === 'left' || position === 'right') setActiveFeature(index);
+  };
+
+  const handleCardKeyDown = (event, index, position) => {
+    if ((event.key === 'Enter' || event.key === ' ') && position !== 'hidden') {
+      event.preventDefault();
+      focusCard(index, position);
+    }
+  };
 
   return (
-    <div className="pub-page">
-      {/* ── HERO ─────────────────────────────────── */}
-      <section className="pub-hero">
-        <div className="vip-particles">
-          <div className="particle p1"></div>
-          <div className="particle p2"></div>
-          <div className="particle p3"></div>
-          <div className="particle p4"></div>
-          <div className="particle p5"></div>
-        </div>
+    <div className="home3d-page">
+      <AmbientGoldParticles excludeSelector="#features" />
 
-        <div className="pub-hero-inner">
-          <div className="pub-hero-badge vip-glow">FPT Horse Racing System</div>
-
-          <h1 className="pub-hero-title vip-shimmer">
-            <span>THE ULTIMATE</span>
-            <span>RACING</span>
-            <span>EXPERIENCE</span>
+      <section className="home3d-hero">
+        <div className="home3d-grid" aria-hidden="true" />
+        <div className="home3d-hero-content">
+          <div className="home3d-kicker"><FlagFill /> FPT Horse Racing System</div>
+          <h1>
+            <span className="home3d-title-line">The ultimate racing</span>
+            <span className="home3d-title-accent">Experience</span>
           </h1>
-
-          <p className="pub-hero-sub">
+          <p>
             Nơi hội tụ của những huyền thoại đường đua. Trải nghiệm cảm giác nghẹt thở,
             đẳng cấp và minh bạch tuyệt đối trên nền tảng thể thao quý tộc.
           </p>
 
-          {!user ? (
-            <div className="pub-hero-actions">
-              <Link to="/register" className="pub-btn-gold vip-btn-effect">BẮT ĐẦU NGAY</Link>
-              <Link to="/login" className="pub-btn-outline vip-btn-effect">ĐĂNG NHẬP</Link>
-            </div>
-          ) : (
-            <div className="pub-hero-actions">
-              <Link to="/schedule" className="pub-btn-gold vip-btn-effect">LỊCH ĐUA VIP</Link>
-              <Link to="/horses" className="pub-btn-outline vip-btn-effect">CHIẾN MÃ</Link>
-            </div>
-          )}
+          <div className="home3d-hero-actions">
+            {!user ? (
+              <>
+                <Link to="/register" className="home3d-btn home3d-btn-primary">Bắt đầu ngay <ArrowRight /></Link>
+                <Link to="/login" className="home3d-btn home3d-btn-outline">Đăng nhập</Link>
+              </>
+            ) : (
+              <>
+                <Link to="/schedule" className="home3d-btn home3d-btn-primary">Xem lịch đua <ArrowRight /></Link>
+                <Link to="/horses" className="home3d-btn home3d-btn-outline">Khám phá chiến mã</Link>
+              </>
+            )}
+          </div>
 
-          <div className="pub-hero-stats vip-glass">
-            {STATS.map((s) => (
-              <div className="pub-hero-stat" key={s.label}>
-                <div className="pub-stat-value">{s.value}</div>
-                <div className="pub-stat-label">{s.label}</div>
+          <div className="home3d-stats" aria-label="Thống kê hệ thống">
+            {STATS.map((stat) => (
+              <div className="home3d-stat" key={stat.label}>
+                <strong>{stat.value}</strong>
+                <span>{stat.label}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="pub-scroll-hint">Khám phá</div>
+        <a className="home3d-scroll" href="#features">Khám phá <span>↓</span></a>
       </section>
 
-      {/* ── FEATURES ─────────────────────────────── */}
-      <section className="pub-section">
-        <div className="container">
-          <div className="pub-section-label">
-            <span className="pub-section-badge">ĐẶC QUYỀN</span>
-          </div>
-          <h2 className="pub-section-title">Khám phá nền tảng</h2>
-          <p className="pub-section-sub">
-            Từ lịch đua đến kết quả, mọi thứ đều trong tầm tay bạn.
-          </p>
+      <section className="home3d-section home3d-features" id="features">
+        <div className="home3d-section-heading">
+          <span>Đặc quyền</span>
+          <h2>Khám phá nền tảng</h2>
+          <p>Từ lịch đua đến kết quả, mọi thứ đều trong tầm tay bạn.</p>
+        </div>
 
-          <div className="row g-4">
-            {FEATURES.map((f) => (
-              <div className="col-12 col-sm-6 col-lg-3" key={f.id}>
-                <div className="pub-feature-card vip-hover">
-                  <div className="pub-feature-icon">{f.icon}</div>
-                  <h5>{f.title}</h5>
-                  <p>{f.desc}</p>
-                  <Link to={f.to} className="pub-feature-link">
-                    Xem ngay →
+        <div className="home3d-carousel" aria-roledescription="carousel" aria-label="Tính năng nổi bật">
+          <div className="home3d-carousel-stage" aria-live="polite">
+            {FEATURES.map((feature, index) => {
+              const position = getCardPosition(index, activeFeature);
+              const Icon = feature.icon;
+
+              return (
+                <article
+                  key={feature.id}
+                  className={`home3d-feature-card is-${position}`}
+                  aria-hidden={position === 'hidden'}
+                  tabIndex={position === 'hidden' ? -1 : 0}
+                  onClick={() => focusCard(index, position)}
+                  onKeyDown={(event) => handleCardKeyDown(event, index, position)}
+                >
+                  <div className="home3d-feature-icon"><Icon /></div>
+                  <span className="home3d-feature-eyebrow">{feature.eyebrow}</span>
+                  <h3>{feature.title}</h3>
+                  <p>{feature.desc}</p>
+                  <Link
+                    to={feature.to}
+                    className="home3d-feature-link"
+                    tabIndex={position === 'center' ? 0 : -1}
+                  >
+                    Xem ngay <ArrowRight />
                   </Link>
-                </div>
-              </div>
-            ))}
+                </article>
+              );
+            })}
           </div>
-        </div>
-      </section>
 
-      <div className="pub-divider" />
-
-      {/* ── HOW IT WORKS ─────────────────────────── */}
-      <section className="pub-section">
-        <div className="container">
-          <div className="pub-section-label">
-            <span className="pub-section-badge">QUY TRÌNH</span>
-          </div>
-          <h2 className="pub-section-title">Cách hoạt động</h2>
-          <p className="pub-section-sub">
-            Hệ thống đơn giản, minh bạch từ đăng ký đến công bố kết quả.
-          </p>
-
-          <div className="d-flex align-items-start justify-content-center flex-wrap">
-            {HOW_IT_WORKS.map((step, i) => (
-              <div key={step.num} className="d-flex align-items-start">
-                <div className="pub-step">
-                  <div className="pub-step-num">{step.num}</div>
-                  <h6>{step.title}</h6>
-                  <p>{step.desc}</p>
-                </div>
-                {i < HOW_IT_WORKS.length - 1 && (
-                  <div className="pub-step-connector" />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA ──────────────────────────────────── */}
-      {!user && (
-        <section className="pub-cta">
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2>Sẵn sàng tham gia?</h2>
-            <p>
-              Tạo tài khoản miễn phí và trải nghiệm hệ thống quản lý đua ngựa
-              chuyên nghiệp ngay hôm nay.
-            </p>
-            <div className="pub-hero-actions">
-              <Link to="/register" className="pub-btn-gold vip-btn-effect">TRỞ THÀNH HỘI VIÊN</Link>
-              <Link to="/schedule" className="pub-btn-outline vip-btn-effect">XEM LỊCH ĐUA</Link>
+          <div className="home3d-carousel-controls">
+            <button type="button" onClick={showPrevious} aria-label="Tính năng trước"><ChevronLeft /></button>
+            <div className="home3d-dots" aria-label={`Tính năng ${activeFeature + 1} trên ${FEATURES.length}`}>
+              {FEATURES.map((feature, index) => (
+                <button
+                  type="button"
+                  key={feature.id}
+                  className={index === activeFeature ? 'active' : ''}
+                  onClick={() => setActiveFeature(index)}
+                  aria-label={`Xem ${feature.title}`}
+                  aria-current={index === activeFeature ? 'true' : undefined}
+                />
+              ))}
             </div>
+            <button type="button" onClick={showNext} aria-label="Tính năng tiếp theo"><ChevronRight /></button>
+          </div>
+        </div>
+      </section>
+
+      <div className="home3d-story">
+        <section className="home3d-section home3d-process">
+          <div className="home3d-section-heading">
+            <span>Quy trình</span>
+            <h2>Cách hoạt động</h2>
+            <p>Đơn giản, minh bạch từ đăng ký đến khi công bố kết quả.</p>
+          </div>
+
+          <div className="home3d-process-list">
+            {HOW_IT_WORKS.map((step) => (
+              <article className="home3d-process-step" key={step.num}>
+                <div className="home3d-step-number">{step.num}</div>
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
+              </article>
+            ))}
           </div>
         </section>
-      )}
+
+        {!user && (
+          <section className="home3d-cta">
+            <div className="home3d-cta-content">
+              <span>Đường đua đang chờ</span>
+              <h2>Sẵn sàng tham gia?</h2>
+              <p>Tạo tài khoản miễn phí và trải nghiệm hệ thống quản lý đua ngựa chuyên nghiệp ngay hôm nay.</p>
+              <div className="home3d-hero-actions">
+                <Link to="/register" className="home3d-btn home3d-btn-primary">Trở thành hội viên</Link>
+                <Link to="/schedule" className="home3d-btn home3d-btn-outline">Xem lịch đua</Link>
+              </div>
+            </div>
+          </section>
+        )}
+      </div>
+
+      <footer className="home3d-footer">
+        <div>
+          <strong><FlagFill /> FPT Racing</strong>
+          <p>Precision. Performance. Prestige.</p>
+        </div>
+      </footer>
     </div>
   );
 }
