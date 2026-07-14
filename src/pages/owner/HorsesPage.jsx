@@ -133,7 +133,7 @@ export default function OwnerHorsesPage() {
                 <Form.Check 
                   type="radio" 
                   id="reg-new" 
-                  label="Ngựa chưa thi đấu (Tự động Class 5)" 
+                  label="Ngựa chưa thi đấu (Tự động Class 3)" 
                   value="NEW" 
                   {...register('registrationType')} 
                 />
