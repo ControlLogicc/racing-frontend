@@ -1,0 +1,15 @@
+.ambient-gold-particles {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-gold-particles {
+    opacity: 0.65;
+  }
+}
