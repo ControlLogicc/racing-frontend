@@ -509,15 +509,67 @@ body:has(.owner-context) {
   transform: translateY(-2px);
 }
 .owner-context .form-label {
-  color: #C0C8D0;
+  color: #D7DCE3;
   font-weight: 600;
   font-size: 0.95rem;
   margin-bottom: 8px;
   letter-spacing: 0.5px;
 }
 .owner-context .form-text {
-  color: #7A8490;
+  color: #AAB4C0 !important;
   font-size: 0.85rem;
+}
+
+.owner-context .text-muted {
+  color: #AAB4C0 !important;
+}
+
+.owner-context .form-control::placeholder,
+.owner-context textarea.form-control::placeholder {
+  color: #98A2B0 !important;
+  opacity: 1 !important;
+}
+
+.owner-context .form-select option {
+  color: #F3F4F6;
+  background: #1E1E23;
+}
+
+.owner-context .form-control:disabled,
+.owner-context .form-select:disabled {
+  color: #AAB4C0 !important;
+  opacity: 0.85;
+}
+
+/* Modal đăng ký race của Jockey dùng chung luxury surface */
+.lux-modal-content .lux-label {
+  color: #D7DCE3 !important;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.lux-modal-content .lux-input {
+  color: #F8FAFC !important;
+  background-color: #1E1E23 !important;
+  border: 1px solid #41444C !important;
+  border-radius: 8px;
+}
+
+.lux-modal-content .lux-input:focus {
+  color: #FFFFFF !important;
+  background-color: #24252B !important;
+  border-color: #D4AF37 !important;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18) !important;
+}
+
+.lux-modal-content .lux-input::placeholder {
+  color: #98A2B0 !important;
+  opacity: 1 !important;
+}
+
+.lux-modal-content select.lux-input option {
+  color: #F3F4F6;
+  background: #1E1E23;
 }
 
 /* ── Status Badges ─────────────────────────────────────────── */
