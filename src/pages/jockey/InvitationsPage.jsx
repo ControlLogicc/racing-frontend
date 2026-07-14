@@ -281,9 +281,13 @@ export default function JockeyInvitationsPage() {
     }
   };
 
-  const filtered = filter === 'pending'
+  const filtered = [...(filter === 'pending'
     ? invitations.filter((i) => i.status === RACE_INVITATION_STATUS.SENT)
-    : invitations;
+    : invitations
+  )].sort((a, b) => {
+    const sentAtDifference = (Date.parse(b.sentAt) || 0) - (Date.parse(a.sentAt) || 0);
+    return sentAtDifference || Number(b.id || 0) - Number(a.id || 0);
+  });
 
   const pendingCount = invitations.filter((i) => i.status === RACE_INVITATION_STATUS.SENT).length;
 

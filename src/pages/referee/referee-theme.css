@@ -237,6 +237,49 @@ body:has(.referee-context) {
 /* =====================================================
    CYBER TABLES
 ===================================================== */
+@media (min-width: 761px) {
+  .report-history-table .lux-table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .report-history-table .lux-table th:nth-child(1),
+  .report-history-table .lux-table td:nth-child(1) {
+    width: 28%;
+  }
+
+  .report-history-table .lux-table th:nth-child(2),
+  .report-history-table .lux-table td:nth-child(2) {
+    width: 20%;
+  }
+
+  .report-history-table .lux-table th:nth-child(3),
+  .report-history-table .lux-table td:nth-child(3) {
+    width: 18%;
+  }
+
+  .report-history-table .lux-table th:nth-child(4),
+  .report-history-table .lux-table td:nth-child(4) {
+    width: 15%;
+  }
+
+  .report-history-table .lux-table th:nth-child(5),
+  .report-history-table .lux-table td:nth-child(5) {
+    width: 19%;
+  }
+
+  .report-history-table .lux-table td:nth-child(1),
+  .report-history-table .lux-table td:nth-child(3) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .report-history-table .lux-table td:last-child > div {
+    flex-wrap: nowrap;
+  }
+}
+
 .table-cyber {
   color: #cbd5e1;
   margin-bottom: 0;

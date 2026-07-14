@@ -17,10 +17,18 @@ const HEADER_STYLE = { backgroundColor: 'transparent', borderBottom: `1px solid 
 function groupByRace(results) {
   const map = {};
   results.forEach((r) => {
-    if (!map[r.raceId]) map[r.raceId] = { raceId: r.raceId, raceName: r.raceName, rows: [] };
+    if (!map[r.raceId]) {
+      map[r.raceId] = { raceId: r.raceId, raceName: r.raceName, rows: [], latestCreatedAt: 0 };
+    }
     map[r.raceId].rows.push(r);
+    map[r.raceId].latestCreatedAt = Math.max(
+      map[r.raceId].latestCreatedAt,
+      Date.parse(r.createdAt) || 0
+    );
   });
-  return Object.values(map);
+  return Object.values(map).sort((a, b) =>
+    b.latestCreatedAt - a.latestCreatedAt || Number(b.raceId) - Number(a.raceId)
+  );
 }
 
 export default function StaffResultsPage() {
