@@ -204,7 +204,7 @@ export default function SpectatorSchedulePage() {
             <span className="schedule-eyebrow">
               <FlagFill size={12} /> FPT Racing · Lịch thi đấu
             </span>
-            <h1>Lịch đua hôm nay</h1>
+            <h1>Lịch đua</h1>
             <p>
               Theo dõi thời gian xuất phát, trạng thái và thông tin chi tiết của từng cuộc đua.
             </p>

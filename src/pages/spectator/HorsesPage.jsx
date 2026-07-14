@@ -101,7 +101,7 @@ export default function SpectatorHorsesPage() {
           <div className="d-flex gap-3 flex-wrap align-items-center">
             <input
               type="text"
-              className="form-control"
+              className="form-control spec-horse-search"
               placeholder="Tìm tên ngựa..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}

@@ -39,6 +39,7 @@ body:has(.spectator-context) {
   width: 300px; height: 300px;
   background: radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, transparent 70%);
   filter: blur(30px);
+  pointer-events: none;
 }
 .spec-hero h2 {
   font-family: 'Playfair Display', serif;
@@ -1583,4 +1584,13 @@ body:has(.spectator-context) {
     transition: none;
     animation: none;
   }
+}
+.spec-horse-search {
+  color: #f1f5f9 !important;
+  caret-color: #fbbf24;
+}
+
+.spec-horse-search::placeholder {
+  color: #aeb8c8 !important;
+  opacity: 1;
 }

@@ -91,6 +91,7 @@ export default function RefereeReportsPage() {
   const [savingEdit, setSavingEdit] = useState(false);
   const [raceEntries, setRaceEntries] = useState([]);
   const [loadingEntries, setLoadingEntries] = useState(false);
+  const [historyRaceId, setHistoryRaceId] = useState('');
 
   const loadEntries = (raceId) => {
     if (!raceId) { setRaceEntries([]); return; }
@@ -188,6 +189,10 @@ export default function RefereeReportsPage() {
       setSubmitting(false);
     }
   };
+
+  const filteredReports = historyRaceId
+    ? reports.filter((report) => String(report.raceId) === historyRaceId)
+    : [];
 
   const columns = [
     { key: 'raceName', label: 'Race', render: (r) => <strong className="text-white">{r.raceName}</strong> },
@@ -326,12 +331,30 @@ export default function RefereeReportsPage() {
       </Form>
 
       <div className="cyber-panel">
-        <h5 className="mb-4 text-info fw-bold" style={{ letterSpacing: '1px' }}>REPORT HISTORY</h5>
-        {reports.length === 0 ? (
-          <EmptyState message="Chưa có báo cáo nào được ghi nhận." />
+        <div className="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+          <h5 className="mb-0 text-info fw-bold" style={{ letterSpacing: '1px' }}>REPORT HISTORY</h5>
+          <Form.Group style={{ width: 'min(100%, 360px)' }}>
+            <Form.Label className="cyber-form-label mb-2" htmlFor="report-history-race-filter">
+              Lọc theo race
+            </Form.Label>
+            <Form.Select
+              id="report-history-race-filter"
+              className="cyber-input"
+              value={historyRaceId}
+              onChange={(event) => setHistoryRaceId(event.target.value)}
+            >
+              <option value="">-- Chọn race --</option>
+              {races.map((race) => (
+                <option key={race.id} value={String(race.id)}>{race.name}</option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        </div>
+        {filteredReports.length === 0 ? (
+          <EmptyState message={historyRaceId ? 'Race này chưa có báo cáo nào.' : 'Vui lòng chọn race để xem lịch sử báo cáo.'} />
         ) : (
-          <div className="table-responsive">
-            <DataTable columns={columns} rows={reports} />
+          <div className="report-history-table">
+            <DataTable columns={columns} rows={filteredReports} />
           </div>
         )}
       </div>
