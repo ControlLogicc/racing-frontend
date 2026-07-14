@@ -39,10 +39,21 @@ const DECISION_OPTIONS = [
 // Không phải cứ có report là ban/disqualified — chỉ 3 quyết định dưới đây mới đụng tới entry/result/standings,
 // mỗi loại tác động khác nhau (xem note tương ứng). Cảnh cáo/Phạt/Xác nhận... chỉ lưu report, không đổi gì khác.
 const DECISION_IMPACT_NOTE = {
-  dnf: 'Entry sẽ được đánh dấu KHÔNG HOÀN THÀNH (resultStatus = dnf) — thứ tự kết quả (position) sẽ được cập nhật lại.',
-  scratched: 'Entry sẽ bị RÚT KHỎI GIẢI (entryStatus = scratched) — nếu race đã có kết quả, thứ tự sẽ được cập nhật lại.',
-  disqualified: 'Entry sẽ bị TRUẤT QUYỀN THI ĐẤU (entryStatus & resultStatus = disqualified) — thứ tự kết quả sẽ được dồn lại.',
+  dnf: 'Entry sẽ được đánh dấu là KHÔNG HOÀN THÀNH — thứ tự kết quả sẽ được cập nhật lại.',
+  scratched: 'Entry sẽ bị RÚT KHỎI GIẢI — nếu race đã có kết quả, thứ tự sẽ được cập nhật lại.',
+  disqualified: 'Entry sẽ bị LOẠI KHỎI GIẢI — thứ tự kết quả sẽ được dồn lại.',
 };
+
+// Nhãn tiếng Việt cho entryStatus, dùng để hiển thị trong dropdown Entry và các nơi khác thay vì giá trị enum tiếng Anh thô.
+// Dùng en.rawStatus (giá trị gốc từ BE, chưa bị entryService gộp nhóm) để giữ đúng ý nghĩa disqualified/penalized/dnf/scratched.
+const ENTRY_STATUS_LABEL = {
+  disqualified: 'bị loại',
+  penalized: 'bị phạt',
+  dnf: 'không hoàn thành',
+  scratched: 'đã rút',
+};
+// Các trạng thái coi như "đã xử lý xong" — không nên áp thêm quyết định ảnh hưởng tới entry/kết quả lần nữa.
+const TERMINAL_ENTRY_STATUSES = new Set(['disqualified', 'dnf', 'scratched']);
 const hasStandingsImpact = (decision) =>
   Object.prototype.hasOwnProperty.call(DECISION_IMPACT_NOTE, String(decision || '').trim().toLowerCase().replace(' ', '_'));
 
@@ -110,15 +121,6 @@ export default function RefereeReportsPage() {
 
   const refetch = () => { setLoading(true); setError(''); load(); };
 
-  const handleDelete = async (r) => {
-    if (!window.confirm(`Xóa báo cáo "${r.content?.slice(0, 40)}..."?`)) return;
-    try {
-      await refereeReportService.remove(r.id);
-      setToast({ message: 'Đã xóa báo cáo.', variant: 'success' });
-      refetch();
-    } catch { setToast({ message: 'Xóa thất bại.', variant: 'danger' }); }
-  };
-
   const openEdit = (r) => { setEditRow(r); setEditDescription(r.description || ''); };
 
   const handleSaveEdit = async () => {
@@ -148,6 +150,16 @@ export default function RefereeReportsPage() {
     if (hasStandingsImpact(form.decision) && !form.entryId) {
       setToast({ message: 'Quyết định này cần chọn Entry cụ thể để áp dụng.', variant: 'warning' });
       return;
+    }
+    if (hasStandingsImpact(form.decision) && form.entryId) {
+      const selectedEntry = raceEntries.find((en) => String(en.id) === String(form.entryId));
+      if (selectedEntry && TERMINAL_ENTRY_STATUSES.has(selectedEntry.rawStatus)) {
+        setToast({
+          message: `Entry này đã ${ENTRY_STATUS_LABEL[selectedEntry.rawStatus] ?? 'được xử lý'} trước đó — không thể áp thêm quyết định ảnh hưởng tới kết quả.`,
+          variant: 'warning',
+        });
+        return;
+      }
     }
     setSubmitting(true);
     try {
@@ -209,7 +221,6 @@ export default function RefereeReportsPage() {
         <div className="d-flex gap-2">
           <Button className="btn-cyber btn-cyber-sm" onClick={() => setDetailRow(r)}>Chi tiết</Button>
           <Button className="btn-cyber btn-cyber-sm" onClick={() => openEdit(r)}>Sửa</Button>
-          <Button className="btn-cyber btn-cyber-danger btn-cyber-sm" onClick={() => handleDelete(r)}>Xóa</Button>
         </div>
       ),
     },
@@ -248,12 +259,13 @@ export default function RefereeReportsPage() {
               <option value="">
                 {!form.raceId ? '-- Chọn race trước --' : loadingEntries ? 'Đang tải entry...' : '-- Không gắn entry --'}
               </option>
-              {raceEntries.map((en) => (
-                <option key={en.id} value={en.id}>
-                  🐎 {en.horseName}{en.jockeyName ? ` — 🏇 ${en.jockeyName}` : ''}
-                  {['disqualified', 'dnf', 'scratched'].includes(String(en.status || '').toLowerCase()) ? ` (${en.status})` : ''}
-                </option>
-              ))}
+              {raceEntries
+                .filter((en) => !TERMINAL_ENTRY_STATUSES.has(en.rawStatus))
+                .map((en) => (
+                  <option key={en.id} value={en.id}>
+                    {en.horseName}{en.jockeyName ? ` — ${en.jockeyName}` : ''}
+                  </option>
+                ))}
             </Form.Select>
           </Form.Group>
 
@@ -378,7 +390,8 @@ export default function RefereeReportsPage() {
                 <div>
                   <div className="cyber-form-label text-danger mb-2">Quyết định</div>
                   <div style={{ background: 'rgba(255, 51, 102, 0.05)', border: '1px solid rgba(255, 51, 102, 0.3)', borderRadius: '4px', padding: '16px', whiteSpace: 'pre-wrap' }}>
-                    {detailRow.decision}
+                    {DECISION_OPTIONS.find((d) => d.value === String(detailRow.decision).toLowerCase())?.label
+                      ?? (String(detailRow.decision).toLowerCase() === 'penalized' ? 'Bị phạt' : detailRow.decision)}
                   </div>
                 </div>
               )}

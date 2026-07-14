@@ -104,14 +104,6 @@ export default function RefereeDashboard() {
     return acc;
   }, {});
 
-  const handleDelete = async (report) => {
-    if (!window.confirm(`Xóa báo cáo "${report.content?.slice(0, 40)}..."?`)) return;
-    try {
-      await refereeReportService.remove(report.id);
-      load();
-    } catch { alert('Xóa thất bại.'); }
-  };
-
   const openEdit = (report) => { setEditReport(report); setEditContent(report.content || ''); };
 
   const handleSaveEdit = async () => {
@@ -271,7 +263,6 @@ export default function RefereeDashboard() {
                       <td>
                         <div className="d-flex gap-2">
                           <Button size="sm" className="btn-cyber btn-cyber-sm" onClick={() => openEdit(report)}>Sửa</Button>
-                          <Button size="sm" className="btn-cyber btn-cyber-danger btn-cyber-sm" onClick={() => handleDelete(report)}>Xóa</Button>
                         </div>
                       </td>
                     </tr>

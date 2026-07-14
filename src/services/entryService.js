@@ -166,7 +166,8 @@ const mapEntry = (e) => ({
   carriedWeight: e.carriedWeight,
   weightCheckStatus: normalizeWeightCheckStatus(e.weightCheckStatus),
   preCheckNote: e.preCheckNote,
-  status: normalizeEntryStatus(e.entryStatus),              // entryStatus → status
+  status: normalizeEntryStatus(e.entryStatus),              // entryStatus → status (nhóm chung: FAILED/WITHDRAWN/...)
+  rawStatus: e.entryStatus ? String(e.entryStatus).trim().toLowerCase() : null, // giữ nguyên giá trị gốc (disqualified/penalized/dnf/scratched...) để hiển thị chi tiết
   confirmedByStaffId: e.confirmedByStaffId,
   confirmedByStaffName: e.confirmedByStaffName,
   createdAt: e.createdAt,

@@ -66,9 +66,19 @@ export default function CreatePrizePage() {
 
   const updateForm = (patch) => setForm((current) => ({ ...current, ...patch }));
 
+  const handlePositionChange = (e) => {
+    const pos = e.target.value;
+    const posNum = Number(pos);
+    if (posNum >= 4 && posNum <= 6) {
+      updateForm({ position: pos, score: '0' });
+    } else {
+      updateForm({ position: pos });
+    }
+  };
+
   const handleCreate = async (e) => {
     if (e) e.preventDefault();
-    if (!form.position || !form.amount) {
+    if (!form.position) {
       navigate('/admin/prizes');
       return;
     }
@@ -85,7 +95,7 @@ export default function CreatePrizePage() {
       await prizeService.create({
         raceId: Number(form.raceId),
         position: Number(form.position),
-        amount: parseFloat(form.amount),
+        amount: form.amount ? parseFloat(form.amount) : 0,
         score: form.score ? parseFloat(form.score) : 0,
       });
       setToast({ message: 'Tạo giải thưởng thành công.', variant: 'success' });
@@ -98,8 +108,8 @@ export default function CreatePrizePage() {
 
   const handleSaveAndNext = async (e) => {
     if (e) e.preventDefault();
-    if (!form.raceId || !form.position || !form.amount) {
-      setToast({ message: 'Vui lòng chọn Race, nhập Position và Prize Amount.', variant: 'warning' });
+    if (!form.raceId || !form.position) {
+      setToast({ message: 'Vui lòng chọn Race và nhập Position.', variant: 'warning' });
       return;
     }
     if (duplicatePosition) {
@@ -115,7 +125,7 @@ export default function CreatePrizePage() {
       const created = await prizeService.create({
         raceId: Number(form.raceId),
         position: Number(form.position),
-        amount: parseFloat(form.amount),
+        amount: form.amount ? parseFloat(form.amount) : 0,
         score: form.score ? parseFloat(form.score) : 0,
       });
       setPrizes((current) => [...current, created]);
@@ -125,7 +135,7 @@ export default function CreatePrizePage() {
         ...current,
         position: nextPos,
         amount: '',
-        score: '',
+        score: (nextPos >= 4 && nextPos <= 6) ? '0' : '',
       }));
     } catch (err) {
       setToast({ message: getApiErrorMessage(err, 'Tạo giải thưởng thất bại.'), variant: 'danger' });
@@ -166,18 +176,18 @@ export default function CreatePrizePage() {
             <div className="season-form-duo">
               <Form.Group className="season-field">
                 <Form.Label>Position <span>*</span></Form.Label>
-                <Form.Control type="number" value={form.position} onChange={(e) => updateForm({ position: e.target.value })} required min="1" />
+                <Form.Control type="number" value={form.position} onChange={handlePositionChange} required min="1" />
                 {duplicatePosition && <Form.Text style={{ color: '#ffc400' }}>Race này đã có hạng này.</Form.Text>}
               </Form.Group>
               <Form.Group className="season-field">
                 <Form.Label>Score</Form.Label>
-                <Form.Control type="number" value={form.score} onChange={(e) => updateForm({ score: e.target.value })} min="0" step="0.5" />
+                <Form.Control type="number" value={form.score} onChange={(e) => updateForm({ score: e.target.value })} step="0.5" />
               </Form.Group>
             </div>
 
             <Form.Group className="season-field">
-              <Form.Label>Prize Amount <span>*</span></Form.Label>
-              <Form.Control type="number" value={form.amount} onChange={(e) => updateForm({ amount: e.target.value })} required min="0" step="1000" placeholder="50000000" />
+              <Form.Label>Prize Amount</Form.Label>
+              <Form.Control type="number" value={form.amount} onChange={(e) => updateForm({ amount: e.target.value })} min="0" step="1000" placeholder="50000000" />
               {orderError && <Form.Text style={{ color: '#ffc400' }}>{orderError}</Form.Text>}
             </Form.Group>
 

@@ -17,6 +17,7 @@ const CHECKABLE_STATUSES = new Set([
   RACE_ENTRY_STATUS.DECLARED,
   RACE_ENTRY_STATUS.PASSED,
   RACE_ENTRY_STATUS.FAILED,
+  RACE_ENTRY_STATUS.WITHDRAWN, // entry bị BE tự động scratch vì overweight — vẫn phải hiện để referee thấy và có thể check lại
 ]);
 
 const getWeightStatus = (actualWeight, leadWeight, handicapWeight) => {
@@ -89,24 +90,20 @@ export default function RefereeChecksPage() {
     [races]
   );
 
-  const activeEntries = useMemo(
-    () => entries.filter((entry) => entry.status !== RACE_ENTRY_STATUS.SCRATCHED),
-    [entries]
-  );
-
   const visibleEntries = useMemo(() => {
     const base = selectedRaceId
-      ? activeEntries.filter((entry) => Number(entry.raceId) === Number(selectedRaceId))
-      : activeEntries;
+      ? entries.filter((entry) => Number(entry.raceId) === Number(selectedRaceId))
+      : entries;
     return base
       .filter((entry) => CHECKABLE_STATUSES.has(entry.status) || !entry.status)
       .sort((a, b) => (a.raceName || '').localeCompare(b.raceName || '') || (a.gateNumber ?? 999) - (b.gateNumber ?? 999));
-  }, [activeEntries, selectedRaceId]);
+  }, [entries, selectedRaceId]);
 
   const stats = {
     total: visibleEntries.length,
     pending: visibleEntries.filter((entry) => !entry.actualWeight).length,
     failed: visibleEntries.filter((entry) => entry.actualWeight && getWeightStatus(entry.actualWeight, entry.leadWeight, entry.handicapWeight) === 'FAILED').length,
+    scratched: visibleEntries.filter((entry) => entry.status === RACE_ENTRY_STATUS.WITHDRAWN).length,
     ready: visibleEntries.filter((entry) => ['PASSED', 'OVERWEIGHT'].includes(getWeightStatus(entry.actualWeight, entry.leadWeight, entry.handicapWeight))).length,
   };
 
@@ -190,6 +187,12 @@ export default function RefereeChecksPage() {
           </div>
         </div>
         <div className="col-12 col-sm-6 col-xl-3">
+          <div className="cyber-stat-card accent-danger">
+            <h6 className="stat-label">Đã Loại (Overweight)</h6>
+            <h2 className="stat-value text-danger">{stats.scratched}</h2>
+          </div>
+        </div>
+        <div className="col-12 col-sm-6 col-xl-3">
           <div className="cyber-stat-card accent-success">
             <h6 className="stat-label">Sẵn Sàng</h6>
             <h2 className="stat-value">{stats.ready}</h2>
@@ -245,6 +248,9 @@ export default function RefereeChecksPage() {
                       <td>
                         <div style={{ fontWeight: 700, color: '#fff' }}>{entry.horseName}</div>
                         <small className="text-info">{entry.jockeyName || 'Chưa có jockey'}</small>
+                        {entry.status === RACE_ENTRY_STATUS.WITHDRAWN && entry.preCheckNote && (
+                          <div className="small text-danger mt-1">{entry.preCheckNote}</div>
+                        )}
                       </td>
                       <td className="fw-bold">{entry.gateNumber || entry.drawNumber || '—'}</td>
                       <td>{formatWeight(entry.handicapWeight)}</td>
@@ -253,9 +259,11 @@ export default function RefereeChecksPage() {
                       <td>{formatWeight(entry.actualWeight)}</td>
                       <td><span className={`cyber-badge cyber-badge-${WEIGHT_BADGE[weightStatus]}`}>{WEIGHT_LABEL[weightStatus]}</span></td>
                       <td><StatusBadge status={
-                        !entry.actualWeight
-                          ? (entry.status || RACE_ENTRY_STATUS.DECLARED)
-                          : weightStatus === 'FAILED' ? RACE_ENTRY_STATUS.FAILED : RACE_ENTRY_STATUS.PASSED
+                        entry.status === RACE_ENTRY_STATUS.WITHDRAWN
+                          ? RACE_ENTRY_STATUS.WITHDRAWN
+                          : !entry.actualWeight
+                            ? (entry.status || RACE_ENTRY_STATUS.DECLARED)
+                            : weightStatus === 'FAILED' ? RACE_ENTRY_STATUS.FAILED : RACE_ENTRY_STATUS.PASSED
                       } /></td>
                       <td>
                         <Button className="btn-cyber btn-cyber-sm" onClick={() => openWeight(entry)}>Check Cân</Button>

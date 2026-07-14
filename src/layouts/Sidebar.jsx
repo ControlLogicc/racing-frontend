@@ -32,6 +32,7 @@ const MENU_CONFIG = {
     { path: '/staff/create-entry', label: 'Tạo Race Entry', icon: <ClipboardCheckFill /> },
     { path: '/staff/entries', label: 'Quản lý Lượt Đua', icon: <UiChecksGrid /> },
     { path: '/staff/results', label: 'Kết quả đua', icon: <GraphUpArrow /> },
+    { path: '/staff/reports', label: 'Báo cáo Referee', icon: <Search /> },
   ],
   [ROLES.OWNER]: [
     { path: '/owner', label: 'Dashboard', icon: <Speedometer2 /> },

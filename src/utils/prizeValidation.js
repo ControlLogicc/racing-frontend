@@ -44,5 +44,9 @@ export function getPrizeOrderError({ prizes, raceId, position, amount, score, ig
     }
   }
 
+  if (candidate.position >= 7 && candidate.score >= 0) {
+    return `Từ hạng 7 trở xuống, điểm thưởng phải là số âm.`;
+  }
+
   return '';
 }
