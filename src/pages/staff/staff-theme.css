@@ -10,7 +10,7 @@
   min-height: 100vh;
   color: #e0e0e0;
   padding-bottom: 2rem;
-  font-family: 'Inter', sans-serif;
+  /* font-family removed to enforce Times New Roman */
 }
 
 /* =========================================

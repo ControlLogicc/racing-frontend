@@ -13,7 +13,7 @@ body:has(.spectator-context) {
     radial-gradient(circle at top right, rgba(6, 78, 59, 0.15), transparent 600px),
     radial-gradient(circle at bottom left, rgba(251, 191, 36, 0.05), transparent 400px);
   color: #e2e8f0;
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
 }
 
 .spectator-context {
@@ -42,7 +42,7 @@ body:has(.spectator-context) {
   pointer-events: none;
 }
 .spec-hero h2 {
-  font-family: 'Playfair Display', serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 3rem;
   color: #fbbf24;
   margin-bottom: 0.5rem;
@@ -72,7 +72,7 @@ body:has(.spectator-context) {
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(6, 78, 59, 0.2);
 }
 .vip-panel-header {
-  font-family: 'Playfair Display', serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 1.5rem;
   color: #e2e8f0;
   margin-bottom: 1.5rem;
@@ -152,7 +152,7 @@ body:has(.spectator-context) {
   border-color: rgba(6, 78, 59, 0.4);
 }
 .vip-stat-value {
-  font-family: 'Playfair Display', serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 2.5rem;
   color: #fbbf24;
   margin-bottom: 0.5rem;
@@ -177,7 +177,7 @@ body:has(.spectator-context) {
 .vip-table th {
   background: rgba(2, 6, 23, 0.8);
   color: #fbbf24;
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -223,7 +223,7 @@ body:has(.spectator-context) {
   border: 1px solid rgba(251, 191, 36, 0.3);
   padding: 0.6rem 1.5rem;
   border-radius: 8px;
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-weight: 600;
   letter-spacing: 1px;
   transition: all 0.3s;
@@ -338,7 +338,7 @@ body:has(.spectator-context) {
 .schedule-hero h1 {
   margin: 0 0 12px;
   color: #fff9e9;
-  font-family: 'Playfair Display', serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: clamp(2.35rem, 5vw, 4.2rem);
   font-weight: 700;
   line-height: 1.04;
@@ -439,7 +439,7 @@ body:has(.spectator-context) {
   border: 1px solid transparent;
   border-radius: 10px;
   background: transparent;
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   cursor: pointer;
   transition: 180ms ease;
 }
@@ -602,7 +602,7 @@ body:has(.spectator-context) {
 
 .schedule-race-number strong {
   color: #fbbf24;
-  font-family: 'Playfair Display', serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 2.5rem;
   line-height: 1.05;
 }
@@ -635,7 +635,7 @@ body:has(.spectator-context) {
 .schedule-race-heading h2 {
   margin: 0;
   color: #f1f5f9;
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: clamp(1.02rem, 2vw, 1.24rem);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -758,7 +758,7 @@ body:has(.spectator-context) {
   min-height: 34px;
   padding: 0 13px;
   border-radius: 8px;
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 0.72rem;
   font-weight: 700;
   cursor: pointer;
@@ -958,7 +958,7 @@ body:has(.spectator-context) {
   color: #94a3b8;
   border: 0;
   background: transparent;
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -1037,7 +1037,7 @@ body:has(.spectator-context) {
   max-width: 800px;
   margin: 0 0 18px;
   color: #fff9e9;
-  font-family: 'Playfair Display', serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: clamp(2.3rem, 5vw, 4.25rem);
   font-weight: 700;
   line-height: 1.04;
@@ -1233,7 +1233,7 @@ body:has(.spectator-context) {
 .race-detail-section-header h2 {
   margin: 0 0 5px;
   color: #f8fafc;
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 1.32rem;
   font-weight: 750;
   letter-spacing: -0.015em;
@@ -1447,7 +1447,7 @@ body:has(.spectator-context) {
   border: 0;
   border-radius: 9px;
   background: linear-gradient(135deg, #6ee7b7, #34d399);
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 0.75rem;
   font-weight: 800;
   cursor: pointer;

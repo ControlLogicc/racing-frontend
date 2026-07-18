@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://optics-opened-lean-munich.trycloudflare.com',
+        target: 'https://exceptions-modems-carter-governing.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://optics-opened-lean-munich.trycloudflare.com',
+        target: 'https://exceptions-modems-carter-governing.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

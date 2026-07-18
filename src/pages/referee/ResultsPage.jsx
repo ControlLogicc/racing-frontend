@@ -54,11 +54,32 @@ export default function RefereeResultsPage() {
     return race && canEnterResult(race.status) && !alreadyHasResult;
   });
 
-  const setField = (entryId, field, value) => {
-    setRowInputs((prev) => ({
-      ...prev,
-      [entryId]: { ...prev[entryId], [field]: value },
-    }));
+  const setField = (entryId, field, value, raceEntries = []) => {
+    setRowInputs((prev) => {
+      const next = { ...prev, [entryId]: { ...prev[entryId], [field]: value } };
+
+      if (field === 'finishTime' && raceEntries.length > 0) {
+        // Auto-calculate position based on finishTime for this race
+        const withTime = raceEntries
+          .map((e) => ({ id: e.id, time: next[e.id]?.finishTime }))
+          .filter((x) => x.time && x.time.trim() !== '')
+          .sort((a, b) => a.time.localeCompare(b.time));
+
+        withTime.forEach((item, index) => {
+          if (!next[item.id]) next[item.id] = {};
+          next[item.id].position = index + 1;
+        });
+
+        raceEntries.forEach((e) => {
+          if (!next[e.id]?.finishTime || next[e.id].finishTime.trim() === '') {
+            if (next[e.id]) {
+              next[e.id].position = '';
+            }
+          }
+        });
+      }
+      return next;
+    });
   };
 
   const validateTime = (raceId, position, finishTime, excludeResultId = null) => {
@@ -220,7 +241,7 @@ export default function RefereeResultsPage() {
                             <input
                               type="text"
                               value={inp.finishTime ?? ''}
-                              onChange={(e) => setField(en.id, 'finishTime', e.target.value)}
+                              onChange={(e) => setField(en.id, 'finishTime', e.target.value, group.entries)}
                               placeholder="00:01:10.250"
                               style={{
                                 width: '100%', background: '#0a0f1a', border: '1px solid #00c8ff44',
