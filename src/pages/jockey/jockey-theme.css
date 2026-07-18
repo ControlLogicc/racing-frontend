@@ -61,7 +61,7 @@ body:has(.jockey-context) {
 }
 
 .jockey-hero h2 {
-  font-family: 'Teko', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-weight: 700;
   font-size: 3.5rem;
   color: #fff;
@@ -127,7 +127,7 @@ body:has(.jockey-context) {
 }
 
 .card-header-adrenaline h5 {
-  font-family: 'Teko', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 1.8rem;
   font-weight: 600;
   color: #fff;
@@ -161,7 +161,7 @@ body:has(.jockey-context) {
 }
 
 .stat-block .stat-value {
-  font-family: 'Teko', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 3.5rem;
   font-weight: 700;
   line-height: 1;
@@ -182,7 +182,7 @@ body:has(.jockey-context) {
   background: linear-gradient(45deg, #ff5722, #f97316);
   color: #fff;
   border: none;
-  font-family: 'Teko', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 1.2rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -228,7 +228,7 @@ body:has(.jockey-context) {
   background: transparent;
   color: #ff5722;
   border: 2px solid #ff5722;
-  font-family: 'Teko', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 1.2rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -283,7 +283,7 @@ body:has(.jockey-context) {
 
 .race-time-block {
   min-width: 80px;
-  font-family: 'Teko', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 1.8rem;
   color: #ffeb3b;
   line-height: 1;
@@ -307,7 +307,7 @@ body:has(.jockey-context) {
 }
 
 .race-gate-block {
-  font-family: 'Teko', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 2.5rem;
   color: #fff;
   opacity: 0.2;
@@ -343,7 +343,7 @@ body:has(.jockey-context) {
 }
 
 .invite-card .horse-name {
-  font-family: 'Teko', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 2rem;
   color: #fff;
   margin-bottom: 0;
@@ -385,7 +385,7 @@ body:has(.jockey-context) {
 }
 
 .hud-stat-circle .hud-val {
-  font-family: 'Teko', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-size: 3rem;
   color: #fff;
   line-height: 1;

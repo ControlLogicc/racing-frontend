@@ -13,7 +13,7 @@ body:has(.owner-context) {
 
 .owner-context {
   min-height: 100vh;
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
 }
 
 .owner-context h1,
@@ -22,7 +22,7 @@ body:has(.owner-context) {
 .owner-context h4,
 .owner-context h5,
 .owner-context h6 {
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   font-weight: 700;
   letter-spacing: -0.5px;
 }
@@ -395,7 +395,7 @@ body:has(.owner-context) {
   border-radius: 12px;
   transition: all 0.3s ease;
   box-shadow: 0 5px 20px rgba(212, 175, 55, 0.35);
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   letter-spacing: 0.5px;
 }
 .btn-gold:hover {
@@ -415,7 +415,7 @@ body:has(.owner-context) {
   padding: 12px 28px;
   border-radius: 12px;
   transition: all 0.3s ease;
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
 }
 .btn-outline-gold:hover {
   background: rgba(212, 175, 55, 0.15);
@@ -496,7 +496,7 @@ body:has(.owner-context) {
   color: #FFFFFF !important;
   border-radius: 12px;
   padding: 12px 18px;
-  font-family: 'Outfit', sans-serif;
+  /* font-family removed to enforce Times New Roman */
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
 }

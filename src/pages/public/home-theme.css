@@ -8,7 +8,7 @@
   overflow: hidden;
   color: var(--home-text);
   background: #0b0c0f;
-  font-family: 'Montserrat', sans-serif;
+  /* font-family removed to enforce Times New Roman */
 }
 
 .home3d-hero {
