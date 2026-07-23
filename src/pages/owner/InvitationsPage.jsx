@@ -13,6 +13,7 @@ import ErrorState from '../../components/common/ErrorState';
 import DataTable from '../../components/common/DataTable';
 import StatusBadge from '../../components/common/StatusBadge';
 import Toaster from '../../components/common/Toaster';
+import JockeyHistoryPanel from '../../components/jockey/JockeyHistoryPanel';
 import './owner-theme.css';
 
 const CANCELLABLE_INVITATION_STATUSES = new Set([
@@ -324,7 +325,7 @@ export default function OwnerInvitationsPage() {
       </div>
 
       {/* Modal chi tiết Jockey */}
-      <Modal show={!!detailJockey} onHide={() => setDetailJockey(null)} centered>
+      <Modal show={!!detailJockey} onHide={() => setDetailJockey(null)} centered size="lg">
         <Modal.Header closeButton style={{ background: '#141418', borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
           <Modal.Title style={{ color: '#D4AF37', fontSize: '1.1rem', fontWeight: 700 }}>
             🏇 Chi tiết Jockey
@@ -398,6 +399,10 @@ export default function OwnerInvitationsPage() {
                     ⚠️ {detailJockey.reason}
                   </div>
                 )}
+              </div>
+              
+              <div style={{ marginTop: '24px' }}>
+                <JockeyHistoryPanel jockeyId={detailJockey.jockeyId} />
               </div>
             </div>
           )}

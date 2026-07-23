@@ -7,6 +7,7 @@ import Loading from '../../components/common/Loading';
 import ErrorState from '../../components/common/ErrorState';
 import Toaster from '../../components/common/Toaster';
 import ImageDropzone from '../../components/common/ImageDropzone';
+import JockeyHistoryPanel from '../../components/jockey/JockeyHistoryPanel';
 import '../owner/owner-theme.css';
 
 export default function JockeyProfilePage() {
@@ -221,6 +222,12 @@ export default function JockeyProfilePage() {
           </Row>
         </Form>
       </div>
+
+      {profile && profile.jockeyId && (
+        <div className="lux-panel mt-4 smooth-hover">
+          <JockeyHistoryPanel jockeyId={profile.jockeyId} />
+        </div>
+      )}
 
       <Toaster toast={toast} onClose={() => setToast(null)} />
     </div>
