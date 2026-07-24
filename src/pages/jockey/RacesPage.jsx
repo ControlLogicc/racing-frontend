@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { jockeyService } from '../../services/jockeyService';
 import { prizeService } from '../../services/prizeService';
+import { raceService } from '../../services/raceService';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatDate } from '../../utils/formatDate';
 import Loading from '../../components/common/Loading';
@@ -8,7 +9,8 @@ import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import Toaster from '../../components/common/Toaster';
 import Pagination from '../../components/common/Pagination';
-import { Calendar3, GeoAltFill, PlusCircleFill, Search, CheckCircleFill, TrophyFill } from 'react-bootstrap-icons';
+import RaceDetailModal from '../../components/common/RaceDetailModal';
+import { Calendar3, GeoAltFill, PlusCircleFill, Search, CheckCircleFill, TrophyFill, InfoCircleFill } from 'react-bootstrap-icons';
 import { Modal, Button, Form, Spinner, Badge } from 'react-bootstrap';
 import '../owner/owner-theme.css';
 
@@ -227,6 +229,7 @@ export default function JockeyRacesPage() {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [page, setPage] = useState(1);
+  const [detailRaceId, setDetailRaceId] = useState(null);
 
   const load = () => {
     setLoading(true);
@@ -328,7 +331,7 @@ export default function JockeyRacesPage() {
                   </div>
 
                   <div className="mt-auto pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div className="d-flex justify-content-between align-items-center">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
                       <span style={{ fontSize: '0.85rem', color: '#777' }}>Trạng thái:</span>
                       <Badge style={{
                         background: statusColor + '22',
@@ -340,11 +343,21 @@ export default function JockeyRacesPage() {
                         {reg.status || 'REGISTERED'}
                       </Badge>
                     </div>
-                    {reg.registeredAt && (
-                      <div style={{ fontSize: '0.75rem', color: '#555', marginTop: 6, textAlign: 'right' }}>
-                        Đăng ký lúc: {formatDate(reg.registeredAt)}
-                      </div>
-                    )}
+                    <div className="d-flex justify-content-between align-items-center mt-3">
+                      <Button 
+                        variant="link" 
+                        className="p-0 text-decoration-none" 
+                        style={{ color: '#60a5fa', fontSize: '0.85rem' }}
+                        onClick={() => setDetailRaceId(reg.raceId)}
+                      >
+                        <InfoCircleFill className="me-1" /> Chi tiết
+                      </Button>
+                      {reg.registeredAt && (
+                        <div style={{ fontSize: '0.75rem', color: '#555' }}>
+                          Đăng ký lúc: {formatDate(reg.registeredAt)}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -359,6 +372,11 @@ export default function JockeyRacesPage() {
         show={showModal}
         onHide={() => setShowModal(false)}
         onSuccess={(t) => { setToast(t); load(); }}
+      />
+      <RaceDetailModal 
+        show={!!detailRaceId} 
+        onHide={() => setDetailRaceId(null)} 
+        raceId={detailRaceId} 
       />
     </div>
   );

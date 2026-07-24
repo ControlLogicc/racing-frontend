@@ -8,6 +8,8 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import Loading from '../../components/common/Loading';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
+import { Modal } from 'react-bootstrap';
+import JockeyHistoryPanel from '../../components/jockey/JockeyHistoryPanel';
 import './spectator-theme.css';
 
 function exportCSV(race, results) {
@@ -39,6 +41,7 @@ export default function SpectatorRaceResultPage() {
   const [race, setRace] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedJockeyId, setSelectedJockeyId] = useState(null);
 
   const numericId = Number(raceId);
 
@@ -119,7 +122,24 @@ export default function SpectatorRaceResultPage() {
                       <td>
                         <strong style={isWinner ? { color: '#fbbf24', fontSize: '1.1rem' } : {}}>{r.horseName}</strong>
                       </td>
-                      <td>{r.jockeyName}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn-link"
+                          onClick={() => setSelectedJockeyId(r.jockeyId)}
+                          style={{
+                            padding: 0,
+                            border: 'none',
+                            background: 'transparent',
+                            color: '#e2e8f0',
+                            textDecoration: 'underline',
+                            textUnderlineOffset: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {r.jockeyName}
+                        </button>
+                      </td>
                       <td>{r.finishTime || '—'}</td>
                       <td className="text-end">
                         {r.prize != null ? <span style={{ color: isWinner ? '#fbbf24' : '#34d399', fontWeight: 600 }}>{formatCurrency(r.prize)}</span> : '—'}
@@ -132,6 +152,17 @@ export default function SpectatorRaceResultPage() {
           </div>
         )}
       </div>
+
+      <Modal show={!!selectedJockeyId} onHide={() => setSelectedJockeyId(null)} centered size="lg">
+        <Modal.Header closeButton style={{ background: '#141418', borderBottom: '1px solid rgba(251,191,36,0.2)' }}>
+          <Modal.Title style={{ color: '#fbbf24', fontSize: '1.1rem', fontWeight: 700 }}>
+            🏇 Lịch sử thi đấu Jockey
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: '#141418' }}>
+          {selectedJockeyId && <JockeyHistoryPanel jockeyId={selectedJockeyId} />}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }

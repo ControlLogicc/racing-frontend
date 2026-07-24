@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://exceptions-modems-carter-governing.trycloudflare.com',
+        target: 'https://draw-instead-partnerships-homework.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://exceptions-modems-carter-governing.trycloudflare.com',
+        target: 'https://draw-instead-partnerships-homework.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

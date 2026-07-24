@@ -76,6 +76,7 @@ import JockeyDashboardOverview from '../pages/jockey/Dashboard';
 import JockeyProfilePage from '../pages/jockey/ProfilePage';
 import JockeyInvitationsPage from '../pages/jockey/InvitationsPage';
 import JockeyRacesPage from '../pages/jockey/RacesPage';
+import JockeyHistoryPage from '../pages/jockey/HistoryPage';
 
 // Referee
 import RefereeDashboardOverview from '../pages/referee/Dashboard';
@@ -248,6 +249,9 @@ export default function AppRoutes() {
           } />
           <Route path="jockey/races" element={
             <ProtectedRoute allowedRoles={[ROLES.JOCKEY]}><JockeyRacesPage /></ProtectedRoute>
+          } />
+          <Route path="jockey/history" element={
+            <ProtectedRoute allowedRoles={[ROLES.JOCKEY]}><JockeyHistoryPage /></ProtectedRoute>
           } />
 
           {/* Referee: nhập kết quả race, viết báo cáo vi phạm */}

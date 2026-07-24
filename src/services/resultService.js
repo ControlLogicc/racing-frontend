@@ -11,6 +11,22 @@ const mockService = {
   getAll: () => Promise.resolve([..._results]),
   getByRace: (raceId) => Promise.resolve(_results.filter((r) => r.raceId === raceId)),
   getByHorse: (horseId) => Promise.resolve(_results.filter((r) => r.horseId === horseId)),
+  getByJockey: (jockeyId) => Promise.resolve(_results.filter((r) => r.jockeyId === jockeyId)),
+  getJockeyStats: (jockeyId) => {
+    const rs = _results.filter((r) => r.jockeyId === jockeyId);
+    return Promise.resolve({
+      jockeyId,
+      jockeyName: rs[0]?.jockeyName || 'Jockey',
+      totalRaces: rs.length,
+      totalWins: rs.filter(r => r.position === 1).length,
+      top3Finishes: rs.filter(r => r.position <= 3).length,
+      disqualifiedCount: rs.filter(r => String(r.position) === 'DQ').length,
+      totalPrizeAmount: rs.reduce((acc, r) => acc + (r.prize || 0), 0),
+      totalScoreAwarded: rs.reduce((acc, r) => acc + (r.scoreAwarded || 0), 0),
+      averagePosition: rs.length ? (rs.reduce((acc, r) => acc + (Number(r.position) || 0), 0) / rs.length) : 0,
+      winRate: rs.length ? (rs.filter(r => r.position === 1).length / rs.length) * 100 : 0
+    });
+  },
 
   // RACE_RESULT chỉ tạo được khi race COMPLETED — guard ở page
   // Referee tạo → resultStatus mặc định REVIEWED_BY_REFEREE
@@ -106,6 +122,10 @@ const realService = {
       return allResults.filter((r) => String(r.horseId) === String(horseId));
     }
   },
+  getByJockey: (jockeyId) =>
+    api.get(`/results/jockey/${jockeyId}`, { skipAuthRedirect: true }).then((r) => mapResults(r.data)),
+  getJockeyStats: (jockeyId) =>
+    api.get(`/results/jockey/${jockeyId}/stats`, { skipAuthRedirect: true }).then((r) => r.data),
 
   // POST /results { entryId, position, finishTime, resultStatus }
   create: (payload) => api.post('/results', payload).then((r) => mapResult(r.data)),

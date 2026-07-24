@@ -46,6 +46,7 @@ const MENU_CONFIG = {
     { path: '/jockey/profile', label: 'Hồ sơ cá nhân', icon: <PeopleFill /> },
     { path: '/jockey/invitations', label: 'Lời mời đua', icon: <EnvelopePaperFill /> },
     { path: '/jockey/races', label: 'Lịch đua của tôi', icon: <Calendar3 /> },
+    { path: '/jockey/history', label: 'Lịch sử thi đấu', icon: <TrophyFill /> },
   ],
   [ROLES.REFEREE]: [
     { path: '/referee', label: 'Dashboard', icon: <Speedometer2 /> },
