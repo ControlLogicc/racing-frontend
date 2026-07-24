@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://draw-instead-partnerships-homework.trycloudflare.com',
+        target: 'https://hundred-argument-currencies-signatures.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://draw-instead-partnerships-homework.trycloudflare.com',
+        target: 'https://hundred-argument-currencies-signatures.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
