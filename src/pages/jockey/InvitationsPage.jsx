@@ -196,9 +196,6 @@ function InvitationCard({ inv, race, prizes, onAccept, onDecline }) {
                   <span style={{ color: '#fff', fontWeight: 600 }}>{val}</span>
                 </div>
               ))}
-              <div style={{ fontSize: 12, color: '#555', marginTop: 4 }}>
-                Deadline lời mời: <span style={{ color: inv.deadline ? '#D4AF37' : '#555' }}>{formatDate(inv.deadline)}</span>
-              </div>
             </div>
           ) : (
             <p style={{ color: '#555', fontSize: 13 }}>Không tải được thông tin race.</p>
