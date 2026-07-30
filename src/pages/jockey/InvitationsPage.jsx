@@ -141,10 +141,10 @@ function PrizeList({ prizes }) {
       {prizes.map((p) => (
         <div key={p.id} className="d-flex justify-content-between align-items-center" style={{ fontSize: 13 }}>
           <span style={{ color: '#aaa' }}>
-            {POSITION_MEDAL[p.position] ?? `Hạng ${p.position}`} Hạng {p.position}
+            {POSITION_MEDAL[p.position] ? `${POSITION_MEDAL[p.position]} Hạng ${p.position}` : `Hạng ${p.position}`}
           </span>
           <span style={{ color: '#D4AF37', fontWeight: 700 }}>
-            ${(p.amount ?? 0).toLocaleString()}
+            {(p.amount ?? 0).toLocaleString('vi-VN')} VND
           </span>
         </div>
       ))}

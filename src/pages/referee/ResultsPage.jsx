@@ -223,13 +223,12 @@ export default function RefereeResultsPage() {
                           ) : (
                             <input
                               type="number"
-                              min={1}
                               value={inp.position ?? ''}
-                              onChange={(e) => setField(en.id, 'position', e.target.value)}
-                              placeholder="Hạng"
+                              readOnly
+                              placeholder=""
                               style={{
-                                width: '100%', background: '#0a0f1a', border: '1px solid #00c8ff44',
-                                color: '#fff', borderRadius: 6, padding: '5px 8px', fontSize: 14,
+                                width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid #00c8ff22',
+                                color: '#aaa', borderRadius: 6, padding: '5px 8px', fontSize: 14, cursor: 'not-allowed'
                               }}
                             />
                           )}
