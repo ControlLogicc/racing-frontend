@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'https://copyrights-hitting-appreciate-commitment.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'http://localhost:8080',
+        target: 'https://copyrights-hitting-appreciate-commitment.trycloudflare.com',
         changeOrigin: true,
         secure: false,
       },

@@ -252,7 +252,7 @@ export default function SpectatorRankingPage() {
   return (
     <div className="spectator-context">
       <div className="spec-hero">
-        <h2>BẢNG PHONG THẦN</h2>
+        <h2>BẢNG XẾP HẠNG</h2>
         <p>{subtitle.toUpperCase()}</p>
       </div>
 
