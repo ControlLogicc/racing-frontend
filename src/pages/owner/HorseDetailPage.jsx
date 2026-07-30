@@ -248,7 +248,7 @@ export default function HorseDetailPage() {
               {cls && <span className={`horse-class-badge ${cls.css}`}>{cls.label}</span>}
               {horse.ratingVerified === false && horse.registrationType === 'PREVIOUSLY_REGISTERED' && (
                 <span style={{ fontSize: '0.75rem', background: 'rgba(238,85,85,0.15)', color: '#ff6b6b', padding: '4px 8px', borderRadius: 6, fontWeight: 'bold' }}>
-                  Đang chờ duyệt điểm
+                  {horse.claimedScore != null ? 'Đang chờ duyệt điểm' : 'Bị từ chối điểm '}
                 </span>
               )}
             </div>

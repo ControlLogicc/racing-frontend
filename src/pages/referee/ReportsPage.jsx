@@ -249,7 +249,14 @@ export default function RefereeReportsPage() {
             <Form.Label className="cyber-form-label">Race</Form.Label>
             <Form.Select className="cyber-input" value={form.raceId} onChange={set('raceId')} required>
               <option value="">-- Chọn race --</option>
-              {races.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+              {races.map((r) => {
+                const isOfficial = String(r.status).toUpperCase() === 'OFFICIAL';
+                return (
+                  <option key={r.id} value={r.id} disabled={isOfficial}>
+                    {r.name} {isOfficial ? '(Đã chốt KQ)' : ''}
+                  </option>
+                );
+              })}
             </Form.Select>
           </Form.Group>
 
@@ -276,11 +283,12 @@ export default function RefereeReportsPage() {
 
           <Form.Group style={{ flex: 1, minWidth: 200 }}>
             <Form.Label className="cyber-form-label">Loại báo cáo</Form.Label>
-            <Form.Select className="cyber-input" value={form.reportType} onChange={set('reportType')}>
-              {REPORT_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
-              ))}
-            </Form.Select>
+            <Form.Control
+              className="cyber-input"
+              value={REPORT_TYPES[0].label}
+              readOnly
+              style={{ background: 'rgba(0, 0, 0, 0.2)', color: '#64748b' }}
+            />
           </Form.Group>
         </div>
 
@@ -298,17 +306,7 @@ export default function RefereeReportsPage() {
             />
           </Form.Group>
 
-          <Form.Group style={{ flex: 1, minWidth: 200 }}>
-            <Form.Label className="cyber-form-label text-warning">Hình phạt (Penalty)</Form.Label>
-            <Form.Control
-              className="cyber-input"
-              as="textarea"
-              rows={3}
-              value={form.penalty}
-              onChange={set('penalty')}
-              placeholder="Hình phạt..."
-            />
-          </Form.Group>
+
 
           <Form.Group style={{ flex: 1, minWidth: 200 }}>
             <Form.Label className="cyber-form-label text-info">Quyết định (Decision)</Form.Label>

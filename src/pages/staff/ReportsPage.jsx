@@ -36,7 +36,6 @@ export default function StaffReportsPage() {
   const [error, setError] = useState('');
   const [detailRow, setDetailRow] = useState(null);
   const [filterRace, setFilterRace] = useState('');
-  const [filterType, setFilterType] = useState('');
 
   const load = async () => {
     setLoading(true);
@@ -60,9 +59,8 @@ export default function StaffReportsPage() {
   const filtered = useMemo(() => {
     let rows = [...reports];
     if (filterRace) rows = rows.filter((r) => r.raceId === Number(filterRace));
-    if (filterType) rows = rows.filter((r) => r.reportType === filterType);
     return rows;
-  }, [reports, filterRace, filterType]);
+  }, [reports, filterRace]);
 
   const columns = [
     { key: 'raceName', label: 'Race' },
@@ -129,17 +127,6 @@ export default function StaffReportsPage() {
                 {races.map((r) => (
                   <option key={r.id} value={r.id}>{r.name}</option>
                 ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-          <Col md={3}>
-            <Form.Group>
-              <Form.Label style={{ color: '#D4AF37', fontSize: 13 }}>Loại</Form.Label>
-              <Form.Select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-                <option value="">Tất cả loại</option>
-                <option value="PRE_RACE">Trước đua</option>
-                <option value="VIOLATION">Vi phạm</option>
-                <option value="DECISION">Quyết định</option>
               </Form.Select>
             </Form.Group>
           </Col>
