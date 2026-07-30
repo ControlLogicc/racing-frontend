@@ -54,12 +54,12 @@ export default function AuthProvider({ children }) {
     setUser(userData);
   };
 
-  // EXCEPTION #6: redirect bằng window.location.href, KHÔNG useNavigate trong Context
+  // Đã bỏ redirect bằng window.location.href để tránh nháy trắng trang (flash of white).
+  // ProtectedRoute sẽ tự động bắt user = null và navigate về /login bằng react-router-dom.
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    window.location.href = '/login';
   };
 
   return (

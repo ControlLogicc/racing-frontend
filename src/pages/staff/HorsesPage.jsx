@@ -26,6 +26,15 @@ function ApproveModal({ horse, onClose, onConfirm, saving }) {
   const [approvedScore, setApprovedScore] = useState('');
   const [approvedClass, setApprovedClass] = useState('');
 
+  const scoreToClass = (score) => {
+    const s = Number(score);
+    if (s >= 80) return 1;
+    if (s >= 60) return 2;
+    if (s >= 40) return 3;
+    if (s >= 20) return 4;
+    return 5;
+  };
+
   if (!horse) return null;
 
   const handleSubmit = () => {
@@ -95,10 +104,18 @@ function ApproveModal({ horse, onClose, onConfirm, saving }) {
                 type="number"
                 step="0.01"
                 min="0"
-                max="100"
+                max="145"
                 placeholder={`Mặc định: ${horse.claimedScore ?? '?'}`}
                 value={approvedScore}
-                onChange={(e) => setApprovedScore(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setApprovedScore(val);
+                  if (val !== '') {
+                    setApprovedClass(scoreToClass(val));
+                  } else {
+                    setApprovedClass('');
+                  }
+                }}
                 style={{ background: '#1a1a2e', color: '#fff', border: '1px solid #3a3a5a' }}
               />
             </div>
@@ -171,7 +188,11 @@ export default function StaffHorsesPage() {
     setLoading(true);
     setError('');
     horseService.staffGetPending()
-      .then(setHorses)
+      .then((data) => {
+        // Lọc bỏ những ngựa đã bị từ chối (claimedScore === null)
+        const pendingOnly = data.filter(h => h.claimedScore != null);
+        setHorses(pendingOnly);
+      })
       .catch((err) => setError(getApiErrorMessage(err, 'Không tải được danh sách ngựa chờ duyệt.')))
       .finally(() => setLoading(false));
   };

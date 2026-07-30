@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://hundred-argument-currencies-signatures.trycloudflare.com',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'https://hundred-argument-currencies-signatures.trycloudflare.com',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
       },
